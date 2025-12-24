@@ -3,13 +3,25 @@
  * Main entry point for the application
  */
 
+import 'dotenv/config';
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import { validateEnv } from './config/env';
 import { getAppConfig } from './config/app';
 import { errorHandler, notFoundHandler, ApiError } from './middleware/errorHandler';
 import { logger } from './utils/logger';
 import routes from './routes';
+
+// Validate environment variables on startup
+try {
+  validateEnv();
+} catch (error) {
+  logger.error('Failed to start application', {
+    error: error instanceof Error ? error.message : String(error),
+  });
+  process.exit(1);
+}
 
 /**
  * Create and configure Express application
