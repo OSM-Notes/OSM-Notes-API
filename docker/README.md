@@ -1,46 +1,46 @@
 # Docker Configuration
 
-Este directorio contiene la configuración de Docker para OSM Notes API.
+This directory contains Docker configuration for OSM Notes API.
 
-## Archivos
+## Files
 
-- `Dockerfile` - Imagen de producción multi-stage
-- `docker-compose.yml` - Configuración principal con todos los servicios
-- `docker-compose.dev.yml` - Override para desarrollo
-- `prometheus/prometheus.yml` - Configuración de Prometheus
+- `Dockerfile` - Multi-stage production image
+- `docker-compose.yml` - Main configuration with all services
+- `docker-compose.dev.yml` - Development override
+- `prometheus/prometheus.yml` - Prometheus configuration
 
-## Uso
+## Usage
 
-### Desarrollo Local
+### Local Development
 
 ```bash
-# Levantar todos los servicios
+# Start all services
 docker-compose -f docker/docker-compose.yml up -d
 
-# Ver logs
+# View logs
 docker-compose -f docker/docker-compose.yml logs -f api
 
-# Detener servicios
+# Stop services
 docker-compose -f docker/docker-compose.yml down
 
-# Reconstruir imagen
+# Rebuild image
 docker-compose -f docker/docker-compose.yml build --no-cache api
 ```
 
-### Desarrollo con Hot Reload
+### Development with Hot Reload
 
 ```bash
-# Usar override de desarrollo
+# Use development override
 docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up
 ```
 
-### Producción
+### Production
 
 ```bash
-# Build de producción
+# Production build
 docker build -f docker/Dockerfile -t osm-notes-api:latest .
 
-# Ejecutar contenedor
+# Run container
 docker run -d \
   --name osm-notes-api \
   -p 3000:3000 \
@@ -48,54 +48,54 @@ docker run -d \
   osm-notes-api:latest
 ```
 
-### Con Monitoreo (Prometheus + Grafana)
+### With Monitoring (Prometheus + Grafana)
 
 ```bash
-# Levantar con perfil de monitoreo
+# Start with monitoring profile
 docker-compose -f docker/docker-compose.yml --profile monitoring up -d
 
-# Acceder a:
+# Access:
 # - API: http://localhost:3000
 # - Prometheus: http://localhost:9090
 # - Grafana: http://localhost:3001 (admin/admin)
 ```
 
-## Servicios
+## Services
 
 ### API
-- Puerto: 3000
+- Port: 3000
 - Health check: `/health`
-- Documentación: `/docs`
+- Documentation: `/docs`
 
 ### PostgreSQL
-- Puerto: 5432
-- Base de datos: `osm_notes_dwh`
-- Usuario: `analytics_user`
-- Volumen persistente: `postgres_data`
+- Port: 5432
+- Database: `osm_notes_dwh`
+- User: `analytics_user`
+- Persistent volume: `postgres_data`
 
 ### Redis
-- Puerto: 6379
-- Volumen persistente: `redis_data`
-- Password: Configurado en `.env`
+- Port: 6379
+- Persistent volume: `redis_data`
+- Password: Configured in `.env`
 
-### Prometheus (Opcional)
-- Puerto: 9090
-- Perfil: `monitoring`
-- Volumen persistente: `prometheus_data`
+### Prometheus (Optional)
+- Port: 9090
+- Profile: `monitoring`
+- Persistent volume: `prometheus_data`
 
-### Grafana (Opcional)
-- Puerto: 3001
-- Perfil: `monitoring`
-- Usuario: `admin`
-- Password: Configurado en `.env` (GRAFANA_PASSWORD)
-- Volumen persistente: `grafana_data`
+### Grafana (Optional)
+- Port: 3001
+- Profile: `monitoring`
+- User: `admin`
+- Password: Configured in `.env` (GRAFANA_PASSWORD)
+- Persistent volume: `grafana_data`
 
-## Variables de Entorno
+## Environment Variables
 
-Copia `.env.example` a `.env` y configura:
+Copy `.env.example` to `.env` and configure:
 
 ```bash
-# Base de datos
+# Database
 DB_NAME=osm_notes_dwh
 DB_USER=analytics_user
 DB_PASSWORD=your_password
@@ -103,29 +103,28 @@ DB_PASSWORD=your_password
 # Redis
 REDIS_PASSWORD=your_redis_password
 
-# Grafana (opcional)
+# Grafana (optional)
 GRAFANA_PASSWORD=admin
 ```
 
 ## Troubleshooting
 
-### Ver logs de un servicio
+### View service logs
 ```bash
 docker-compose -f docker/docker-compose.yml logs -f <service_name>
 ```
 
-### Ejecutar comandos en contenedor
+### Execute commands in container
 ```bash
 docker-compose -f docker/docker-compose.yml exec api sh
 ```
 
-### Limpiar volúmenes
+### Clean volumes
 ```bash
 docker-compose -f docker/docker-compose.yml down -v
 ```
 
-### Reconstruir sin cache
+### Rebuild without cache
 ```bash
 docker-compose -f docker/docker-compose.yml build --no-cache
 ```
-

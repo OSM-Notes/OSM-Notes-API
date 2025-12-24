@@ -2,153 +2,153 @@
 
 REST API for OSM Notes Analytics and Ingestion. Unified programmatic access to user profiles, country analytics, advanced search capabilities, rankings, comparisons, and real-time metrics. Extends OSM API 0.6 with specialized analytics features.
 
-## 📋 Descripción
+## 📋 Description
 
-OSM Notes API proporciona acceso programático a los datos de análisis de notas de OpenStreetMap, incluyendo:
+OSM Notes API provides programmatic access to OpenStreetMap notes analytics data, including:
 
-- **Perfiles de usuarios**: Estadísticas detalladas de contribuidores
-- **Análisis por países**: Métricas agregadas por país
-- **Búsqueda avanzada**: Filtros complejos y consultas dinámicas
-- **Rankings**: Clasificaciones de usuarios y países
-- **Comparaciones**: Análisis comparativo entre entidades
-- **Tendencias**: Análisis temporal de datos
-- **Notas y comentarios**: Acceso a notas OSM y sus comentarios
+- **User Profiles**: Detailed statistics of contributors
+- **Country Analytics**: Aggregated metrics by country
+- **Advanced Search**: Complex filters and dynamic queries
+- **Rankings**: User and country classifications
+- **Comparisons**: Comparative analysis between entities
+- **Trends**: Temporal data analysis
+- **Notes and Comments**: Access to OSM notes and their comments
 
-## ⚠️ Nota Importante
+## ⚠️ Important Note
 
-**Esta API es COMPLEMENTARIA al sistema JSON estático, NO un reemplazo.**
+**This API is COMPLEMENTARY to the static JSON system, NOT a replacement.**
 
-- ✅ **Sistema JSON se mantiene**: El Viewer y otros consumidores siguen usando JSON estáticos
-- ✅ **API es adicional**: Para casos de uso que requieren consultas dinámicas o integraciones
-- ✅ **Ambos coexisten**: Cada sistema se usa según el caso de uso específico
+- ✅ **JSON system maintained**: The Viewer and other consumers continue using static JSON files
+- ✅ **API is additional**: For use cases requiring dynamic queries or integrations
+- ✅ **Both coexist**: Each system is used according to the specific use case
 
-## 🚀 Inicio Rápido
+## 🚀 Quick Start
 
-### Requisitos Previos
+### Prerequisites
 
 - Node.js >= 18.0.0
 - npm >= 9.0.0
-- PostgreSQL 15+ (con acceso a `osm_notes_dwh`)
-- Redis 7+ (opcional pero recomendado)
+- PostgreSQL 15+ (with access to `osm_notes_dwh`)
+- Redis 7+ (optional but recommended)
 
-### Instalación
+### Installation
 
 ```bash
-# Clonar repositorio
+# Clone repository
 git clone https://github.com/osmlatam/OSM-Notes-API.git
 cd OSM-Notes-API
 
-# Instalar dependencias
+# Install dependencies
 npm install
 
-# Configurar variables de entorno
+# Configure environment variables
 cp .env.example .env
-# Editar .env con tus configuraciones
+# Edit .env with your configurations
 
-# Compilar TypeScript
+# Build TypeScript
 npm run build
 
-# Iniciar aplicación
+# Start application
 npm start
 ```
 
-### Con Docker
+### With Docker
 
 ```bash
-# Levantar servicios
+# Start services
 docker-compose -f docker/docker-compose.yml up -d
 
-# Ver logs
+# View logs
 docker-compose -f docker/docker-compose.yml logs -f api
 ```
 
-Ver [docs/INSTALLATION.md](docs/INSTALLATION.md) para instrucciones detalladas.
+See [docs/INSTALLATION.md](docs/INSTALLATION.md) for detailed instructions.
 
-## 📚 Documentación
+## 📚 Documentation
 
-- [Instalación](docs/INSTALLATION.md) - Guía completa de instalación
-- [Uso](docs/USAGE.md) - Manual de uso de la API
-- [API Reference](docs/api/) - Documentación OpenAPI/Swagger
-- [Contribuir](CONTRIBUTING.md) - Guía para contribuidores
-- [Changelog](CHANGELOG.md) - Historial de cambios
+- [Installation](docs/INSTALLATION.md) - Complete installation guide
+- [Usage](docs/USAGE.md) - API usage manual
+- [API Reference](docs/api/) - OpenAPI/Swagger documentation
+- [Contributing](CONTRIBUTING.md) - Contributor guide
+- [Changelog](CHANGELOG.md) - Change history
 
-## 🏗️ Estructura del Proyecto
+## 🏗️ Project Structure
 
 ```
 OSM-Notes-API/
-├── src/                    # Código fuente
-│   ├── config/            # Configuración
-│   ├── routes/            # Rutas de API
-│   ├── controllers/       # Controladores
-│   ├── services/          # Lógica de negocio
-│   ├── middleware/        # Middleware personalizado
-│   ├── utils/             # Utilidades
-│   └── types/             # Tipos TypeScript
+├── src/                    # Source code
+│   ├── config/            # Configuration
+│   ├── routes/            # API routes
+│   ├── controllers/       # Controllers
+│   ├── services/          # Business logic
+│   ├── middleware/        # Custom middleware
+│   ├── utils/             # Utilities
+│   └── types/             # TypeScript types
 ├── tests/                  # Tests
-│   ├── unit/              # Tests unitarios
-│   ├── integration/       # Tests de integración
-│   └── load/              # Tests de carga
-├── docs/                   # Documentación
-│   ├── INSTALLATION.md    # Manual de instalación
-│   ├── USAGE.md           # Manual de uso
-│   └── api/               # Documentación OpenAPI
-├── docker/                 # Configuración Docker
-└── package.json           # Dependencias y scripts
+│   ├── unit/              # Unit tests
+│   ├── integration/       # Integration tests
+│   └── load/              # Load tests
+├── docs/                   # Documentation
+│   ├── INSTALLATION.md    # Installation manual
+│   ├── USAGE.md           # Usage manual
+│   └── api/               # OpenAPI documentation
+├── docker/                 # Docker configuration
+└── package.json           # Dependencies and scripts
 ```
 
-## 🛠️ Scripts Disponibles
+## 🛠️ Available Scripts
 
 ```bash
-npm run build          # Compilar TypeScript
-npm start              # Ejecutar aplicación compilada
-npm run dev            # Desarrollo con hot reload
-npm test               # Ejecutar tests
-npm run test:unit      # Solo tests unitarios
-npm run test:coverage  # Tests con cobertura
-npm run lint           # Ejecutar ESLint
-npm run format         # Formatear código con Prettier
-npm run type-check     # Verificar tipos TypeScript
+npm run build          # Build TypeScript
+npm start              # Run compiled application
+npm run dev            # Development with hot reload
+npm test               # Run tests
+npm run test:unit      # Unit tests only
+npm run test:coverage  # Tests with coverage
+npm run lint           # Run ESLint
+npm run format         # Format code with Prettier
+npm run type-check     # Verify TypeScript types
 ```
 
-## 🔒 Seguridad
+## 🔒 Security
 
-- **User-Agent requerido**: Todos los requests deben incluir un User-Agent válido con formato `AppName/Version (Contact)`
-- **Rate Limiting**: 50 requests/15min para usuarios anónimos
-- **Protección anti-abuso**: Bloqueo automático de AIs y bots conocidos
-- **OAuth opcional**: Disponible para funcionalidades avanzadas (Fase 5)
+- **User-Agent required**: All requests must include a valid User-Agent with format `AppName/Version (Contact)`
+- **Rate Limiting**: 50 requests/15min for anonymous users
+- **Anti-abuse protection**: Automatic blocking of known AIs and bots
+- **Optional OAuth**: Available for advanced features (Phase 5)
 
-Ver [docs/USAGE.md](docs/USAGE.md) para más detalles sobre seguridad.
+See [docs/USAGE.md](docs/USAGE.md) for more security details.
 
-## 📊 Estado del Proyecto
+## 📊 Project Status
 
-**Versión**: 0.1.0 (MVP en desarrollo)
+**Version**: 0.1.0 (MVP in development)
 
-**Fases de Implementación**:
-- ✅ Fase 1: MVP (en progreso)
-- ⏳ Fase 2: Funcionalidades Básicas
-- ⏳ Fase 3: Funcionalidades Avanzadas
-- ⏳ Fase 4: Producción
-- ⏳ Fase 5: Webhooks y Notificaciones
+**Implementation Phases**:
+- ✅ Phase 1: MVP (in progress)
+- ⏳ Phase 2: Basic Features
+- ⏳ Phase 3: Advanced Features
+- ⏳ Phase 4: Production
+- ⏳ Phase 5: Webhooks and Notifications
 
-## 🤝 Contribuir
+## 🤝 Contributing
 
-Las contribuciones son bienvenidas. Por favor lee [CONTRIBUTING.md](CONTRIBUTING.md) para detalles sobre nuestro código de conducta y proceso de pull requests.
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and pull request process.
 
-## 📝 Licencia
+## 📝 License
 
-Este proyecto está licenciado bajo la Licencia MIT - ver [LICENSE](LICENSE) para más detalles.
+This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
 
-## 🔗 Enlaces Relacionados
+## 🔗 Related Links
 
 - [OSM-Notes-Ingestion](https://github.com/osmlatam/OSM-Notes-Ingestion)
 - [OSM-Notes-Analytics](https://github.com/osmlatam/OSM-Notes-Analytics)
 - [OSM-Notes-Viewer](https://github.com/osmlatam/OSM-Notes-Viewer)
 - [OpenStreetMap](https://www.openstreetmap.org/)
 
-## 📧 Contacto
+## 📧 Contact
 
-Para preguntas o soporte, por favor abre un issue en GitHub.
+For questions or support, please open an issue on GitHub.
 
 ---
 
-**Nota**: Este proyecto es parte del ecosistema OSM Notes y está diseñado para trabajar junto con los otros proyectos del ecosistema.
+**Note**: This project is part of the OSM Notes ecosystem and is designed to work together with the other projects in the ecosystem.

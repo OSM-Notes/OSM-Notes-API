@@ -1,57 +1,57 @@
-# Manual de Uso
+# Usage Manual
 
-Guía para usar OSM Notes API.
+Guide for using OSM Notes API.
 
-## Autenticación
+## Authentication
 
-### User-Agent Requerido
+### User-Agent Required
 
-**Todos los requests DEBEN incluir un header `User-Agent` con formato específico:**
+**All requests MUST include a `User-Agent` header with specific format:**
 
 ```
 User-Agent: <AppName>/<Version> (<Contact>)
 ```
 
-**Componentes**:
-- `<AppName>`: Nombre de la aplicación (letras, números, guiones, puntos)
-- `<Version>`: Versión de la aplicación
-- `<Contact>`: **REQUERIDO** - Email o URL del proyecto
+**Components**:
+- `<AppName>`: Application name (letters, numbers, hyphens, dots)
+- `<Version>`: Application version
+- `<Contact>`: **REQUIRED** - Email or project URL
 
-**Ejemplos Válidos**:
+**Valid Examples**:
 ```
 User-Agent: MyOSMApp/1.0 (contact@example.com)
 User-Agent: Terranote/1.0 (https://github.com/Terranote/terranote-core)
 User-Agent: ResearchTool/0.5 (researcher@university.edu)
 ```
 
-**Ejemplos Inválidos**:
+**Invalid Examples**:
 ```
-User-Agent: MyApp/1.0                    # ❌ Falta contacto
-User-Agent: MyApp                        # ❌ Falta versión y contacto
-User-Agent: MyApp/1.0 (invalid)         # ❌ Contacto no válido
+User-Agent: MyApp/1.0                    # ❌ Missing contact
+User-Agent: MyApp                        # ❌ Missing version and contact
+User-Agent: MyApp/1.0 (invalid)         # ❌ Invalid contact
 ```
 
 ### Rate Limiting
 
-- **Anónimo**: 50 requests/15min por IP + User-Agent
-- **Autenticado**: 1000 requests/hora (cuando OAuth esté disponible en Fase 5)
-- **Bots detectados**: 10 requests/hora
+- **Anonymous**: 50 requests/15min per IP + User-Agent
+- **Authenticated**: 1000 requests/hour (when OAuth is available in Phase 5)
+- **Detected bots**: 10 requests/hour
 
-Los headers de respuesta incluyen información de rate limiting:
+Response headers include rate limiting information:
 ```
 X-RateLimit-Limit: 50
 X-RateLimit-Remaining: 49
 X-RateLimit-Reset: 1234567890
 ```
 
-### Protección Anti-Abuso
+### Anti-Abuse Protection
 
-La API detecta y bloquea automáticamente:
+The API automatically detects and blocks:
 
-- **AIs conocidas**: Requieren OAuth (GPT, Claude, ChatGPT, etc.)
-- **Bots conocidos**: Rate limiting muy restrictivo (curl, python-requests, etc.)
+- **Known AIs**: Require OAuth (GPT, Claude, ChatGPT, etc.)
+- **Known bots**: Very restrictive rate limiting (curl, python-requests, etc.)
 
-## Endpoints Disponibles
+## Available Endpoints
 
 ### Base URL
 
@@ -65,15 +65,15 @@ http://localhost:3000/api/v1
 GET /health
 ```
 
-Verifica el estado de la API y sus dependencias.
+Verifies the status of the API and its dependencies.
 
-**Ejemplo**:
+**Example**:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      http://localhost:3000/health
 ```
 
-**Respuesta**:
+**Response**:
 ```json
 {
   "status": "ok",
@@ -83,41 +83,41 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 }
 ```
 
-## Ejemplos de Uso
+## Usage Examples
 
-### Obtener Perfil de Usuario
+### Get User Profile
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      http://localhost:3000/api/v1/users/12345
 ```
 
-### Obtener Perfil de País
+### Get Country Profile
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      http://localhost:3000/api/v1/countries/CO
 ```
 
-### Búsqueda de Notas
+### Search Notes
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      "http://localhost:3000/api/v1/notes?status=open&limit=10"
 ```
 
-## Manejo de Errores
+## Error Handling
 
-### Códigos de Estado HTTP
+### HTTP Status Codes
 
-- `200 OK`: Request exitoso
-- `400 Bad Request`: Request inválido (User-Agent faltante, parámetros inválidos)
-- `403 Forbidden`: Acceso denegado (AI sin OAuth, bot bloqueado)
-- `404 Not Found`: Recurso no encontrado
-- `429 Too Many Requests`: Rate limit excedido
-- `500 Internal Server Error`: Error del servidor
+- `200 OK`: Successful request
+- `400 Bad Request`: Invalid request (missing User-Agent, invalid parameters)
+- `403 Forbidden`: Access denied (AI without OAuth, blocked bot)
+- `404 Not Found`: Resource not found
+- `429 Too Many Requests`: Rate limit exceeded
+- `500 Internal Server Error`: Server error
 
-### Formato de Errores
+### Error Format
 
 ```json
 {
@@ -129,7 +129,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 }
 ```
 
-**Ejemplo**:
+**Example**:
 ```json
 {
   "error": "Invalid User-Agent",
@@ -141,26 +141,26 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 }
 ```
 
-## Mejores Prácticas
+## Best Practices
 
-### 1. Siempre incluye User-Agent
+### 1. Always Include User-Agent
 
 ```bash
-# ✅ Correcto
+# ✅ Correct
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      http://localhost:3000/api/v1/users/12345
 
-# ❌ Incorrecto
+# ❌ Incorrect
 curl http://localhost:3000/api/v1/users/12345
 ```
 
-### 2. Respeta Rate Limits
+### 2. Respect Rate Limits
 
-- Implementa retry con backoff exponencial
-- Respeta los headers `X-RateLimit-*`
-- Usa `X-RateLimit-Reset` para saber cuándo reintentar
+- Implement retry with exponential backoff
+- Respect `X-RateLimit-*` headers
+- Use `X-RateLimit-Reset` to know when to retry
 
-### 3. Maneja Errores Apropiadamente
+### 3. Handle Errors Appropriately
 
 ```javascript
 try {
@@ -170,40 +170,39 @@ try {
   
   if (response.status === 429) {
     const resetTime = response.headers.get('X-RateLimit-Reset');
-    // Esperar hasta resetTime
+    // Wait until resetTime
   }
   
   const data = await response.json();
 } catch (error) {
-  // Manejar error
+  // Handle error
 }
 ```
 
-### 4. Usa Paginación
+### 4. Use Pagination
 
-Para endpoints que retornan listas, usa paginación:
+For endpoints that return lists, use pagination:
 
 ```bash
 GET /api/v1/users?limit=50&offset=0
 ```
 
-### 5. Cachea Respuestas
+### 5. Cache Responses
 
-Las respuestas incluyen headers de cache cuando aplica. Respeta `Cache-Control` y `ETag`.
+Responses include cache headers when applicable. Respect `Cache-Control` and `ETag`.
 
-## Documentación Completa
+## Complete Documentation
 
-Para documentación completa de todos los endpoints:
+For complete documentation of all endpoints:
 
-- **Swagger UI**: `http://localhost:3000/docs` (cuando esté disponible)
-- **OpenAPI Spec**: `http://localhost:3000/api-docs.json` (cuando esté disponible)
-- **Documentación**: Ver [docs/api/](api/) para especificaciones completas
+- **Swagger UI**: `http://localhost:3000/docs` (when available)
+- **OpenAPI Spec**: `http://localhost:3000/api-docs.json` (when available)
+- **Documentation**: See [docs/api/](api/) for complete specifications
 
-## Soporte
+## Support
 
-Si tienes preguntas sobre el uso de la API:
+If you have questions about using the API:
 
-1. Revisa la documentación completa
-2. Verifica los ejemplos en este manual
-3. Abre un issue en GitHub si encuentras problemas
-
+1. Review the complete documentation
+2. Check the examples in this manual
+3. Open an issue on GitHub if you encounter problems

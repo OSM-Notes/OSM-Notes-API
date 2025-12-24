@@ -1,63 +1,63 @@
-# Manual de Instalación
+# Installation Manual
 
-Guía completa para instalar y configurar OSM Notes API.
+Complete guide to install and configure OSM Notes API.
 
-## Requisitos Previos
+## Prerequisites
 
-### Software Requerido
+### Required Software
 
 - **Node.js**: >= 18.0.0
-- **npm**: >= 9.0.0 (o yarn/pnpm equivalente)
+- **npm**: >= 9.0.0 (or equivalent yarn/pnpm)
 - **PostgreSQL**: >= 15.0
-- **Redis**: >= 7.0 (opcional pero recomendado)
+- **Redis**: >= 7.0 (optional but recommended)
 
-### Acceso a Base de Datos
+### Database Access
 
-La API requiere acceso a la base de datos de Analytics:
-- **Base de datos**: `osm_notes_dwh`
+The API requires access to the Analytics database:
+- **Database**: `osm_notes_dwh`
 - **Schema**: `dwh` (datamarts)
-- **Usuario**: Con permisos de lectura en schema `dwh`
-- **Foreign Data Wrappers**: Si las bases de datos están separadas, los FDW deben estar configurados
+- **User**: With read permissions on `dwh` schema
+- **Foreign Data Wrappers**: If databases are separate, FDWs must be configured
 
-### Infraestructura
+### Infrastructure
 
-- **Servidor**: Recomendado 2-4 CPU cores, 4GB RAM mínimo
-- **Red**: Baja latencia a PostgreSQL (< 5ms ideal)
+- **Server**: Recommended 2-4 CPU cores, 4GB RAM minimum
+- **Network**: Low latency to PostgreSQL (< 5ms ideal)
 
-## Instalación Local
+## Local Installation
 
-### 1. Clonar Repositorio
+### 1. Clone Repository
 
 ```bash
 git clone https://github.com/osmlatam/OSM-Notes-API.git
 cd OSM-Notes-API
 ```
 
-### 2. Instalar Dependencias
+### 2. Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 3. Configurar Variables de Entorno
+### 3. Configure Environment Variables
 
 ```bash
 cp .env.example .env
 ```
 
-Editar `.env` con tus configuraciones:
+Edit `.env` with your configurations:
 
 ```env
-# Servidor
+# Server
 NODE_ENV=development
 PORT=3000
 
-# Base de datos
+# Database
 DB_HOST=192.168.0.7
 DB_PORT=5432
 DB_NAME=osm_notes_dwh
 DB_USER=analytics_user
-DB_PASSWORD=tu_password_aqui
+DB_PASSWORD=your_password_here
 
 # Redis
 REDIS_HOST=192.168.0.7
@@ -68,58 +68,58 @@ REDIS_PASSWORD=
 LOG_LEVEL=info
 ```
 
-### 4. Compilar TypeScript
+### 4. Build TypeScript
 
 ```bash
 npm run build
 ```
 
-### 5. Verificar Instalación
+### 5. Verify Installation
 
 ```bash
-# Verificar tipos
+# Verify types
 npm run type-check
 
-# Ejecutar tests
+# Run tests
 npm test
 
-# Verificar formato
+# Verify formatting
 npm run format:check
 ```
 
-### 6. Iniciar Aplicación
+### 6. Start Application
 
 ```bash
-# Producción
+# Production
 npm start
 
-# Desarrollo (con hot reload)
+# Development (with hot reload)
 npm run dev
 ```
 
-La API estará disponible en `http://localhost:3000`
+The API will be available at `http://localhost:3000`
 
-## Instalación con Docker
+## Docker Installation
 
-### Requisitos
+### Requirements
 
 - Docker >= 20.10
 - Docker Compose >= 2.0
 
-### Pasos
+### Steps
 
-1. **Configurar variables de entorno**:
+1. **Configure environment variables**:
    ```bash
    cp .env.example .env
-   # Editar .env
+   # Edit .env
    ```
 
-2. **Levantar servicios**:
+2. **Start services**:
    ```bash
    docker-compose -f docker/docker-compose.yml up -d
    ```
 
-3. **Verificar que todo esté funcionando**:
+3. **Verify everything is running**:
    ```bash
    docker-compose -f docker/docker-compose.yml ps
    docker-compose -f docker/docker-compose.yml logs api
@@ -130,9 +130,9 @@ La API estará disponible en `http://localhost:3000`
    curl http://localhost:3000/health
    ```
 
-Ver [docker/README.md](../docker/README.md) para más detalles sobre Docker.
+See [docker/README.md](../docker/README.md) for more Docker details.
 
-## Verificación de Instalación
+## Installation Verification
 
 ### Health Check
 
@@ -140,7 +140,7 @@ Ver [docker/README.md](../docker/README.md) para más detalles sobre Docker.
 curl http://localhost:3000/health
 ```
 
-Respuesta esperada:
+Expected response:
 ```json
 {
   "status": "ok",
@@ -150,113 +150,112 @@ Respuesta esperada:
 }
 ```
 
-### Test de Conexión a Base de Datos
+### Database Connection Test
 
 ```bash
-# Desde el contenedor o servidor
+# From container or server
 psql -h $DB_HOST -U $DB_USER -d $DB_NAME -c "SELECT COUNT(*) FROM dwh.datamartUsers LIMIT 1;"
 ```
 
-### Test de Conexión a Redis
+### Redis Connection Test
 
 ```bash
 redis-cli -h $REDIS_HOST -p $REDIS_PORT ping
 ```
 
-## Configuración Avanzada
+## Advanced Configuration
 
-### Variables de Entorno Completas
+### Complete Environment Variables
 
-Ver `.env.example` para todas las variables disponibles:
+See `.env.example` for all available variables:
 
-- **Servidor**: PORT, NODE_ENV, API_VERSION
-- **Base de datos**: DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, DB_SSL
+- **Server**: PORT, NODE_ENV, API_VERSION
+- **Database**: DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, DB_SSL
 - **Redis**: REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, REDIS_DB
 - **Rate Limiting**: RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS
 - **OAuth**: OAUTH_ENABLED, OSM_OAUTH_CLIENT_ID, OSM_OAUTH_CLIENT_SECRET
 - **Logging**: LOG_LEVEL, LOG_FORMAT
-- **Métricas**: METRICS_ENABLED, METRICS_PORT
-- **Documentación**: API_DOCS_ENABLED, API_DOCS_PATH
+- **Metrics**: METRICS_ENABLED, METRICS_PORT
+- **Documentation**: API_DOCS_ENABLED, API_DOCS_PATH
 
-### Configuración de Base de Datos Externa
+### External Database Configuration
 
-Si la base de datos está en un servidor remoto:
+If the database is on a remote server:
 
-1. Asegúrate de que PostgreSQL permita conexiones remotas
-2. Configura firewall para permitir conexiones desde el servidor de la API
-3. Usa SSL si es posible:
+1. Ensure PostgreSQL allows remote connections
+2. Configure firewall to allow connections from API server
+3. Use SSL if possible:
    ```env
    DB_SSL=true
    ```
 
-### Configuración de Redis Externa
+### External Redis Configuration
 
-Si Redis está en un servidor remoto:
+If Redis is on a remote server:
 
-1. Configura Redis para aceptar conexiones remotas
-2. Configura password si es necesario:
+1. Configure Redis to accept remote connections
+2. Configure password if necessary:
    ```env
-   REDIS_PASSWORD=tu_password_seguro
+   REDIS_PASSWORD=your_secure_password
    ```
 
 ## Troubleshooting
 
-### Error de Conexión a Base de Datos
+### Database Connection Error
 
 ```bash
-# Verificar que PostgreSQL esté corriendo
+# Verify PostgreSQL is running
 systemctl status postgresql
 
-# Verificar conexión
+# Verify connection
 psql -h $DB_HOST -U $DB_USER -d $DB_NAME
 
-# Verificar permisos del usuario
+# Verify user permissions
 psql -h $DB_HOST -U $DB_USER -d $DB_NAME -c "\du"
 ```
 
-### Error de Conexión a Redis
+### Redis Connection Error
 
 ```bash
-# Verificar que Redis esté corriendo
+# Verify Redis is running
 redis-cli ping
 
-# Verificar configuración
+# Verify configuration
 redis-cli CONFIG GET requirepass
 ```
 
-### Puerto ya en Uso
+### Port Already in Use
 
 ```bash
-# Ver qué proceso usa el puerto 3000
+# See what process is using port 3000
 lsof -i :3000
 
-# Cambiar puerto en .env
+# Change port in .env
 PORT=3001
 ```
 
-### Problemas de Permisos
+### Permission Issues
 
 ```bash
-# Verificar permisos de archivos
+# Verify file permissions
 ls -la
 
-# Ajustar si es necesario
+# Adjust if necessary
 chmod +x scripts/*
 ```
 
-## Próximos Pasos
+## Next Steps
 
-Una vez instalado:
+Once installed:
 
-1. Lee [docs/USAGE.md](USAGE.md) para aprender a usar la API
-2. Revisa [docs/api/](api/) para la documentación completa de endpoints
-3. Consulta [CONTRIBUTING.md](../CONTRIBUTING.md) si quieres contribuir
+1. Read [docs/USAGE.md](USAGE.md) to learn how to use the API
+2. Review [docs/api/](api/) for complete endpoint documentation
+3. Check [CONTRIBUTING.md](../CONTRIBUTING.md) if you want to contribute
 
-## Soporte
+## Support
 
-Si encuentras problemas durante la instalación:
+If you encounter problems during installation:
 
-1. Revisa los logs: `npm run dev` o `docker-compose logs`
-2. Verifica que todos los requisitos estén cumplidos
-3. Abre un issue en GitHub con detalles del problema
-
+1. Review logs: `npm run dev` or `docker-compose logs`
+2. Verify all requirements are met
+3. Open an issue on GitHub with problem details

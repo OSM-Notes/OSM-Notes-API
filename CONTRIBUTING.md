@@ -1,139 +1,138 @@
-# Guía de Contribución
+# Contributing Guide
 
-Gracias por tu interés en contribuir a OSM Notes API. Este documento proporciona guías y estándares para contribuir al proyecto.
+Thank you for your interest in contributing to OSM Notes API. This document provides guidelines and standards for contributing to the project.
 
-## Código de Conducta
+## Code of Conduct
 
-Este proyecto adhiere a un Código de Conducta. Al participar, se espera que mantengas este código. Por favor reporta comportamientos inaceptables a los mantenedores del proyecto.
+This project adheres to a Code of Conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to the project maintainers.
 
-## ¿Cómo puedo contribuir?
+## How Can I Contribute?
 
-### Reportar Bugs
+### Reporting Bugs
 
-Si encuentras un bug:
+If you find a bug:
 
-1. Verifica que no haya sido reportado ya en los [Issues](https://github.com/osmlatam/OSM-Notes-API/issues)
-2. Si no existe, crea un nuevo issue con:
-   - Descripción clara del problema
-   - Pasos para reproducir
-   - Comportamiento esperado vs actual
-   - Versión de Node.js y sistema operativo
-   - Logs relevantes si aplica
+1. Check that it hasn't already been reported in [Issues](https://github.com/osmlatam/OSM-Notes-API/issues)
+2. If not, create a new issue with:
+   - Clear description of the problem
+   - Steps to reproduce
+   - Expected vs actual behavior
+   - Node.js version and operating system
+   - Relevant logs if applicable
 
-### Sugerir Mejoras
+### Suggesting Enhancements
 
-Para sugerir nuevas funcionalidades:
+To suggest new features:
 
-1. Verifica que no haya sido sugerida ya
-2. Crea un issue con:
-   - Descripción clara de la funcionalidad
-   - Caso de uso y justificación
-   - Ejemplos de cómo se usaría
+1. Check that it hasn't already been suggested
+2. Create an issue with:
+   - Clear description of the feature
+   - Use case and justification
+   - Examples of how it would be used
 
-### Contribuir Código
+### Contributing Code
 
-#### Proceso de Desarrollo
+#### Development Process
 
-1. **Fork** el repositorio
-2. **Crea una rama** desde `main`:
+1. **Fork** the repository
+2. **Create a branch** from `main`:
    ```bash
-   git checkout -b feature/nombre-de-tu-feature
+   git checkout -b feature/your-feature-name
    ```
-3. **Desarrolla** tu cambio siguiendo los estándares del proyecto
-4. **Escribe tests** para tu código (TDD preferido)
-5. **Asegúrate** que todos los tests pasen:
+3. **Develop** your change following project standards
+4. **Write tests** for your code (TDD preferred)
+5. **Ensure** all tests pass:
    ```bash
    npm test
    npm run lint
    npm run type-check
    ```
-6. **Commit** tus cambios usando [Conventional Commits](https://www.conventionalcommits.org/):
+6. **Commit** your changes using [Conventional Commits](https://www.conventionalcommits.org/):
    ```bash
-   git commit -m "feat: agregar nueva funcionalidad X"
+   git commit -m "feat: add new feature X"
    ```
-7. **Push** a tu fork:
+7. **Push** to your fork:
    ```bash
-   git push origin feature/nombre-de-tu-feature
+   git push origin feature/your-feature-name
    ```
-8. **Abre un Pull Request** con descripción clara
+8. **Open a Pull Request** with clear description
 
-#### Estándares de Código
+#### Code Standards
 
-- **TypeScript**: Usa TypeScript con strict mode
-- **ESLint**: El código debe pasar `npm run lint` sin errores
-- **Prettier**: El código debe estar formateado (`npm run format`)
-- **Tests**: Nuevo código debe incluir tests (cobertura mínima 80%)
-- **Documentación**: Documenta funciones públicas con JSDoc
+- **TypeScript**: Use TypeScript with strict mode
+- **ESLint**: Code must pass `npm run lint` without errors
+- **Prettier**: Code must be formatted (`npm run format`)
+- **Tests**: New code must include tests (minimum 80% coverage)
+- **Documentation**: Document public functions with JSDoc
 
-#### Convenciones de Commits
+#### Commit Conventions
 
-Usa [Conventional Commits](https://www.conventionalcommits.org/):
+Use [Conventional Commits](https://www.conventionalcommits.org/):
 
-- `feat:` Nueva funcionalidad
-- `fix:` Corrección de bug
-- `docs:` Cambios en documentación
-- `style:` Formato, punto y coma, etc. (sin cambios de código)
-- `refactor:` Refactorización de código
-- `test:` Agregar o modificar tests
-- `chore:` Cambios en build, dependencias, etc.
+- `feat:` New feature
+- `fix:` Bug fix
+- `docs:` Documentation changes
+- `style:` Formatting, semicolons, etc. (no code changes)
+- `refactor:` Code refactoring
+- `test:` Add or modify tests
+- `chore:` Build changes, dependencies, etc.
 
-Ejemplos:
+Examples:
 ```bash
-git commit -m "feat: agregar endpoint de búsqueda de usuarios"
-git commit -m "fix: corregir validación de User-Agent"
-git commit -m "docs: actualizar README con ejemplos"
+git commit -m "feat: add user search endpoint"
+git commit -m "fix: correct User-Agent validation"
+git commit -m "docs: update README with examples"
 ```
 
-#### Estructura de Pull Requests
+#### Pull Request Structure
 
-Un buen PR incluye:
+A good PR includes:
 
-- **Título claro** que describe el cambio
-- **Descripción** explicando qué y por qué
-- **Referencias** a issues relacionados (closes #123)
-- **Tests** que validen el cambio
-- **Documentación** actualizada si aplica
+- **Clear title** describing the change
+- **Description** explaining what and why
+- **References** to related issues (closes #123)
+- **Tests** validating the change
+- **Documentation** updated if applicable
 
-#### Revisión de Código
+#### Code Review
 
-- Los PRs requieren al menos una aprobación
-- Los mantenedores revisarán:
-  - Calidad del código
-  - Cobertura de tests
-  - Cumplimiento de estándares
-  - Documentación
+- PRs require at least one approval
+- Maintainers will review:
+  - Code quality
+  - Test coverage
+  - Standards compliance
+  - Documentation
 
-## Configuración del Entorno de Desarrollo
+## Development Environment Setup
 
-Ver [docs/INSTALLATION.md](docs/INSTALLATION.md) para instrucciones detalladas.
+See [docs/INSTALLATION.md](docs/INSTALLATION.md) for detailed instructions.
 
-Resumen rápido:
+Quick summary:
 
 ```bash
-# Clonar y configurar
+# Clone and setup
 git clone https://github.com/osmlatam/OSM-Notes-API.git
 cd OSM-Notes-API
 npm install
 
-# Configurar variables de entorno
+# Configure environment variables
 cp .env.example .env
-# Editar .env
+# Edit .env
 
-# Ejecutar tests
+# Run tests
 npm test
 
-# Desarrollo
+# Development
 npm run dev
 ```
 
-## Preguntas
+## Questions
 
-Si tienes preguntas sobre cómo contribuir, puedes:
+If you have questions about contributing, you can:
 
-- Abrir un issue con la etiqueta `question`
-- Contactar a los mantenedores
+- Open an issue with the `question` label
+- Contact the maintainers
 
-## Reconocimiento
+## Recognition
 
-Todas las contribuciones son valiosas y serán reconocidas. ¡Gracias por ayudar a mejorar OSM Notes API!
-
+All contributions are valuable and will be recognized. Thank you for helping improve OSM Notes API!
