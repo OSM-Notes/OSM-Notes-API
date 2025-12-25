@@ -11,6 +11,7 @@ import { validateEnv } from './config/env';
 import { getAppConfig } from './config/app';
 import { errorHandler, notFoundHandler, ApiError } from './middleware/errorHandler';
 import { validateUserAgent } from './middleware/validateUserAgent';
+import { rateLimitMiddleware } from './middleware/rateLimit';
 import { logger } from './utils/logger';
 import routes from './routes';
 
@@ -81,6 +82,9 @@ function createApp(): Express {
 
   // User-Agent validation middleware (must be before routes)
   app.use(validateUserAgent);
+
+  // Rate limiting middleware (must be after User-Agent validation)
+  app.use(rateLimitMiddleware);
 
   // Routes
   app.use('/', routes);

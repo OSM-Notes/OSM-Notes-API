@@ -4,6 +4,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import { testConnection as testDatabaseConnection } from '../config/database';
+import { testRedisConnection } from '../config/redis';
 import { logger } from '../utils/logger';
 
 const router = Router();
@@ -27,23 +28,23 @@ interface HealthCheckResponse {
 /**
  * Test Redis connection
  */
-function testRedisConnection(): {
+async function testRedisHealth(): Promise<{
   status: 'up' | 'down' | 'not_configured';
   responseTime?: number;
-} {
+}> {
   const startTime = Date.now();
 
   try {
-    // Redis client will be implemented in later tasks
-    // For now, check if Redis is configured
     const redisHost = process.env.REDIS_HOST;
     if (!redisHost || redisHost === '') {
       return { status: 'not_configured' };
     }
 
-    // TODO: Implement actual Redis connection test in Phase 3
-    // For now, return not_configured if Redis is not available
-    return { status: 'not_configured' };
+    const isConnected = await testRedisConnection();
+    return {
+      status: isConnected ? 'up' : 'down',
+      responseTime: Date.now() - startTime,
+    };
   } catch (error) {
     logger.error('Redis health check failed', {
       error: error instanceof Error ? error.message : String(error),
@@ -60,7 +61,7 @@ function testRedisConnection(): {
  */
 function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<void>) {
   return (req: Request, res: Response, next: NextFunction): void => {
-    Promise.resolve(fn(req, res, next)).catch(next);
+    void Promise.resolve(fn(req, res, next)).catch(next);
   };
 }
 
@@ -70,6 +71,7 @@ function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => P
  */
 router.get(
   '/',
+  // eslint-disable-next-line @typescript-eslint/require-await
   asyncHandler(async (_req: Request, res: Response) => {
     const startTime = Date.now();
     const health: HealthCheckResponse = {
@@ -102,7 +104,7 @@ router.get(
     }
 
     // Check Redis connection
-    const redisStatus = testRedisConnection();
+    const redisStatus = await testRedisHealth();
     health.redis = redisStatus;
     if (redisStatus.status === 'down') {
       health.status = health.status === 'unhealthy' ? 'unhealthy' : 'degraded';
