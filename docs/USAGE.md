@@ -76,12 +76,22 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 **Response**:
 ```json
 {
-  "status": "ok",
-  "database": "connected",
-  "redis": "connected",
-  "timestamp": "2025-12-14T10:00:00.000Z"
+  "status": "healthy",
+  "timestamp": "2025-12-24T13:00:00.000Z",
+  "database": {
+    "status": "up",
+    "responseTime": 15
+  },
+  "redis": {
+    "status": "not_configured"
+  }
 }
 ```
+
+**Status Values**:
+- `healthy`: All services are operational
+- `degraded`: Some optional services are down (e.g., Redis)
+- `unhealthy`: Critical services are down (e.g., database)
 
 ## Usage Examples
 

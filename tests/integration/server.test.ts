@@ -22,18 +22,25 @@ describe('Express Server Setup', () => {
 
   describe('Basic Server Configuration', () => {
     it('should start server and respond to requests', async () => {
-      const response = await request(app).get('/health');
+      const response = await request(app)
+        .get('/health')
+        .set('User-Agent', 'TestApp/1.0 (test@example.com)');
       expect(response.status).toBeDefined();
     });
 
     it('should have CORS enabled', async () => {
-      const response = await request(app).options('/health').set('Origin', 'http://example.com');
+      const response = await request(app)
+        .options('/health')
+        .set('Origin', 'http://example.com')
+        .set('User-Agent', 'TestApp/1.0 (test@example.com)');
 
       expect(response.headers['access-control-allow-origin']).toBeDefined();
     });
 
     it('should have security headers (Helmet)', async () => {
-      const response = await request(app).get('/health');
+      const response = await request(app)
+        .get('/health')
+        .set('User-Agent', 'TestApp/1.0 (test@example.com)');
 
       expect(response.headers['x-content-type-options']).toBe('nosniff');
       expect(response.headers['x-frame-options']).toBeDefined();
@@ -44,7 +51,8 @@ describe('Express Server Setup', () => {
       const response = await request(app)
         .post('/api/v1')
         .send('invalid json')
-        .set('Content-Type', 'application/json');
+        .set('Content-Type', 'application/json')
+        .set('User-Agent', 'TestApp/1.0 (test@example.com)');
 
       // Should handle invalid JSON gracefully (either 400 or 404)
       expect([400, 404]).toContain(response.status);
@@ -53,14 +61,18 @@ describe('Express Server Setup', () => {
 
   describe('Error Handling', () => {
     it('should handle 404 errors', async () => {
-      const response = await request(app).get('/nonexistent');
+      const response = await request(app)
+        .get('/nonexistent')
+        .set('User-Agent', 'TestApp/1.0 (test@example.com)');
 
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('error');
     });
 
     it('should handle errors with proper format', async () => {
-      const response = await request(app).get('/nonexistent');
+      const response = await request(app)
+        .get('/nonexistent')
+        .set('User-Agent', 'TestApp/1.0 (test@example.com)');
 
       expect(response.body).toHaveProperty('error');
       expect(response.body).toHaveProperty('message');
@@ -70,7 +82,9 @@ describe('Express Server Setup', () => {
   describe('API Versioning', () => {
     it('should have /api/v1 prefix', async () => {
       // This will be implemented when routes are added
-      const response = await request(app).get('/api/v1');
+      const response = await request(app)
+        .get('/api/v1')
+        .set('User-Agent', 'TestApp/1.0 (test@example.com)');
 
       // Should not be 404 if versioning is set up correctly
       expect(response.status).toBeDefined();

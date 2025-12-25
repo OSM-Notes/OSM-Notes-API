@@ -20,28 +20,30 @@ describe('Health Check Endpoint', () => {
   });
 
   describe('GET /health', () => {
+    const validUserAgent = 'TestApp/1.0 (test@example.com)';
+
     it('should return 200 status', async () => {
-      const response = await request(app).get('/health');
+      const response = await request(app).get('/health').set('User-Agent', validUserAgent);
       expect(response.status).toBe(200);
     });
 
     it('should return JSON response', async () => {
-      const response = await request(app).get('/health');
+      const response = await request(app).get('/health').set('User-Agent', validUserAgent);
       expect(response.headers['content-type']).toMatch(/json/);
     });
 
     it('should include status field', async () => {
-      const response = await request(app).get('/health');
+      const response = await request(app).get('/health').set('User-Agent', validUserAgent);
       expect(response.body).toHaveProperty('status');
     });
 
     it('should include timestamp', async () => {
-      const response = await request(app).get('/health');
+      const response = await request(app).get('/health').set('User-Agent', validUserAgent);
       expect(response.body).toHaveProperty('timestamp');
     });
 
     it('should check database connection', async () => {
-      const response = await request(app).get('/health');
+      const response = await request(app).get('/health').set('User-Agent', validUserAgent);
       const body = response.body as {
         database: { status: string };
       };
@@ -50,7 +52,7 @@ describe('Health Check Endpoint', () => {
     });
 
     it('should check Redis connection if available', async () => {
-      const response = await request(app).get('/health');
+      const response = await request(app).get('/health').set('User-Agent', validUserAgent);
       const body = response.body as {
         redis: { status: string };
       };
@@ -59,7 +61,7 @@ describe('Health Check Endpoint', () => {
     });
 
     it('should return status when all services are checked', async () => {
-      const response = await request(app).get('/health');
+      const response = await request(app).get('/health').set('User-Agent', validUserAgent);
       const body = response.body as {
         status: string;
         database: { status: string };

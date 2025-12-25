@@ -10,6 +10,7 @@ import helmet from 'helmet';
 import { validateEnv } from './config/env';
 import { getAppConfig } from './config/app';
 import { errorHandler, notFoundHandler, ApiError } from './middleware/errorHandler';
+import { validateUserAgent } from './middleware/validateUserAgent';
 import { logger } from './utils/logger';
 import routes from './routes';
 
@@ -77,6 +78,9 @@ function createApp(): Express {
     });
     next();
   });
+
+  // User-Agent validation middleware (must be before routes)
+  app.use(validateUserAgent);
 
   // Routes
   app.use('/', routes);
