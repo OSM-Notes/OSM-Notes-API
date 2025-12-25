@@ -5,6 +5,7 @@
 
 import rateLimit from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
+import type { Store } from 'express-rate-limit';
 import { Request, Response } from 'express';
 import { getRedisClient } from '../config/redis';
 import { logger } from '../utils/logger';
@@ -15,7 +16,7 @@ import { logger } from '../utils/logger';
  */
 function createRedisStoreAdapter(
   redisClient: ReturnType<typeof getRedisClient>
-): RedisStore | undefined {
+): Store | undefined {
   if (!redisClient) {
     return undefined;
   }
@@ -80,7 +81,7 @@ function generateKey(req: Request): string {
 /**
  * Create rate limit store (Redis if available, otherwise memory)
  */
-function createStore(): RedisStore | undefined {
+function createStore(): Store | undefined {
   const redisClient = getRedisClient();
 
   if (redisClient) {

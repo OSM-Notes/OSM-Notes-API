@@ -33,16 +33,35 @@ User-Agent: MyApp/1.0 (invalid)         # ❌ Invalid contact
 
 ### Rate Limiting
 
-- **Anonymous**: 50 requests/15min per IP + User-Agent
+- **Anonymous**: 50 requests per 15 minutes per IP + User-Agent combination
 - **Authenticated**: 1000 requests/hour (when OAuth is available in Phase 5)
-- **Detected bots**: 10 requests/hour
+- **Detected bots**: 10 requests/hour (when anti-abuse middleware is implemented)
 
-Response headers include rate limiting information:
+**Rate limiting is enforced per IP address and User-Agent combination**, meaning:
+- Different applications (different User-Agent) from the same IP have separate limits
+- Same application from different IPs have separate limits
+- Health check endpoint (`/health`) is excluded from rate limiting
+
+**Response headers** include rate limiting information (standard headers):
 ```
-X-RateLimit-Limit: 50
-X-RateLimit-Remaining: 49
-X-RateLimit-Reset: 1234567890
+RateLimit-Limit: 50
+RateLimit-Remaining: 49
+RateLimit-Reset: 1234567890
 ```
+
+**When rate limit is exceeded**, you'll receive a `429 Too Many Requests` response:
+```json
+{
+  "error": "Too Many Requests",
+  "message": "Rate limit exceeded. Maximum 50 requests per 15 minutes allowed.",
+  "statusCode": 429
+}
+```
+
+**Best practices**:
+- Implement exponential backoff when receiving 429 responses
+- Monitor the `RateLimit-Remaining` header to avoid hitting limits
+- Use authenticated requests (OAuth) when available for higher limits
 
 ### Anti-Abuse Protection
 
