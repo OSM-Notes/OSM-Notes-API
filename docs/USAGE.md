@@ -67,8 +67,28 @@ RateLimit-Reset: 1234567890
 
 The API automatically detects and blocks:
 
-- **Known AIs**: Require OAuth (GPT, Claude, ChatGPT, etc.)
-- **Known bots**: Very restrictive rate limiting (curl, python-requests, etc.)
+- **Known AI agents**: Require OAuth authentication (403 Forbidden without OAuth)
+  - Examples: ChatGPT, GPT-4, Claude, Google Bard, GitHub Copilot, Perplexity, etc.
+  - **Solution**: Authenticate using OpenStreetMap OAuth to access the API
+- **Known bots**: Very restrictive rate limiting (10 requests/hour)
+  - Examples: curl, wget, python-requests, Go http client, Scrapy, etc.
+  - These tools are allowed but with very low rate limits to prevent abuse
+
+**AI Detection**:
+If you're using an AI agent, you must authenticate with OSM OAuth. Without authentication, you'll receive:
+```json
+{
+  "error": "Forbidden",
+  "message": "AI agents require OAuth authentication. Please authenticate using OpenStreetMap OAuth to access this API.",
+  "statusCode": 403
+}
+```
+
+**Bot Detection**:
+Known bots are automatically detected and subject to restrictive rate limiting (10 requests/hour). To avoid this:
+- Use a proper User-Agent header with contact information
+- Format: `<AppName>/<Version> (<Contact>)`
+- Example: `MyBot/1.0 (bot@example.com)` instead of `curl/7.68.0`
 
 ## Available Endpoints
 
