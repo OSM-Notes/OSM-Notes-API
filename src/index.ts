@@ -13,16 +13,6 @@ import { errorHandler, notFoundHandler, ApiError } from './middleware/errorHandl
 import { logger } from './utils/logger';
 import routes from './routes';
 
-// Validate environment variables on startup
-try {
-  validateEnv();
-} catch (error) {
-  logger.error('Failed to start application', {
-    error: error instanceof Error ? error.message : String(error),
-  });
-  process.exit(1);
-}
-
 /**
  * Create and configure Express application
  */
@@ -104,6 +94,16 @@ function createApp(): Express {
  * Start the server
  */
 function startServer(): void {
+  // Validate environment variables on startup (only when starting server)
+  try {
+    validateEnv();
+  } catch (error) {
+    logger.error('Failed to start application', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    process.exit(1);
+  }
+
   const app = createApp();
   const config = getAppConfig();
 

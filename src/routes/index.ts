@@ -4,6 +4,7 @@
 
 import { Router } from 'express';
 import { getAppConfig } from '../config/app';
+import healthRouter from './health';
 
 const router = Router();
 const { apiVersion } = getAppConfig();
@@ -21,13 +22,8 @@ router.get(`/api/${apiVersion}`, (_req, res) => {
 });
 
 /**
- * Health check route (will be moved to separate file later)
+ * Health check routes
  */
-router.get('/health', (_req, res) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-  });
-});
+router.use('/health', healthRouter);
 
 export default router;

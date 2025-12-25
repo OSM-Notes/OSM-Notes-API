@@ -1,0 +1,71 @@
+/**
+ * Integration tests for health check endpoint
+ */
+
+import request from 'supertest';
+import { Express } from 'express';
+
+describe('Health Check Endpoint', () => {
+  let app: Express;
+
+  beforeAll(async () => {
+    // Set required environment variables before importing app
+    process.env.DB_HOST = process.env.DB_HOST || 'localhost';
+    process.env.DB_NAME = process.env.DB_NAME || 'test_db';
+    process.env.DB_USER = process.env.DB_USER || 'test_user';
+    process.env.DB_PASSWORD = process.env.DB_PASSWORD || 'test_pass';
+
+    const { default: createApp } = await import('../../src/index');
+    app = createApp();
+  });
+
+  describe('GET /health', () => {
+    it('should return 200 status', async () => {
+      const response = await request(app).get('/health');
+      expect(response.status).toBe(200);
+    });
+
+    it('should return JSON response', async () => {
+      const response = await request(app).get('/health');
+      expect(response.headers['content-type']).toMatch(/json/);
+    });
+
+    it('should include status field', async () => {
+      const response = await request(app).get('/health');
+      expect(response.body).toHaveProperty('status');
+    });
+
+    it('should include timestamp', async () => {
+      const response = await request(app).get('/health');
+      expect(response.body).toHaveProperty('timestamp');
+    });
+
+    it('should check database connection', async () => {
+      const response = await request(app).get('/health');
+      const body = response.body as {
+        database: { status: string };
+      };
+      expect(body).toHaveProperty('database');
+      expect(body.database.status).toBeDefined();
+    });
+
+    it('should check Redis connection if available', async () => {
+      const response = await request(app).get('/health');
+      const body = response.body as {
+        redis: { status: string };
+      };
+      expect(body).toHaveProperty('redis');
+      expect(body.redis.status).toBeDefined();
+    });
+
+    it('should return status when all services are checked', async () => {
+      const response = await request(app).get('/health');
+      const body = response.body as {
+        status: string;
+        database: { status: string };
+        redis: { status: string };
+      };
+      expect(['healthy', 'degraded', 'unhealthy']).toContain(body.status);
+    });
+  });
+});

@@ -5,4 +5,13 @@
 process.env.NODE_ENV = 'test';
 process.env.LOG_LEVEL = 'error'; // Suppress logs during tests
 
+// Set required environment variables for tests (before any imports)
+process.env.DB_HOST = process.env.DB_HOST || 'localhost';
+process.env.DB_NAME = process.env.DB_NAME || 'test_db';
+process.env.DB_USER = process.env.DB_USER || 'test_user';
+process.env.DB_PASSWORD = process.env.DB_PASSWORD || 'test_pass';
+process.env.DB_PORT = process.env.DB_PORT || '5432';
+process.env.REDIS_HOST = process.env.REDIS_HOST || 'localhost';
+process.env.REDIS_PORT = process.env.REDIS_PORT || '6379';
+
 // Add any global test utilities or mocks here
