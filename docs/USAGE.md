@@ -368,9 +368,58 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 
 ### Country Profile Endpoint
 
+Get detailed country profile with analytics and statistics.
+
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/countries/CO
+     http://localhost:3000/api/v1/countries/42
+```
+
+**Response**:
+```json
+{
+  "data": {
+    "dimension_country_id": 45,
+    "country_id": 42,
+    "country_name": "Colombia",
+    "country_name_en": "Colombia",
+    "country_name_es": "Colombia",
+    "iso_alpha2": "CO",
+    "history_whole_open": 1000,
+    "history_whole_closed": 800,
+    "avg_days_to_resolution": 7.2,
+    "resolution_rate": 80.0,
+    "notes_health_score": 75.5,
+    "new_vs_resolved_ratio": 1.2,
+    "notes_backlog_size": 50,
+    "notes_created_last_30_days": 100,
+    "notes_resolved_last_30_days": 80,
+    "users_open_notes": [
+      {
+        "rank": 1,
+        "user_id": 12345,
+        "username": "top_user",
+        "quantity": 50
+      }
+    ],
+    "applications_used": [],
+    "hashtags": [],
+    "activity_by_year": {},
+    "working_hours_of_week_opening": []
+  }
+}
+```
+
+**Error Responses**:
+- `400 Bad Request`: Invalid country ID format
+- `404 Not Found`: Country does not exist
+- `500 Internal Server Error`: Server error
+
+**Example**:
+```bash
+# Get country profile
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     http://localhost:3000/api/v1/countries/42
 ```
 
 ## Error Handling

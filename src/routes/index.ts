@@ -7,6 +7,7 @@ import { getAppConfig } from '../config/app';
 import healthRouter from './health';
 import notesRouter from './notes';
 import usersRouter from './users';
+import countriesRouter from './countries';
 
 const router = Router();
 const { apiVersion } = getAppConfig();
@@ -37,5 +38,10 @@ router.use(`/api/${apiVersion}/notes`, notesRouter);
  * Users routes
  */
 router.use(`/api/${apiVersion}/users`, usersRouter);
+
+/**
+ * Countries routes
+ */
+router.use(`/api/${apiVersion}/countries`, countriesRouter);
 
 export default router;

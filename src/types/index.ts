@@ -94,3 +94,29 @@ export interface UserProfile {
   working_hours_of_week_opening?: unknown; // JSON array (number[])
   activity_by_year?: unknown; // JSON object
 }
+
+/**
+ * Country profile from datamartCountries
+ */
+export interface CountryProfile {
+  dimension_country_id: number;
+  country_id: number;
+  country_name: string | null;
+  country_name_en: string | null;
+  country_name_es: string | null;
+  iso_alpha2: string | null;
+  history_whole_open: number;
+  history_whole_closed: number;
+  avg_days_to_resolution: number | null;
+  resolution_rate: number | null;
+  notes_health_score: number | null;
+  new_vs_resolved_ratio: number | null;
+  notes_backlog_size: number | null;
+  notes_created_last_30_days: number | null;
+  notes_resolved_last_30_days: number | null;
+  users_open_notes?: unknown; // JSON array
+  applications_used?: unknown; // JSON array
+  hashtags?: unknown; // JSON array (string[])
+  activity_by_year?: unknown; // JSON object
+  working_hours_of_week_opening?: unknown; // JSON array (number[])
+}
