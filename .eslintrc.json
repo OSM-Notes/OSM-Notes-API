@@ -31,6 +31,6 @@
     "es2022": true,
     "jest": true
   },
-  "ignorePatterns": ["dist", "node_modules", "coverage"]
+  "ignorePatterns": ["dist", "node_modules", "coverage", "jest.config.js"]
 }
 

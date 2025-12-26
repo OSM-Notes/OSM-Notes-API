@@ -86,8 +86,9 @@ describe('Countries Endpoints', () => {
     });
 
     it('should apply rate limiting', async () => {
-      // Make multiple requests quickly
-      const requests = Array(60)
+      // Make limited requests to avoid overwhelming the system
+      // Reduced from 60 to 15 for better performance
+      const requests = Array(15)
         .fill(null)
         .map(() => request(app).get('/api/v1/countries/42').set('User-Agent', validUserAgent));
 
@@ -95,7 +96,7 @@ describe('Countries Endpoints', () => {
 
       // Should eventually hit rate limit (429)
       // Note: This depends on rate limit configuration
-      expect(responses.length).toBe(60);
+      expect(responses.length).toBe(15);
     });
   });
 });

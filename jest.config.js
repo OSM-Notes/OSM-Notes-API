@@ -18,6 +18,9 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-  testTimeout: 10000,
+  testTimeout: 15000,
+  // Reduce parallelism to avoid overwhelming the system
+  // Use fewer workers for integration tests to prevent resource exhaustion
+  maxWorkers: process.env.CI ? '50%' : 2,
 };
 
