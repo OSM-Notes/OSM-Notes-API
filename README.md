@@ -64,6 +64,57 @@ docker-compose -f docker/docker-compose.yml logs -f api
 
 See [docs/INSTALLATION.md](docs/INSTALLATION.md) for detailed instructions.
 
+### Quick Usage Examples
+
+**Health Check**:
+
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     http://localhost:3000/health
+```
+
+**Get a Note**:
+
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     http://localhost:3000/api/v1/notes/12345
+```
+
+**Search Notes**:
+
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/notes?status=open&country=42&limit=10"
+```
+
+**Get User Profile**:
+
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     http://localhost:3000/api/v1/users/12345
+```
+
+**Get Country Profile**:
+
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     http://localhost:3000/api/v1/countries/42
+```
+
+**Get Global Analytics**:
+
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     http://localhost:3000/api/v1/analytics/global
+```
+
+**Interactive API Documentation**:
+
+- Swagger UI: `http://localhost:3000/docs`
+- OpenAPI JSON: `http://localhost:3000/docs/json`
+
+See [docs/USAGE.md](docs/USAGE.md) for complete usage guide.
+
 ## 📚 Documentation
 
 - [Installation](docs/INSTALLATION.md) - Complete installation guide
@@ -74,7 +125,7 @@ See [docs/INSTALLATION.md](docs/INSTALLATION.md) for detailed instructions.
 
 ## 🏗️ Project Structure
 
-```
+```text
 OSM-Notes-API/
 ├── src/                    # Source code
 │   ├── config/            # Configuration
@@ -102,11 +153,15 @@ OSM-Notes-API/
 npm run build          # Build TypeScript
 npm start              # Run compiled application
 npm run dev            # Development with hot reload
-npm test               # Run tests
+npm test               # Run all tests
 npm run test:unit      # Unit tests only
-npm run test:coverage  # Tests with coverage
+npm run test:integration  # Integration tests only
+npm run test:coverage  # Tests with coverage report
+npm run test:watch     # Run tests in watch mode
 npm run lint           # Run ESLint
+npm run lint:fix       # Fix ESLint errors automatically
 npm run format         # Format code with Prettier
+npm run format:check   # Check code formatting
 npm run type-check     # Verify TypeScript types
 ```
 
@@ -121,14 +176,24 @@ See [docs/USAGE.md](docs/USAGE.md) for more security details.
 
 ## 📊 Project Status
 
-**Version**: 0.1.0 (MVP in development)
+**Version**: 0.1.0 (MVP - Phase 1)
 
 **Implementation Phases**:
-- ✅ Phase 1: MVP (in progress)
-- ⏳ Phase 2: Basic Features
-- ⏳ Phase 3: Advanced Features
-- ⏳ Phase 4: Production
-- ⏳ Phase 5: Webhooks and Notifications
+
+- ✅ Phase 1: MVP (Core endpoints, basic features, documentation)
+  - ✅ Notes endpoints (get, search, comments)
+  - ✅ User profiles endpoint
+  - ✅ Country profiles endpoint
+  - ✅ Global analytics endpoint
+  - ✅ User-Agent validation
+  - ✅ Rate limiting
+  - ✅ Anti-abuse protection
+  - ✅ OpenAPI/Swagger documentation
+  - ✅ Comprehensive integration tests
+- ⏳ Phase 2: Basic Features (Rankings, comparisons, trends)
+- ⏳ Phase 3: Advanced Features (Advanced search, caching, performance)
+- ⏳ Phase 4: Production (CI/CD, monitoring, scaling)
+- ⏳ Phase 5: Webhooks and Notifications (if needed)
 
 ## 🤝 Contributing
 
