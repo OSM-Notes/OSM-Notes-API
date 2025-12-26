@@ -303,7 +303,65 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 
 ### User Profile Endpoint
 
+Get detailed user profile with analytics and statistics.
+
 ```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     http://localhost:3000/api/v1/users/12345
+```
+
+**Response**:
+```json
+{
+  "data": {
+    "dimension_user_id": 123,
+    "user_id": 12345,
+    "username": "example_user",
+    "history_whole_open": 100,
+    "history_whole_closed": 50,
+    "history_whole_commented": 75,
+    "avg_days_to_resolution": 5.5,
+    "resolution_rate": 50.0,
+    "user_response_time": 2.3,
+    "days_since_last_action": 5,
+    "applications_used": [
+      {
+        "application_id": 1,
+        "application_name": "JOSM",
+        "count": 80
+      }
+    ],
+    "collaboration_patterns": {
+      "mentions_given": 10,
+      "mentions_received": 5,
+      "replies_count": 20,
+      "collaboration_score": 0.75
+    },
+    "countries_open_notes": [
+      {
+        "rank": 1,
+        "country": "Colombia",
+        "quantity": 50
+      }
+    ],
+    "hashtags": ["#MapColombia", "#MissingMaps"],
+    "date_starting_creating_notes": "2020-01-15",
+    "date_starting_solving_notes": "2020-02-01",
+    "last_year_activity": null,
+    "working_hours_of_week_opening": [],
+    "activity_by_year": {}
+  }
+}
+```
+
+**Error Responses**:
+- `400 Bad Request`: Invalid user ID format
+- `404 Not Found`: User does not exist
+- `500 Internal Server Error`: Server error
+
+**Example**:
+```bash
+# Get user profile
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      http://localhost:3000/api/v1/users/12345
 ```

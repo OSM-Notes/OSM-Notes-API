@@ -6,6 +6,7 @@ import { Router } from 'express';
 import { getAppConfig } from '../config/app';
 import healthRouter from './health';
 import notesRouter from './notes';
+import usersRouter from './users';
 
 const router = Router();
 const { apiVersion } = getAppConfig();
@@ -31,5 +32,10 @@ router.use('/health', healthRouter);
  * Notes routes
  */
 router.use(`/api/${apiVersion}/notes`, notesRouter);
+
+/**
+ * Users routes
+ */
+router.use(`/api/${apiVersion}/users`, usersRouter);
 
 export default router;
