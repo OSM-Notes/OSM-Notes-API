@@ -36,7 +36,7 @@ export async function getGlobalAnalytics(): Promise<GlobalAnalytics> {
 
   try {
     const query = `
-      SELECT 
+      SELECT
         dimension_global_id,
         history_whole_open,
         history_whole_closed,
