@@ -134,25 +134,185 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 
 ## Usage Examples
 
-### Get User Profile
+### Notes Endpoints
+
+#### Get Note by ID
+
+Get detailed information about a specific note.
+
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     http://localhost:3000/api/v1/notes/12345
+```
+
+**Response**:
+```json
+{
+  "data": {
+    "note_id": 12345,
+    "latitude": 4.6097,
+    "longitude": -74.0817,
+    "status": "open",
+    "created_at": "2024-01-15T10:30:00Z",
+    "closed_at": null,
+    "id_user": 67890,
+    "id_country": 42,
+    "comments_count": 3
+  }
+}
+```
+
+**Error Responses**:
+- `400 Bad Request`: Invalid note ID format
+- `404 Not Found`: Note does not exist
+- `500 Internal Server Error`: Server error
+
+#### Get Note Comments
+
+Get all comments for a specific note.
+
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     http://localhost:3000/api/v1/notes/12345/comments
+```
+
+**Response**:
+```json
+{
+  "data": [
+    {
+      "comment_id": 1,
+      "note_id": 12345,
+      "user_id": 67890,
+      "username": "test_user",
+      "action": "opened",
+      "created_at": "2024-01-15T10:30:00Z",
+      "text": "This is a test note"
+    },
+    {
+      "comment_id": 2,
+      "note_id": 12345,
+      "user_id": 67891,
+      "username": "another_user",
+      "action": "commented",
+      "created_at": "2024-01-15T11:00:00Z",
+      "text": "I can help with this"
+    }
+  ],
+  "count": 2
+}
+```
+
+**Error Responses**:
+- `400 Bad Request`: Invalid note ID format
+- `500 Internal Server Error`: Server error
+
+#### Search Notes
+
+Search notes with various filters and pagination.
+
+**Basic Search**:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/notes?status=open&limit=10"
+```
+
+**With Filters**:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/notes?country=42&status=open&date_from=2024-01-01&date_to=2024-12-31&page=1&limit=20"
+```
+
+**Query Parameters**:
+- `country` (number): Filter by country ID
+- `status` (string): Filter by status (`open`, `closed`, `reopened`)
+- `user_id` (number): Filter by user ID
+- `date_from` (string): Filter notes created from this date (ISO format: `YYYY-MM-DD`)
+- `date_to` (string): Filter notes created until this date (ISO format: `YYYY-MM-DD`)
+- `bbox` (string): Filter by bounding box (format: `min_lon,min_lat,max_lon,max_lat`)
+- `page` (number): Page number (default: 1, minimum: 1)
+- `limit` (number): Results per page (default: 20, maximum: 100, minimum: 1)
+
+**Response**:
+```json
+{
+  "data": [
+    {
+      "note_id": 12345,
+      "latitude": 4.6097,
+      "longitude": -74.0817,
+      "status": "open",
+      "created_at": "2024-01-15T10:30:00Z",
+      "closed_at": null,
+      "id_user": 67890,
+      "id_country": 42,
+      "comments_count": 3
+    },
+    {
+      "note_id": 12346,
+      "latitude": 4.6100,
+      "longitude": -74.0820,
+      "status": "open",
+      "created_at": "2024-01-16T10:30:00Z",
+      "closed_at": null,
+      "id_user": 67891,
+      "id_country": 42,
+      "comments_count": 1
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 250,
+    "total_pages": 13
+  },
+  "filters": {
+    "country": 42,
+    "status": "open",
+    "date_from": "2024-01-01",
+    "date_to": "2024-12-31",
+    "page": 1,
+    "limit": 20
+  }
+}
+```
+
+**Error Responses**:
+- `400 Bad Request`: Invalid parameters (invalid status, invalid page/limit values)
+- `500 Internal Server Error`: Server error
+
+**Examples**:
+
+Search open notes in Colombia:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/notes?country=42&status=open"
+```
+
+Search notes by user:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/notes?user_id=67890"
+```
+
+Search notes in a bounding box:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/notes?bbox=-74.1,4.6,-74.0,4.7"
+```
+
+### User Profile Endpoint
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      http://localhost:3000/api/v1/users/12345
 ```
 
-### Get Country Profile
+### Country Profile Endpoint
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      http://localhost:3000/api/v1/countries/CO
-```
-
-### Search Notes
-
-```bash
-curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/notes?status=open&limit=10"
 ```
 
 ## Error Handling
