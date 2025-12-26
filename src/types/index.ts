@@ -120,3 +120,21 @@ export interface CountryProfile {
   activity_by_year?: unknown; // JSON object
   working_hours_of_week_opening?: unknown; // JSON array (number[])
 }
+
+/**
+ * Global analytics from datamartGlobal
+ */
+export interface GlobalAnalytics {
+  dimension_global_id: number;
+  history_whole_open: number;
+  history_whole_closed: number;
+  currently_open_count: number | null;
+  avg_days_to_resolution: number | null;
+  resolution_rate: number | null;
+  notes_created_last_30_days: number | null;
+  notes_resolved_last_30_days: number | null;
+  active_users_count: number | null;
+  notes_backlog_size: number | null;
+  applications_used?: unknown; // JSON array
+  top_countries?: unknown; // JSON array
+}

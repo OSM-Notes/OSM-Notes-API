@@ -422,6 +422,59 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      http://localhost:3000/api/v1/countries/42
 ```
 
+### Global Analytics Endpoint
+
+Get global statistics and analytics for all OSM notes.
+
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     http://localhost:3000/api/v1/analytics/global
+```
+
+**Response**:
+```json
+{
+  "data": {
+    "dimension_global_id": 1,
+    "history_whole_open": 1000000,
+    "history_whole_closed": 800000,
+    "currently_open_count": 200000,
+    "avg_days_to_resolution": 5.5,
+    "resolution_rate": 80.0,
+    "notes_created_last_30_days": 5000,
+    "notes_resolved_last_30_days": 4500,
+    "active_users_count": 10000,
+    "notes_backlog_size": 50000,
+    "applications_used": [
+      {
+        "application_id": 1,
+        "application_name": "JOSM",
+        "count": 500000
+      }
+    ],
+    "top_countries": [
+      {
+        "rank": 1,
+        "country_id": 42,
+        "country_name": "Colombia",
+        "notes_count": 100000
+      }
+    ]
+  }
+}
+```
+
+**Error Responses**:
+- `404 Not Found`: Global analytics not found
+- `500 Internal Server Error`: Server error
+
+**Example**:
+```bash
+# Get global analytics
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     http://localhost:3000/api/v1/analytics/global
+```
+
 ## Error Handling
 
 ### HTTP Status Codes

@@ -8,6 +8,7 @@ import healthRouter from './health';
 import notesRouter from './notes';
 import usersRouter from './users';
 import countriesRouter from './countries';
+import analyticsRouter from './analytics';
 
 const router = Router();
 const { apiVersion } = getAppConfig();
@@ -43,5 +44,10 @@ router.use(`/api/${apiVersion}/users`, usersRouter);
  * Countries routes
  */
 router.use(`/api/${apiVersion}/countries`, countriesRouter);
+
+/**
+ * Analytics routes
+ */
+router.use(`/api/${apiVersion}/analytics`, analyticsRouter);
 
 export default router;
