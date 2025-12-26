@@ -14,7 +14,33 @@ const router = Router();
 const { apiVersion } = getAppConfig();
 
 /**
- * API version info endpoint
+ * @swagger
+ * /api/v1:
+ *   get:
+ *     summary: Get API version information
+ *     tags: [Info]
+ *     security:
+ *       - UserAgent: []
+ *     responses:
+ *       200:
+ *         description: API version information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 name:
+ *                   type: string
+ *                   example: OSM Notes API
+ *                 version:
+ *                   type: string
+ *                   example: 0.1.0
+ *                 apiVersion:
+ *                   type: string
+ *                   example: v1
+ *                 status:
+ *                   type: string
+ *                   example: operational
  */
 router.get(`/api/${apiVersion}`, (_req, res) => {
   res.json({

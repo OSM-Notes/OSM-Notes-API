@@ -9,8 +9,48 @@ import { logger } from '../utils/logger';
 import { ApiError } from '../middleware/errorHandler';
 
 /**
- * Get country profile by ID
- * GET /api/v1/countries/:country_id
+ * @swagger
+ * /api/v1/countries/{country_id}:
+ *   get:
+ *     summary: Get country profile by ID
+ *     tags: [Countries]
+ *     security:
+ *       - UserAgent: []
+ *     parameters:
+ *       - in: path
+ *         name: country_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Country ID
+ *     responses:
+ *       200:
+ *         description: Country profile with analytics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   $ref: '#/components/schemas/CountryProfile'
+ *       400:
+ *         description: Invalid country ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Country not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 export async function getCountryProfile(
   req: Request,

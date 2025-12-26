@@ -10,8 +10,48 @@ import { ApiError } from '../middleware/errorHandler';
 import { SearchFilters } from '../types';
 
 /**
- * Get a note by ID
- * GET /api/v1/notes/:note_id
+ * @swagger
+ * /api/v1/notes/{note_id}:
+ *   get:
+ *     summary: Get a note by ID
+ *     tags: [Notes]
+ *     security:
+ *       - UserAgent: []
+ *     parameters:
+ *       - in: path
+ *         name: note_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: OSM note ID
+ *     responses:
+ *       200:
+ *         description: Note details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   $ref: '#/components/schemas/Note'
+ *       400:
+ *         description: Invalid note ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Note not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 export async function getNoteById(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -34,8 +74,47 @@ export async function getNoteById(req: Request, res: Response, next: NextFunctio
 }
 
 /**
- * Get comments for a note
- * GET /api/v1/notes/:note_id/comments
+ * @swagger
+ * /api/v1/notes/{note_id}/comments:
+ *   get:
+ *     summary: Get comments for a note
+ *     tags: [Notes]
+ *     security:
+ *       - UserAgent: []
+ *     parameters:
+ *       - in: path
+ *         name: note_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: OSM note ID
+ *     responses:
+ *       200:
+ *         description: List of note comments
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/NoteComment'
+ *                 count:
+ *                   type: integer
+ *                   example: 2
+ *       400:
+ *         description: Invalid note ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 export async function getNoteComments(
   req: Request,
@@ -63,8 +142,90 @@ export async function getNoteComments(
 }
 
 /**
- * Search notes with filters
- * GET /api/v1/notes
+ * @swagger
+ * /api/v1/notes:
+ *   get:
+ *     summary: Search notes with filters
+ *     tags: [Notes]
+ *     security:
+ *       - UserAgent: []
+ *     parameters:
+ *       - in: query
+ *         name: country
+ *         schema:
+ *           type: integer
+ *         description: Filter by country ID
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [open, closed, reopened]
+ *         description: Filter by status
+ *       - in: query
+ *         name: user_id
+ *         schema:
+ *           type: integer
+ *         description: Filter by user ID
+ *       - in: query
+ *         name: date_from
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter notes created from this date (YYYY-MM-DD)
+ *       - in: query
+ *         name: date_to
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter notes created until this date (YYYY-MM-DD)
+ *       - in: query
+ *         name: bbox
+ *         schema:
+ *           type: string
+ *         description: Bounding box (min_lon,min_lat,max_lon,max_lat)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 20
+ *         description: Results per page
+ *     responses:
+ *       200:
+ *         description: Search results with pagination
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Note'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *                 filters:
+ *                   type: object
+ *       400:
+ *         description: Invalid parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 export async function searchNotes(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {

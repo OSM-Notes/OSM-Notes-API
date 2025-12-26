@@ -66,8 +66,43 @@ function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => P
 }
 
 /**
- * GET /health
- * Health check endpoint
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Health check endpoint
+ *     tags: [Health]
+ *     description: Verifies the status of the API and its dependencies
+ *     responses:
+ *       200:
+ *         description: Health status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   enum: [healthy, degraded, unhealthy]
+ *                   example: healthy
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                 database:
+ *                   type: object
+ *                   properties:
+ *                     status:
+ *                       type: string
+ *                       enum: [up, down]
+ *                     responseTime:
+ *                       type: integer
+ *                 redis:
+ *                   type: object
+ *                   properties:
+ *                     status:
+ *                       type: string
+ *                       enum: [up, down, not_configured]
+ *       503:
+ *         description: Service unhealthy
  */
 router.get(
   '/',

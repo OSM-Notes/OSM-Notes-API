@@ -15,6 +15,7 @@ import { rateLimitMiddleware } from './middleware/rateLimit';
 import { antiAbuseMiddleware } from './middleware/antiAbuse';
 import { logger } from './utils/logger';
 import routes from './routes';
+import docsRouter from './routes/docs';
 
 /**
  * Create and configure Express application
@@ -89,6 +90,9 @@ function createApp(): Express {
 
   // Rate limiting middleware (must be after User-Agent validation and anti-abuse)
   app.use(rateLimitMiddleware);
+
+  // API Documentation (Swagger) - excluded from User-Agent validation for easier access
+  app.use('/docs', docsRouter);
 
   // Routes
   app.use('/', routes);

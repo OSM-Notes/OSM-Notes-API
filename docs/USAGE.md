@@ -564,9 +564,22 @@ Responses include cache headers when applicable. Respect `Cache-Control` and `ET
 
 For complete documentation of all endpoints:
 
-- **Swagger UI**: `http://localhost:3000/docs` (when available)
-- **OpenAPI Spec**: `http://localhost:3000/api-docs.json` (when available)
+- **Swagger UI**: `http://localhost:3000/docs` - Interactive API documentation
+- **OpenAPI Spec (JSON)**: `http://localhost:3000/docs/json` - OpenAPI specification in JSON format
 - **Documentation**: See [docs/api/](api/) for complete specifications
+
+### Swagger UI
+
+The API includes interactive Swagger documentation that allows you to:
+
+- Browse all available endpoints
+- See request/response schemas
+- Test endpoints directly from the browser
+- View example requests and responses
+
+**Access**: Navigate to `http://localhost:3000/docs` in your browser when the server is running.
+
+**Note**: Swagger UI is excluded from User-Agent validation for easier access, but all API endpoints still require the User-Agent header.
 
 ## Support
 
