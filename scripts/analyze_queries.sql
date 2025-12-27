@@ -271,14 +271,14 @@ ORDER BY schemaname, tablename, indexname;
 
 SELECT
   schemaname,
-  tablename,
-  indexname,
+  relname as tablename,
+  indexrelname as indexname,
   idx_scan as scans,
   idx_tup_read as tuples_read,
   idx_tup_fetch as tuples_fetched
 FROM pg_stat_user_indexes
 WHERE schemaname IN ('public', 'dwh')
-  AND tablename IN ('notes', 'note_comments', 'note_comments_text', 'datamartUsers', 'datamartCountries', 'datamartGlobal')
+  AND relname IN ('notes', 'note_comments', 'note_comments_text', 'datamartUsers', 'datamartCountries', 'datamartGlobal')
 ORDER BY idx_scan DESC;
 
 \echo ''
