@@ -106,4 +106,76 @@ describe('rateLimitMiddleware', () => {
       expect(mockNext).toHaveBeenCalled();
     });
   });
+
+  describe('Skip conditions', () => {
+    it('should skip rate limiting for health check endpoint', async () => {
+      const testRequest = {
+        ...mockRequest,
+        path: '/health',
+      } as Partial<Request>;
+      (testRequest.get as jest.Mock).mockReturnValue('TestApp/1.0 (test@example.com)');
+
+      await new Promise<void>((resolve) => {
+        rateLimitMiddleware(testRequest as Request, mockResponse as Response, () => {
+          mockNext();
+          resolve();
+        });
+      });
+
+      expect(mockNext).toHaveBeenCalled();
+    });
+  });
+
+  describe('Key generation', () => {
+    it('should generate key with IP and User-Agent', async () => {
+      const testRequest = {
+        ...mockRequest,
+        ip: '192.168.1.100',
+      } as Partial<Request>;
+      (testRequest.get as jest.Mock).mockReturnValue('MyApp/2.0 (contact@example.com)');
+
+      await new Promise<void>((resolve) => {
+        rateLimitMiddleware(testRequest as Request, mockResponse as Response, () => {
+          mockNext();
+          resolve();
+        });
+      });
+
+      expect(mockNext).toHaveBeenCalled();
+    });
+
+    it('should handle missing IP address', async () => {
+      const testRequest = {
+        ...mockRequest,
+        ip: undefined,
+        socket: { remoteAddress: '10.0.0.1' } as Request['socket'],
+      } as Partial<Request>;
+      (testRequest.get as jest.Mock).mockReturnValue('TestApp/1.0 (test@example.com)');
+
+      await new Promise<void>((resolve) => {
+        rateLimitMiddleware(testRequest as Request, mockResponse as Response, () => {
+          mockNext();
+          resolve();
+        });
+      });
+
+      expect(mockNext).toHaveBeenCalled();
+    });
+
+    it('should handle missing User-Agent', async () => {
+      const testRequest = {
+        ...mockRequest,
+      } as Partial<Request>;
+      (testRequest.get as jest.Mock).mockReturnValue(null);
+
+      await new Promise<void>((resolve) => {
+        rateLimitMiddleware(testRequest as Request, mockResponse as Response, () => {
+          mockNext();
+          resolve();
+        });
+      });
+
+      expect(mockNext).toHaveBeenCalled();
+    });
+  });
 });
