@@ -48,6 +48,10 @@ cp .env.example .env
 # Build TypeScript
 npm run build
 
+# Load mock data (optional, for testing)
+# Requires OSM-Notes-Ingestion repository cloned
+./scripts/load_mock_data.sh
+
 # Start application
 npm start
 ```
