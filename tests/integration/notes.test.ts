@@ -192,6 +192,95 @@ describe('Notes Endpoints', () => {
       }
     });
 
+    it('should include pagination headers in response', async () => {
+      const response = await request(app)
+        .get('/api/v1/notes?page=1&limit=10')
+        .set('User-Agent', validUserAgent);
+
+      expect([200, 500]).toContain(response.status);
+      if (response.status === 200) {
+        const body = response.body as SearchNotesResponse;
+        const headers = response.headers;
+
+        // Standard pagination headers
+        expect(headers['x-total-count']).toBeDefined();
+        expect(headers['x-total-count']).toBe(String(body.pagination.total));
+        expect(headers['x-page']).toBeDefined();
+        expect(headers['x-page']).toBe(String(body.pagination.page));
+        expect(headers['x-per-page']).toBeDefined();
+        expect(headers['x-per-page']).toBe(String(body.pagination.limit));
+        expect(headers['x-total-pages']).toBeDefined();
+        expect(headers['x-total-pages']).toBe(String(body.pagination.total_pages));
+
+        // Link header should be present if there are multiple pages
+        if (body.pagination.total_pages > 1) {
+          expect(headers.link).toBeDefined();
+          expect(headers.link).toContain('rel="first"');
+          if (body.pagination.page < body.pagination.total_pages) {
+            expect(headers.link).toContain('rel="next"');
+          }
+        }
+      }
+    });
+
+    it('should include Link header with navigation links when on first page', async () => {
+      const response = await request(app)
+        .get('/api/v1/notes?page=1&limit=10')
+        .set('User-Agent', validUserAgent);
+
+      expect([200, 500]).toContain(response.status);
+      if (response.status === 200) {
+        const body = response.body as SearchNotesResponse;
+        const headers = response.headers;
+
+        if (body.pagination.total_pages > 1) {
+          expect(headers.link).toBeDefined();
+          expect(headers.link).toContain('rel="next"');
+          expect(headers.link).toContain('rel="last"');
+          // First page should not have "prev" link
+          expect(headers.link).not.toContain('rel="prev"');
+        }
+      }
+    });
+
+    it('should include Link header with navigation links when on middle page', async () => {
+      const response = await request(app)
+        .get('/api/v1/notes?page=2&limit=10')
+        .set('User-Agent', validUserAgent);
+
+      expect([200, 500]).toContain(response.status);
+      if (response.status === 200) {
+        const body = response.body as SearchNotesResponse;
+        const headers = response.headers;
+
+        if (body.pagination.total_pages > 2) {
+          expect(headers.link).toBeDefined();
+          expect(headers.link).toContain('rel="first"');
+          expect(headers.link).toContain('rel="prev"');
+          expect(headers.link).toContain('rel="next"');
+          expect(headers.link).toContain('rel="last"');
+        }
+      }
+    });
+
+    it('should preserve query parameters in pagination Link headers', async () => {
+      const response = await request(app)
+        .get('/api/v1/notes?status=open&country=42&page=1&limit=10')
+        .set('User-Agent', validUserAgent);
+
+      expect([200, 500]).toContain(response.status);
+      if (response.status === 200) {
+        const body = response.body as SearchNotesResponse;
+        const headers = response.headers;
+
+        if (body.pagination.total_pages > 1 && headers.link) {
+          // Link headers should preserve status and country filters
+          expect(headers.link).toContain('status=open');
+          expect(headers.link).toContain('country=42');
+        }
+      }
+    });
+
     it('should accept status filter', async () => {
       const response = await request(app)
         .get('/api/v1/notes?status=open')

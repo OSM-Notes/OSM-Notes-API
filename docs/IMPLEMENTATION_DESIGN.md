@@ -3199,12 +3199,12 @@ jobs:
   - [ ] Tests de integración
   - [ ] Documentación
 
-- [ ] **20. Paginación (TDD)**
+- [x] **20. Paginación (TDD)**
   - [x] Tests primero
   - [x] Implementar paginación estándar (limit/offset)
-  - [ ] Headers de paginación
+  - [x] Headers de paginación
   - [x] Tests de integración
-  - [ ] Documentación
+  - [x] Documentación
 
 - [ ] **21. Rankings (TDD)**
   - [ ] Tests primero

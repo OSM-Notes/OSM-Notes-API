@@ -664,8 +664,68 @@ try {
 For endpoints that return lists, use pagination:
 
 ```bash
-GET /api/v1/users?limit=50&offset=0
+GET /api/v1/notes?page=1&limit=20
 ```
+
+**Pagination Query Parameters**:
+- `page` (number): Page number (default: 1, minimum: 1)
+- `limit` (number): Results per page (default: 20, maximum: 100, minimum: 1)
+
+**Pagination Response Body**:
+All paginated endpoints include pagination metadata in the response body:
+
+```json
+{
+  "data": [...],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 250,
+    "total_pages": 13
+  }
+}
+```
+
+**Pagination HTTP Headers**:
+The API also includes standard pagination headers in HTTP responses:
+
+- `X-Total-Count`: Total number of results
+- `X-Page`: Current page number
+- `X-Per-Page`: Number of results per page
+- `X-Total-Pages`: Total number of pages
+- `Link`: Navigation links (RFC 5988) with `rel` values:
+  - `first`: Link to first page
+  - `prev`: Link to previous page (if not on first page)
+  - `next`: Link to next page (if not on last page)
+  - `last`: Link to last page
+
+**Example Response Headers**:
+```
+X-Total-Count: 250
+X-Page: 2
+X-Per-Page: 20
+X-Total-Pages: 13
+Link: </api/v1/notes?page=1&limit=20>; rel="first", </api/v1/notes?page=1&limit=20>; rel="prev", </api/v1/notes?page=3&limit=20>; rel="next", </api/v1/notes?page=13&limit=20>; rel="last"
+```
+
+**Using Pagination Headers**:
+You can use these headers to implement pagination navigation without parsing the response body:
+
+```javascript
+const response = await fetch('/api/v1/notes?page=2&limit=20', {
+  headers: { 'User-Agent': 'MyApp/1.0 (contact@example.com)' }
+});
+
+const totalPages = parseInt(response.headers.get('X-Total-Pages'), 10);
+const currentPage = parseInt(response.headers.get('X-Page'), 10);
+const linkHeader = response.headers.get('Link');
+
+// Parse Link header to get navigation URLs
+const links = parseLinkHeader(linkHeader);
+// links.first, links.prev, links.next, links.last
+```
+
+**Note**: Query parameters are preserved in pagination Link headers, so filters are maintained when navigating between pages.
 
 ### 5. Cache Responses
 
