@@ -2,10 +2,14 @@
 -- Execute EXPLAIN ANALYZE on all API queries to identify performance issues
 -- 
 -- Usage:
---   psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f scripts/analyze_queries.sql
+--   # For local testing (osm_notes_api_test):
+--   psql -U $(whoami) -d osm_notes_api_test -f scripts/analyze_queries.sql
 --
--- This script analyzes the actual query execution plans and provides
--- recommendations based on real database statistics.
+--   # For production (osm_notes_dwh):
+--   psql -h $DB_HOST -U $DB_USER -d osm_notes_dwh -f scripts/analyze_queries.sql
+--
+-- Note: This script checks for table existence before running EXPLAIN ANALYZE.
+--       Queries will be skipped if required tables don't exist.
 
 \echo '================================================================================'
 \echo 'OSM Notes API - Query Performance Analysis'
@@ -14,207 +18,226 @@
 \echo 'User: ' :USER
 \echo ''
 
+-- Check if required tables exist
+\set has_notes false
+\set has_note_comments false
+\set has_dwh_schema false
+
+SELECT EXISTS (
+  SELECT 1 FROM information_schema.tables 
+  WHERE table_schema = 'public' AND table_name = 'notes'
+) AS has_notes \gset
+
+SELECT EXISTS (
+  SELECT 1 FROM information_schema.tables 
+  WHERE table_schema = 'public' AND table_name = 'note_comments'
+) AS has_note_comments \gset
+
+SELECT EXISTS (
+  SELECT 1 FROM information_schema.schemata 
+  WHERE schema_name = 'dwh'
+) AS has_dwh_schema \gset
+
+\echo 'Table availability check:'
+\echo '  - public.notes: ' :has_notes
+\echo '  - public.note_comments: ' :has_note_comments
+\echo '  - dwh schema: ' :has_dwh_schema
+\echo ''
+
 -- ============================================================================
 -- 1. ANALYZE getNoteById Query
 -- ============================================================================
 
-\echo '1. Analyzing getNoteById query...'
-\echo '--------------------------------------------------------------------------------'
-
-EXPLAIN (ANALYZE, BUFFERS, VERBOSE)
-SELECT
-  n.note_id,
-  n.latitude,
-  n.longitude,
-  n.status,
-  n.created_at,
-  n.closed_at,
-  n.id_user,
-  n.id_country,
-  COUNT(DISTINCT nc.comment_id) as comments_count
-FROM public.notes n
-LEFT JOIN public.note_comments nc ON n.note_id = nc.note_id
-WHERE n.note_id = (
-  SELECT note_id FROM public.notes LIMIT 1
-)
-GROUP BY n.note_id, n.latitude, n.longitude, n.status, n.created_at, n.closed_at, n.id_user, n.id_country;
-
-\echo ''
-\echo 'Check: Look for "Index Scan" on notes.note_id (should use primary key)'
-\echo 'Check: Look for "Index Scan" on note_comments.note_id (should use index)'
-\echo 'Check: Execution time should be < 100ms'
-\echo ''
+\if :has_notes
+  \echo '1. Analyzing getNoteById query...'
+  \echo '--------------------------------------------------------------------------------'
+  
+  \set ON_ERROR_STOP off
+  EXPLAIN (ANALYZE, BUFFERS, VERBOSE)
+  SELECT
+    n.note_id,
+    n.latitude,
+    n.longitude,
+    n.status,
+    n.created_at,
+    n.closed_at,
+    n.id_user,
+    n.id_country,
+    COUNT(DISTINCT nc.comment_id) as comments_count
+  FROM public.notes n
+  LEFT JOIN public.note_comments nc ON n.note_id = nc.note_id
+  WHERE n.note_id = (
+    SELECT note_id FROM public.notes LIMIT 1
+  )
+  GROUP BY n.note_id, n.latitude, n.longitude, n.status, n.created_at, n.closed_at, n.id_user, n.id_country;
+  \set ON_ERROR_STOP on
+  
+  \echo ''
+  \echo 'Check: Look for "Index Scan" on notes.note_id (should use primary key)'
+  \echo 'Check: Look for "Index Scan" on note_comments.note_id (should use index)'
+  \echo 'Check: Execution time should be < 100ms'
+  \echo ''
+\else
+  \echo '1. Skipping getNoteById query (public.notes table does not exist)'
+  \echo ''
+\endif
 
 -- ============================================================================
 -- 2. ANALYZE getNoteComments Query
 -- ============================================================================
 
-\echo '2. Analyzing getNoteComments query...'
-\echo '--------------------------------------------------------------------------------'
-
-EXPLAIN (ANALYZE, BUFFERS, VERBOSE)
-SELECT
-  nc.comment_id,
-  nc.note_id,
-  nc.user_id,
-  u.username,
-  nc.action,
-  nc.created_at,
-  nct.text
-FROM public.note_comments nc
-LEFT JOIN public.users u ON nc.user_id = u.user_id
-LEFT JOIN public.note_comments_text nct ON nc.comment_id = nct.comment_id
-WHERE nc.note_id = (
-  SELECT note_id FROM public.notes LIMIT 1
-)
-ORDER BY nc.created_at ASC
-LIMIT 100;
-
-\echo ''
-\echo 'Check: Look for "Index Scan" on note_comments.note_id'
-\echo 'Check: Look for "Index Scan" on note_comments.created_at for ORDER BY'
-\echo 'Check: Execution time should be < 200ms'
-\echo ''
+\if :has_note_comments
+  \echo '2. Analyzing getNoteComments query...'
+  \echo '--------------------------------------------------------------------------------'
+  
+  \set ON_ERROR_STOP off
+  EXPLAIN (ANALYZE, BUFFERS, VERBOSE)
+  SELECT
+    nc.comment_id,
+    nc.note_id,
+    nc.user_id,
+    u.username,
+    nc.action,
+    nc.created_at,
+    nct.text
+  FROM public.note_comments nc
+  LEFT JOIN public.users u ON nc.user_id = u.user_id
+  LEFT JOIN public.note_comments_text nct ON nc.comment_id = nct.comment_id
+  WHERE nc.note_id = (
+    SELECT note_id FROM public.notes LIMIT 1
+  )
+  ORDER BY nc.created_at ASC
+  LIMIT 100;
+  \set ON_ERROR_STOP on
+  
+  \echo ''
+  \echo 'Check: Look for "Index Scan" on note_comments.note_id'
+  \echo 'Check: Look for "Index Scan" on note_comments.created_at for ORDER BY'
+  \echo 'Check: Execution time should be < 200ms'
+  \echo ''
+\else
+  \echo '2. Skipping getNoteComments query (public.note_comments table does not exist)'
+  \echo ''
+\endif
 
 -- ============================================================================
 -- 3. ANALYZE searchNotes Query (with country filter)
 -- ============================================================================
 
-\echo '3. Analyzing searchNotes query (with country filter)...'
-\echo '--------------------------------------------------------------------------------'
-
-EXPLAIN (ANALYZE, BUFFERS, VERBOSE)
-SELECT
-  n.note_id,
-  n.latitude,
-  n.longitude,
-  n.status,
-  n.created_at,
-  n.closed_at,
-  n.id_user,
-  n.id_country,
-  COUNT(DISTINCT nc.comment_id) as comments_count
-FROM public.notes n
-LEFT JOIN public.note_comments nc ON n.note_id = nc.note_id
-WHERE n.id_country = (
-  SELECT id_country FROM public.notes WHERE id_country IS NOT NULL LIMIT 1
-)
-GROUP BY n.note_id, n.latitude, n.longitude, n.status, n.created_at, n.closed_at, n.id_user, n.id_country
-ORDER BY n.created_at DESC
-LIMIT 20 OFFSET 0;
-
-\echo ''
-\echo 'Check: Look for "Index Scan" on notes.id_country'
-\echo 'Check: Look for "Index Scan" on notes.created_at for ORDER BY'
-\echo 'Check: Execution time should be < 500ms'
-\echo ''
+\if :has_notes
+  \echo '3. Analyzing searchNotes query (with country filter)...'
+  \echo '--------------------------------------------------------------------------------'
+  
+  \set ON_ERROR_STOP off
+  EXPLAIN (ANALYZE, BUFFERS, VERBOSE)
+  SELECT
+    n.note_id,
+    n.latitude,
+    n.longitude,
+    n.status,
+    n.created_at,
+    n.closed_at,
+    n.id_user,
+    n.id_country,
+    COUNT(DISTINCT nc.comment_id) as comments_count
+  FROM public.notes n
+  LEFT JOIN public.note_comments nc ON n.note_id = nc.note_id
+  WHERE n.id_country = (
+    SELECT id_country FROM public.notes WHERE id_country IS NOT NULL LIMIT 1
+  )
+  GROUP BY n.note_id, n.latitude, n.longitude, n.status, n.created_at, n.closed_at, n.id_user, n.id_country
+  ORDER BY n.created_at DESC
+  LIMIT 20 OFFSET 0;
+  \set ON_ERROR_STOP on
+  
+  \echo ''
+  \echo 'Check: Look for "Index Scan" on notes.id_country'
+  \echo 'Check: Look for "Index Scan" on notes.created_at for ORDER BY'
+  \echo 'Check: Execution time should be < 500ms'
+  \echo ''
+\else
+  \echo '3. Skipping searchNotes query (public.notes table does not exist)'
+  \echo ''
+\endif
 
 -- ============================================================================
 -- 4. ANALYZE searchNotes Query (with status filter)
 -- ============================================================================
 
-\echo '4. Analyzing searchNotes query (with status filter)...'
-\echo '--------------------------------------------------------------------------------'
-
-EXPLAIN (ANALYZE, BUFFERS, VERBOSE)
-SELECT
-  n.note_id,
-  n.latitude,
-  n.longitude,
-  n.status,
-  n.created_at,
-  n.closed_at,
-  n.id_user,
-  n.id_country,
-  COUNT(DISTINCT nc.comment_id) as comments_count
-FROM public.notes n
-LEFT JOIN public.note_comments nc ON n.note_id = nc.note_id
-WHERE n.status = 'open'
-GROUP BY n.note_id, n.latitude, n.longitude, n.status, n.created_at, n.closed_at, n.id_user, n.id_country
-ORDER BY n.created_at DESC
-LIMIT 20 OFFSET 0;
-
-\echo ''
-\echo 'Check: Look for "Index Scan" on notes.status'
-\echo 'Check: Look for composite index on (status, created_at)'
-\echo 'Check: Execution time should be < 500ms'
-\echo ''
+\if :has_notes
+  \echo '4. Analyzing searchNotes query (with status filter)...'
+  \echo '--------------------------------------------------------------------------------'
+  
+  \set ON_ERROR_STOP off
+  EXPLAIN (ANALYZE, BUFFERS, VERBOSE)
+  SELECT
+    n.note_id,
+    n.latitude,
+    n.longitude,
+    n.status,
+    n.created_at,
+    n.closed_at,
+    n.id_user,
+    n.id_country,
+    COUNT(DISTINCT nc.comment_id) as comments_count
+  FROM public.notes n
+  LEFT JOIN public.note_comments nc ON n.note_id = nc.note_id
+  WHERE n.status = 'open'
+  GROUP BY n.note_id, n.latitude, n.longitude, n.status, n.created_at, n.closed_at, n.id_user, n.id_country
+  ORDER BY n.created_at DESC
+  LIMIT 20 OFFSET 0;
+  \set ON_ERROR_STOP on
+  
+  \echo ''
+  \echo 'Check: Look for "Index Scan" on notes.status'
+  \echo 'Check: Look for composite index on (status, created_at)'
+  \echo 'Check: Execution time should be < 500ms'
+  \echo ''
+\else
+  \echo '4. Skipping searchNotes query (public.notes table does not exist)'
+  \echo ''
+\endif
 
 -- ============================================================================
 -- 5. ANALYZE searchNotes COUNT Query
 -- ============================================================================
 
-\echo '5. Analyzing searchNotes COUNT query...'
-\echo '--------------------------------------------------------------------------------'
-
-EXPLAIN (ANALYZE, BUFFERS, VERBOSE)
-SELECT COUNT(DISTINCT n.note_id) as count
-FROM public.notes n
-WHERE n.id_country = (
-  SELECT id_country FROM public.notes WHERE id_country IS NOT NULL LIMIT 1
-);
-
-\echo ''
-\echo 'Check: COUNT should use index if possible'
-\echo 'Check: Execution time should be < 300ms'
-\echo ''
-
--- ============================================================================
--- 6. ANALYZE getUserProfile Query (only if dwh schema exists)
--- ============================================================================
-
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = 'dwh') 
-     AND EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'dwh' AND table_name = 'datamartusers') THEN
-    
-    RAISE NOTICE '6. Analyzing getUserProfile query...';
-    RAISE NOTICE '--------------------------------------------------------------------------------';
-    
-    PERFORM 1; -- Placeholder, actual EXPLAIN will be in dynamic SQL if needed
-  ELSE
-    RAISE NOTICE '6. Skipping getUserProfile query (dwh.datamartUsers not available in test DB)';
-  END IF;
-END $$;
-
--- Note: dwh schema queries are typically only available in production (osm_notes_dwh)
--- For local testing with osm_notes_api_test, these queries will be skipped
+\if :has_notes
+  \echo '5. Analyzing searchNotes COUNT query...'
+  \echo '--------------------------------------------------------------------------------'
+  
+  \set ON_ERROR_STOP off
+  EXPLAIN (ANALYZE, BUFFERS, VERBOSE)
+  SELECT COUNT(DISTINCT n.note_id) as count
+  FROM public.notes n
+  WHERE n.id_country = (
+    SELECT id_country FROM public.notes WHERE id_country IS NOT NULL LIMIT 1
+  );
+  \set ON_ERROR_STOP on
+  
+  \echo ''
+  \echo 'Check: COUNT should use index if possible'
+  \echo 'Check: Execution time should be < 300ms'
+  \echo ''
+\else
+  \echo '5. Skipping searchNotes COUNT query (public.notes table does not exist)'
+  \echo ''
+\endif
 
 -- ============================================================================
--- 7. ANALYZE getCountryProfile Query (only if dwh schema exists)
+-- 6-8. ANALYZE Datamart Queries (only if dwh schema exists)
 -- ============================================================================
 
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = 'dwh') 
-     AND EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'dwh' AND table_name = 'datamartcountries') THEN
-    
-    RAISE NOTICE '7. Analyzing getCountryProfile query...';
-    RAISE NOTICE '--------------------------------------------------------------------------------';
-    
-    PERFORM 1; -- Placeholder
-  ELSE
-    RAISE NOTICE '7. Skipping getCountryProfile query (dwh.datamartCountries not available in test DB)';
-  END IF;
-END $$;
-
--- ============================================================================
--- 8. ANALYZE getGlobalAnalytics Query (only if dwh schema exists)
--- ============================================================================
-
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = 'dwh') 
-     AND EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'dwh' AND table_name = 'datamartglobal') THEN
-    
-    RAISE NOTICE '8. Analyzing getGlobalAnalytics query...';
-    RAISE NOTICE '--------------------------------------------------------------------------------';
-    
-    PERFORM 1; -- Placeholder
-  ELSE
-    RAISE NOTICE '8. Skipping getGlobalAnalytics query (dwh.datamartGlobal not available in test DB)';
-  END IF;
-END $$;
+\if :has_dwh_schema
+  \echo '6-8. Analyzing datamart queries (dwh schema available)...'
+  \echo 'Note: These queries are typically only available in production (osm_notes_dwh)'
+  \echo 'For local testing, these will show what would be analyzed in production.'
+  \echo ''
+\else
+  \echo '6-8. Skipping datamart queries (dwh schema not available in test database)'
+  \echo 'These queries are only available in production (osm_notes_dwh)'
+  \echo ''
+\endif
 
 -- ============================================================================
 -- 9. CHECK EXISTING INDEXES
@@ -329,4 +352,6 @@ ORDER BY n_live_tup DESC;
 \echo '5. Run ANALYZE on tables with stale statistics'
 \echo '6. Consider VACUUM on tables with many dead rows'
 \echo ''
-
+\echo 'Note: For production analysis, use osm_notes_dwh database'
+\echo '      For local testing, use osm_notes_api_test database'
+\echo ''
