@@ -319,7 +319,7 @@ ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
 
 SELECT
   schemaname,
-  tablename,
+  relname as tablename,
   n_live_tup as row_count,
   n_dead_tup as dead_rows,
   last_vacuum,
@@ -328,7 +328,7 @@ SELECT
   last_autoanalyze
 FROM pg_stat_user_tables
 WHERE schemaname IN ('public', 'dwh')
-  AND tablename IN ('notes', 'note_comments', 'note_comments_text', 'datamartUsers', 'datamartCountries', 'datamartGlobal')
+  AND relname IN ('notes', 'note_comments', 'note_comments_text', 'datamartUsers', 'datamartCountries', 'datamartGlobal')
 ORDER BY n_live_tup DESC;
 
 \echo ''
