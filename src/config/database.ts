@@ -15,7 +15,7 @@ export interface DatabaseConfig {
   port: number;
   database: string;
   user: string;
-  password: string;
+  password?: string;
   ssl?: boolean | { rejectUnauthorized: boolean };
   max?: number;
   idleTimeoutMillis?: number;
@@ -26,16 +26,21 @@ export interface DatabaseConfig {
  * Get database configuration from environment variables
  */
 function getDatabaseConfig(): DatabaseConfig {
+  const password = process.env.DB_PASSWORD;
   const config: DatabaseConfig = {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '5432', 10),
     database: process.env.DB_NAME || 'osm_notes_dwh',
     user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || '',
     max: parseInt(process.env.DB_MAX_CONNECTIONS || '20', 10),
     idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT || '30000', 10),
     connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT || '10000', 10),
   };
+
+  // Only set password if provided (omit if empty/undefined)
+  if (password && password.length > 0) {
+    config.password = password;
+  }
 
   // SSL configuration
   if (process.env.DB_SSL === 'true') {
@@ -123,6 +128,14 @@ export async function closeDatabasePool(): Promise<void> {
       // Don't throw, allow graceful shutdown even if close fails
     }
   }
+}
+
+/**
+ * Reset database connection pool (for testing)
+ * Closes existing pool and forces recreation on next getDatabasePool() call
+ */
+export async function resetDatabasePool(): Promise<void> {
+  await closeDatabasePool();
 }
 
 /**

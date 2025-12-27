@@ -3,18 +3,35 @@
  * These tests require a running PostgreSQL instance
  */
 
-import { getDatabasePool, testConnection, closeDatabasePool } from '../../src/config/database';
+// Set test environment variables BEFORE importing database module
+// This ensures the pool is created with correct credentials
+const dbHost = process.env.DB_HOST || 'localhost';
+const dbPort = process.env.DB_PORT || '5432';
+const dbName = process.env.DB_NAME || 'osm_notes_api_test';
+const dbUser = process.env.DB_USER || 'postgres';
+const dbPassword = process.env.DB_PASSWORD || '';
+
+process.env.DB_HOST = dbHost;
+process.env.DB_PORT = dbPort;
+process.env.DB_NAME = dbName;
+process.env.DB_USER = dbUser;
+process.env.DB_PASSWORD = dbPassword;
+process.env.DB_SSL = 'false';
+
+// Now import database module after setting env vars
+import {
+  getDatabasePool,
+  testConnection,
+  closeDatabasePool,
+  resetDatabasePool,
+} from '../../src/config/database';
 
 describe('Database Integration Tests', () => {
-  // Skip if database is not available
-  const dbHost = process.env.DB_HOST || 'localhost';
-  const dbPort = process.env.DB_PORT || '5432';
-  const dbName = process.env.DB_NAME || 'test_db';
-  const dbUser = process.env.DB_USER || 'test_user';
-  const dbPassword = process.env.DB_PASSWORD || 'test_pass';
+  beforeAll(async () => {
+    // Reset any existing pool to ensure fresh connection with correct credentials
+    await resetDatabasePool();
 
-  beforeAll(() => {
-    // Set test environment variables if not set
+    // Ensure environment variables are set (already set above, but double-check)
     process.env.DB_HOST = dbHost;
     process.env.DB_PORT = dbPort;
     process.env.DB_NAME = dbName;

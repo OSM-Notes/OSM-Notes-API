@@ -12,7 +12,7 @@ describe('Countries Endpoints', () => {
   beforeAll(async () => {
     // Set required environment variables before importing app
     process.env.DB_HOST = process.env.DB_HOST || 'localhost';
-    process.env.DB_NAME = process.env.DB_NAME || 'test_db';
+    process.env.DB_NAME = process.env.DB_NAME || 'osm_notes_api_test';
     process.env.DB_USER = process.env.DB_USER || 'test_user';
     process.env.DB_PASSWORD = process.env.DB_PASSWORD || 'test_pass';
     // Disable Redis for tests (use in-memory rate limiting)
