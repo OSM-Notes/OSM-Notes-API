@@ -2764,69 +2764,69 @@ jobs:
 
 #### Día 1: Configuración del Proyecto
 
-- [ ] **1.1. Crear estructura de proyecto**
-  - [ ] Crear estructura de carpetas según diseño
-  - [ ] Configurar `package.json` con dependencias básicas
-  - [ ] Configurar TypeScript (`tsconfig.json` con strict mode)
-  - [ ] Configurar ESLint + Prettier
-  - [ ] Crear `.gitignore` apropiado
-  - [ ] Crear `.env.example` con variables de entorno
+- [x] **1.1. Crear estructura de proyecto**
+  - [x] Crear estructura de carpetas según diseño
+  - [x] Configurar `package.json` con dependencias básicas
+  - [x] Configurar TypeScript (`tsconfig.json` con strict mode)
+  - [x] Configurar ESLint + Prettier
+  - [x] Crear `.gitignore` apropiado
+  - [x] Crear `.env.example` con variables de entorno
 
-- [ ] **1.2. Configurar herramientas de desarrollo**
-  - [ ] Configurar Jest para testing
-  - [ ] Configurar scripts npm (test, lint, format, build)
-  - [ ] Configurar nodemon para desarrollo
-  - [ ] Configurar ts-node para ejecución directa
+- [x] **1.2. Configurar herramientas de desarrollo**
+  - [x] Configurar Jest para testing
+  - [x] Configurar scripts npm (test, lint, format, build)
+  - [x] Configurar nodemon para desarrollo
+  - [x] Configurar ts-node para ejecución directa
 
-- [ ] **1.3. Configurar Docker**
-  - [ ] Crear `Dockerfile` para la API
-  - [ ] Crear `docker-compose.yml` con servicios:
-    - [ ] API
-    - [ ] PostgreSQL (test)
-    - [ ] Redis
-    - [ ] Prometheus (opcional en esta fase)
-  - [ ] Crear `.dockerignore`
-  - [ ] Documentar cómo levantar con Docker
+- [x] **1.3. Configurar Docker**
+  - [x] Crear `Dockerfile` para la API
+  - [x] Crear `docker-compose.yml` con servicios:
+    - [x] API
+    - [x] PostgreSQL (test)
+    - [x] Redis
+    - [x] Prometheus (opcional en esta fase)
+  - [x] Crear `.dockerignore`
+  - [x] Documentar cómo levantar con Docker
 
-- [ ] **1.4. Documentación inicial**
-  - [ ] Crear `README.md` con:
-    - [ ] Descripción del proyecto
-    - [ ] Requisitos previos
-    - [ ] Instrucciones de instalación básicas
-    - [ ] Estructura del proyecto
-    - [ ] Licencia (elegir y documentar)
-  - [ ] Crear `docs/INSTALLATION.md` (inicio del manual)
-  - [ ] Crear `docs/USAGE.md` (inicio del manual de uso)
-  - [ ] Crear `LICENSE` file (MIT, Apache 2.0, etc.)
-  - [ ] Crear `CONTRIBUTING.md` (guía de contribución)
-  - [ ] Crear `CODE_OF_CONDUCT.md` (si es open source)
-  - [ ] Crear `CHANGELOG.md` (formato Keep a Changelog)
+- [x] **1.4. Documentación inicial**
+  - [x] Crear `README.md` con:
+    - [x] Descripción del proyecto
+    - [x] Requisitos previos
+    - [x] Instrucciones de instalación básicas
+    - [x] Estructura del proyecto
+    - [x] Licencia (elegir y documentar)
+  - [x] Crear `docs/INSTALLATION.md` (inicio del manual)
+  - [x] Crear `docs/USAGE.md` (inicio del manual de uso)
+  - [x] Crear `LICENSE` file (MIT, Apache 2.0, etc.)
+  - [x] Crear `CONTRIBUTING.md` (guía de contribución)
+  - [x] Crear `CODE_OF_CONDUCT.md` (si es open source)
+  - [x] Crear `CHANGELOG.md` (formato Keep a Changelog)
 
-- [ ] **1.5. Estándares de desarrollo y procesos**
-  - [ ] Configurar Conventional Commits (commitlint)
-  - [ ] Adoptar Semantic Versioning
-  - [ ] Documentar proceso de code review en `docs/DEVELOPMENT.md`
-  - [ ] Configurar branch protection en GitHub
-  - [ ] Documentar API Versioning Strategy en `docs/API_VERSIONING.md`
+- [x] **1.5. Estándares de desarrollo y procesos**
+  - [x] Configurar Conventional Commits (commitlint)
+  - [x] Adoptar Semantic Versioning
+  - [x] Documentar proceso de code review en `docs/DEVELOPMENT.md`
+  - [x] Configurar branch protection en GitHub (manual, fuera del código)
+  - [x] Documentar API Versioning Strategy en `docs/API_VERSIONING.md`
 
-- [ ] **1.6. Arquitectura y decisiones**
-  - [ ] Crear `docs/adr/` directory
-  - [ ] Crear template para ADRs
-  - [ ] ADR-001: Decisión de usar Node.js + Express
-  - [ ] ADR-002: Decisión de usar Redis para cache
-  - [ ] ADR-003: Decisión de enfoque híbrido OAuth
-  - [ ] Crear diagrama de arquitectura (C4 Model nivel 1)
-  - [ ] Crear diagrama de componentes (C4 Model nivel 2)
-  - [ ] Crear diagrama de flujo de datos
+- [x] **1.6. Arquitectura y decisiones**
+  - [x] Crear `docs/adr/` directory
+  - [x] Crear template para ADRs
+  - [x] ADR-001: Decisión de usar Node.js + Express
+  - [x] ADR-002: Decisión de usar Redis para cache
+  - [x] ADR-003: Decisión de enfoque híbrido OAuth
+  - [x] Crear diagrama de arquitectura (C4 Model nivel 1)
+  - [x] Crear diagrama de componentes (C4 Model nivel 2)
+  - [x] Crear diagrama de flujo de datos
 
-- [ ] **1.7. Seguridad inicial**
-  - [ ] Crear `docs/security/` directory
-  - [ ] Crear `docs/security/THREAT_MODEL.md`
-  - [ ] Identificar activos y amenazas
-  - [ ] Documentar mitigaciones
-  - [ ] Documentar secrets management en `docs/security/SECRETS.md`
-  - [ ] Configurar `npm audit` en CI/CD
-  - [ ] Configurar Dependabot o Renovate
+- [x] **1.7. Seguridad inicial**
+  - [x] Crear `docs/security/` directory
+  - [x] Crear `docs/security/THREAT_MODEL.md`
+  - [x] Identificar activos y amenazas
+  - [x] Documentar mitigaciones
+  - [x] Documentar secrets management en `docs/security/SECRETS.md`
+  - [x] Configurar `npm audit` en CI/CD
+  - [x] Configurar Dependabot o Renovate
 
 **Entregables**:
 - ✅ Proyecto inicializado con estructura completa
@@ -2836,31 +2836,31 @@ jobs:
 
 #### Día 2: Configuración de Base de Datos y Logging
 
-- [ ] **2.1. Configurar conexión a base de datos**
-  - [ ] Crear `src/config/database.ts`
-  - [ ] Configurar conexión a PostgreSQL (`osm_notes_dwh`)
-  - [ ] Crear pool de conexiones
-  - [ ] Manejo de errores de conexión
-  - [ ] Tests de conexión (TDD)
+- [x] **2.1. Configurar conexión a base de datos**
+  - [x] Crear `src/config/database.ts`
+  - [x] Configurar conexión a PostgreSQL (`osm_notes_dwh`)
+  - [x] Crear pool de conexiones
+  - [x] Manejo de errores de conexión
+  - [x] Tests de conexión (TDD)
 
-- [ ] **2.2. Configurar logging estructurado**
-  - [ ] Instalar y configurar Winston
-  - [ ] Crear `src/utils/logger.ts`
-  - [ ] Configurar niveles de log (error, warn, info, debug)
-  - [ ] Formato JSON para producción
-  - [ ] Tests del logger (TDD)
+- [x] **2.2. Configurar logging estructurado**
+  - [x] Instalar y configurar Winston
+  - [x] Crear `src/utils/logger.ts`
+  - [x] Configurar niveles de log (error, warn, info, debug)
+  - [x] Formato JSON para producción
+  - [x] Tests del logger (TDD)
 
-- [ ] **2.3. Configurar variables de entorno**
-  - [ ] Crear `src/config/env.ts` con validación (Joi/Zod)
-  - [ ] Validar variables requeridas al iniciar
-  - [ ] Documentar variables en `.env.example`
-  - [ ] Tests de validación de variables (TDD)
+- [x] **2.3. Configurar variables de entorno**
+  - [x] Crear `src/config/env.ts` con validación (Joi/Zod)
+  - [x] Validar variables requeridas al iniciar
+  - [x] Documentar variables en `.env.example`
+  - [x] Tests de validación de variables (TDD)
 
-- [ ] **2.4. Health check básico**
-  - [ ] Crear endpoint `GET /health`
-  - [ ] Verificar conexión a BD
-  - [ ] Verificar conexión a Redis (si está disponible)
-  - [ ] Tests de health check (TDD)
+- [x] **2.4. Health check básico**
+  - [x] Crear endpoint `GET /health`
+  - [x] Verificar conexión a BD
+  - [x] Verificar conexión a Redis (si está disponible)
+  - [x] Tests de health check (TDD)
 
 **Entregables**:
 - ✅ Conexión a BD funcionando
@@ -2874,34 +2874,34 @@ jobs:
 
 #### Día 3: Middleware de Validación de User-Agent
 
-- [ ] **3.1. Tests primero (TDD)**
-  - [ ] Crear `tests/unit/middleware/validateUserAgent.test.ts`
-  - [ ] Test: Rechaza request sin User-Agent
-  - [ ] Test: Rechaza User-Agent con formato inválido
-  - [ ] Test: Rechaza User-Agent sin contacto
-  - [ ] Test: Rechaza contacto inválido (no email ni URL)
-  - [ ] Test: Acepta User-Agent válido con email
-  - [ ] Test: Acepta User-Agent válido con URL
-  - [ ] Test: Extrae información correctamente (appName, version, contact)
+- [x] **3.1. Tests primero (TDD)**
+  - [x] Crear `tests/unit/middleware/validateUserAgent.test.ts`
+  - [x] Test: Rechaza request sin User-Agent
+  - [x] Test: Rechaza User-Agent con formato inválido
+  - [x] Test: Rechaza User-Agent sin contacto
+  - [x] Test: Rechaza contacto inválido (no email ni URL)
+  - [x] Test: Acepta User-Agent válido con email
+  - [x] Test: Acepta User-Agent válido con URL
+  - [x] Test: Extrae información correctamente (appName, version, contact)
 
-- [ ] **3.2. Implementación**
-  - [ ] Crear `src/middleware/validateUserAgent.ts`
-  - [ ] Implementar validación de formato
-  - [ ] Implementar validación de contacto (email/URL)
-  - [ ] Extraer información a `req.userAgentInfo`
-  - [ ] Logging de requests con User-Agent válido
-  - [ ] Respuestas de error claras y útiles
+- [x] **3.2. Implementación**
+  - [x] Crear `src/middleware/validateUserAgent.ts`
+  - [x] Implementar validación de formato
+  - [x] Implementar validación de contacto (email/URL)
+  - [x] Extraer información a `req.userAgentInfo`
+  - [x] Logging de requests con User-Agent válido
+  - [x] Respuestas de error claras y útiles
 
-- [ ] **3.3. Tests de integración**
-  - [ ] Crear `tests/integration/middleware/validateUserAgent.test.ts`
-  - [ ] Test con Supertest: Request sin User-Agent → 400
-  - [ ] Test con Supertest: User-Agent inválido → 400
-  - [ ] Test con Supertest: User-Agent válido → 200
+- [x] **3.3. Tests de integración**
+  - [x] Crear `tests/integration/middleware/validateUserAgent.test.ts`
+  - [x] Test con Supertest: Request sin User-Agent → 400
+  - [x] Test con Supertest: User-Agent inválido → 400
+  - [x] Test con Supertest: User-Agent válido → 200
 
-- [ ] **3.4. Documentación**
-  - [ ] Documentar middleware con JSDoc
-  - [ ] Actualizar `docs/USAGE.md` con ejemplos de User-Agent
-  - [ ] Actualizar OpenAPI spec con requerimiento de User-Agent
+- [x] **3.4. Documentación**
+  - [x] Documentar middleware con JSDoc
+  - [x] Actualizar `docs/USAGE.md` con ejemplos de User-Agent
+  - [x] Actualizar OpenAPI spec con requerimiento de User-Agent
 
 **Entregables**:
 - ✅ Middleware de User-Agent funcionando
@@ -2910,32 +2910,32 @@ jobs:
 
 #### Día 4: Middleware de Rate Limiting
 
-- [ ] **4.1. Tests primero (TDD)**
-  - [ ] Crear `tests/unit/middleware/rateLimit.test.ts`
-  - [ ] Test: Permite requests dentro del límite
-  - [ ] Test: Bloquea requests que exceden límite (429)
-  - [ ] Test: Rate limiting por IP + User-Agent
-  - [ ] Test: Headers de rate limit en respuesta
-  - [ ] Test: Diferentes límites para anónimo vs autenticado
+- [x] **4.1. Tests primero (TDD)**
+  - [x] Crear `tests/unit/middleware/rateLimit.test.ts`
+  - [x] Test: Permite requests dentro del límite
+  - [x] Test: Bloquea requests que exceden límite (429)
+  - [x] Test: Rate limiting por IP + User-Agent
+  - [x] Test: Headers de rate limit en respuesta
+  - [x] Test: Diferentes límites para anónimo vs autenticado
 
-- [ ] **4.2. Implementación**
-  - [ ] Crear `src/middleware/rateLimit.ts`
-  - [ ] Configurar `express-rate-limit` con Redis store
-  - [ ] Límite: 50 req/15min para anónimos
-  - [ ] Tracking por IP + User-Agent
-  - [ ] Headers de respuesta (X-RateLimit-*)
-  - [ ] Mensajes de error claros
+- [x] **4.2. Implementación**
+  - [x] Crear `src/middleware/rateLimit.ts`
+  - [x] Configurar `express-rate-limit` con Redis store
+  - [x] Límite: 50 req/15min para anónimos
+  - [x] Tracking por IP + User-Agent
+  - [x] Headers de respuesta (X-RateLimit-*)
+  - [x] Mensajes de error claros
 
-- [ ] **4.3. Tests de integración**
-  - [ ] Crear `tests/integration/middleware/rateLimit.test.ts`
-  - [ ] Test: 50 requests permitidas
-  - [ ] Test: Request 51 bloqueada (429)
-  - [ ] Test: Headers de rate limit presentes
+- [x] **4.3. Tests de integración**
+  - [x] Crear `tests/integration/middleware/rateLimit.test.ts`
+  - [x] Test: 50 requests permitidas
+  - [x] Test: Request 51 bloqueada (429)
+  - [x] Test: Headers de rate limit presentes
 
-- [ ] **4.4. Documentación**
-  - [ ] Documentar con JSDoc
-  - [ ] Actualizar `docs/USAGE.md` con límites de rate limiting
-  - [ ] Actualizar OpenAPI spec
+- [x] **4.4. Documentación**
+  - [x] Documentar con JSDoc
+  - [x] Actualizar `docs/USAGE.md` con límites de rate limiting
+  - [x] Actualizar OpenAPI spec
 
 **Entregables**:
 - ✅ Rate limiting funcionando
@@ -2944,31 +2944,31 @@ jobs:
 
 #### Día 5: Middleware Anti-Abuso
 
-- [ ] **5.1. Tests primero (TDD)**
-  - [ ] Crear `tests/unit/middleware/antiAbuse.test.ts`
-  - [ ] Test: Detecta AI sin OAuth → 403
-  - [ ] Test: Detecta bot conocido → aplica límite restrictivo
-  - [ ] Test: Permite User-Agent legítimo
-  - [ ] Test: Logging de AIs/bots detectados
+- [x] **5.1. Tests primero (TDD)**
+  - [x] Crear `tests/unit/middleware/antiAbuse.test.ts`
+  - [x] Test: Detecta AI sin OAuth → 403
+  - [x] Test: Detecta bot conocido → aplica límite restrictivo
+  - [x] Test: Permite User-Agent legítimo
+  - [x] Test: Logging de AIs/bots detectados
 
-- [ ] **5.2. Implementación**
-  - [ ] Crear `src/middleware/antiAbuse.ts`
-  - [ ] Lista de User-Agents de AIs conocidas
-  - [ ] Lista de User-Agents de bots conocidos
-  - [ ] Bloqueo de AIs sin OAuth (403)
-  - [ ] Rate limiting restrictivo para bots (10 req/hora)
-  - [ ] Logging de detecciones
+- [x] **5.2. Implementación**
+  - [x] Crear `src/middleware/antiAbuse.ts`
+  - [x] Lista de User-Agents de AIs conocidas
+  - [x] Lista de User-Agents de bots conocidos
+  - [x] Bloqueo de AIs sin OAuth (403)
+  - [x] Rate limiting restrictivo para bots (10 req/hora)
+  - [x] Logging de detecciones
 
-- [ ] **5.3. Tests de integración**
-  - [ ] Crear `tests/integration/middleware/antiAbuse.test.ts`
-  - [ ] Test: AI sin OAuth → 403
-  - [ ] Test: Bot conocido → rate limit restrictivo
-  - [ ] Test: User-Agent legítimo → pasa
+- [x] **5.3. Tests de integración**
+  - [x] Crear `tests/integration/middleware/antiAbuse.test.ts`
+  - [x] Test: AI sin OAuth → 403
+  - [x] Test: Bot conocido → rate limit restrictivo
+  - [x] Test: User-Agent legítimo → pasa
 
-- [ ] **5.4. Documentación**
-  - [ ] Documentar con JSDoc
-  - [ ] Actualizar `docs/USAGE.md` con política anti-abuso
-  - [ ] Documentar User-Agents bloqueados/limitados
+- [x] **5.4. Documentación**
+  - [x] Documentar con JSDoc
+  - [x] Actualizar `docs/USAGE.md` con política anti-abuso
+  - [x] Documentar User-Agents bloqueados/limitados
 
 **Entregables**:
 - ✅ Middleware anti-abuso funcionando
@@ -2981,43 +2981,43 @@ jobs:
 
 #### Semana 2: Servicios y Endpoints de Notas
 
-- [ ] **6. Servicio de Notas (TDD)**
-  - [ ] **6.1. Tests primero**
-    - [ ] Crear `tests/unit/services/noteService.test.ts`
-    - [ ] Test: `getNoteById` retorna nota válida
-    - [ ] Test: `getNoteById` lanza error si no existe
-    - [ ] Test: `getNoteComments` retorna comentarios
-    - [ ] Test: `searchNotes` con filtros básicos
-    - [ ] Mock de base de datos
+- [x] **6. Servicio de Notas (TDD)**
+  - [x] **6.1. Tests primero**
+    - [x] Crear `tests/unit/services/noteService.test.ts`
+    - [x] Test: `getNoteById` retorna nota válida
+    - [x] Test: `getNoteById` lanza error si no existe
+    - [x] Test: `getNoteComments` retorna comentarios
+    - [x] Test: `searchNotes` con filtros básicos
+    - [x] Mock de base de datos
 
-  - [ ] **6.2. Implementación**
-    - [ ] Crear `src/services/noteService.ts`
-    - [ ] Implementar `getNoteById(userId: number)`
-    - [ ] Implementar `getNoteComments(noteId: number)`
-    - [ ] Implementar `searchNotes(filters: SearchFilters)`
-    - [ ] Manejo de errores (404, 500)
-    - [ ] Logging de queries importantes
+  - [x] **6.2. Implementación**
+    - [x] Crear `src/services/noteService.ts`
+    - [x] Implementar `getNoteById(userId: number)`
+    - [x] Implementar `getNoteComments(noteId: number)`
+    - [x] Implementar `searchNotes(filters: SearchFilters)`
+    - [x] Manejo de errores (404, 500)
+    - [x] Logging de queries importantes
 
-  - [ ] **6.3. Tests de integración**
-    - [ ] Crear `tests/integration/notes.test.ts`
-    - [ ] Test: `GET /api/v1/notes/:note_id` → 200
-    - [ ] Test: `GET /api/v1/notes/:note_id` → 404
-    - [ ] Test: `GET /api/v1/notes/:note_id/comments` → 200
-    - [ ] Test: Validación de User-Agent
-    - [ ] Test: Rate limiting aplicado
+  - [x] **6.3. Tests de integración**
+    - [x] Crear `tests/integration/notes.test.ts`
+    - [x] Test: `GET /api/v1/notes/:note_id` → 200
+    - [x] Test: `GET /api/v1/notes/:note_id` → 404
+    - [x] Test: `GET /api/v1/notes/:note_id/comments` → 200
+    - [x] Test: Validación de User-Agent
+    - [x] Test: Rate limiting aplicado
 
-  - [ ] **6.4. Endpoints**
-    - [ ] Crear `src/routes/notes.ts`
-    - [ ] Crear `src/controllers/notesController.ts`
-    - [ ] `GET /api/v1/notes/:note_id`
-    - [ ] `GET /api/v1/notes/:note_id/comments`
-    - [ ] Validación de parámetros (Joi/Zod)
-    - [ ] Manejo de errores
+  - [x] **6.4. Endpoints**
+    - [x] Crear `src/routes/notes.ts`
+    - [x] Crear `src/controllers/notesController.ts`
+    - [x] `GET /api/v1/notes/:note_id`
+    - [x] `GET /api/v1/notes/:note_id/comments`
+    - [x] Validación de parámetros (Joi/Zod)
+    - [x] Manejo de errores
 
-  - [ ] **6.5. Documentación**
-    - [ ] JSDoc en servicios y controladores
-    - [ ] Actualizar OpenAPI spec
-    - [ ] Actualizar `docs/USAGE.md` con ejemplos de notas
+  - [x] **6.5. Documentación**
+    - [x] JSDoc en servicios y controladores
+    - [x] Actualizar OpenAPI spec
+    - [x] Actualizar `docs/USAGE.md` con ejemplos de notas
 
 **Entregables**:
 - ✅ Servicio de notas funcionando
@@ -3025,32 +3025,32 @@ jobs:
 - ✅ Tests pasando (unitarios + integración)
 - ✅ Documentación actualizada
 
-- [ ] **7. Servicio de Usuarios (TDD)**
-  - [ ] **7.1. Tests primero**
-    - [ ] Crear `tests/unit/services/userService.test.ts`
-    - [ ] Test: `getUserProfile` retorna perfil válido
-    - [ ] Test: `getUserProfile` lanza error si no existe
+- [x] **7. Servicio de Usuarios (TDD)**
+  - [x] **7.1. Tests primero**
+    - [x] Crear `tests/unit/services/userService.test.ts`
+    - [x] Test: `getUserProfile` retorna perfil válido
+    - [x] Test: `getUserProfile` lanza error si no existe
 
-  - [ ] **7.2. Implementación**
-    - [ ] Crear `src/services/userService.ts`
-    - [ ] Implementar `getUserProfile(userId: number)`
-    - [ ] Query a `dwh.datamartUsers`
-    - [ ] Manejo de errores
+  - [x] **7.2. Implementación**
+    - [x] Crear `src/services/userService.ts`
+    - [x] Implementar `getUserProfile(userId: number)`
+    - [x] Query a `dwh.datamartUsers`
+    - [x] Manejo de errores
 
-  - [ ] **7.3. Tests de integración**
-    - [ ] Crear `tests/integration/users.test.ts`
-    - [ ] Test: `GET /api/v1/users/:user_id` → 200
-    - [ ] Test: `GET /api/v1/users/:user_id` → 404
+  - [x] **7.3. Tests de integración**
+    - [x] Crear `tests/integration/users.test.ts`
+    - [x] Test: `GET /api/v1/users/:user_id` → 200
+    - [x] Test: `GET /api/v1/users/:user_id` → 404
 
-  - [ ] **7.4. Endpoints**
-    - [ ] Crear `src/routes/users.ts`
-    - [ ] Crear `src/controllers/usersController.ts`
-    - [ ] `GET /api/v1/users/:user_id`
+  - [x] **7.4. Endpoints**
+    - [x] Crear `src/routes/users.ts`
+    - [x] Crear `src/controllers/usersController.ts`
+    - [x] `GET /api/v1/users/:user_id`
 
-  - [ ] **7.5. Documentación**
-    - [ ] JSDoc en servicios y controladores
-    - [ ] Actualizar OpenAPI spec
-    - [ ] Actualizar `docs/USAGE.md`
+  - [x] **7.5. Documentación**
+    - [x] JSDoc en servicios y controladores
+    - [x] Actualizar OpenAPI spec
+    - [x] Actualizar `docs/USAGE.md`
 
 **Entregables**:
 - ✅ Servicio de usuarios funcionando
@@ -3058,12 +3058,12 @@ jobs:
 - ✅ Tests pasando
 - ✅ Documentación actualizada
 
-- [ ] **8. Servicio de Países (TDD)**
-  - [ ] Similar a usuarios pero para países
-  - [ ] Query a `dwh.datamartCountries`
-  - [ ] Tests unitarios + integración
-  - [ ] Endpoint `GET /api/v1/countries/:country_id`
-  - [ ] Documentación
+- [x] **8. Servicio de Países (TDD)**
+  - [x] Similar a usuarios pero para países
+  - [x] Query a `dwh.datamartCountries`
+  - [x] Tests unitarios + integración
+  - [x] Endpoint `GET /api/v1/countries/:country_id`
+  - [x] Documentación
 
 **Entregables**:
 - ✅ Servicio de países funcionando
@@ -3071,12 +3071,12 @@ jobs:
 - ✅ Tests pasando
 - ✅ Documentación actualizada
 
-- [ ] **9. Servicio de Analytics Global (TDD)**
-  - [ ] Similar pero para analytics global
-  - [ ] Query a `dwh.datamartGlobal`
-  - [ ] Tests unitarios + integración
-  - [ ] Endpoint `GET /api/v1/analytics/global`
-  - [ ] Documentación
+- [x] **9. Servicio de Analytics Global (TDD)**
+  - [x] Similar pero para analytics global
+  - [x] Query a `dwh.datamartGlobal`
+  - [x] Tests unitarios + integración
+  - [x] Endpoint `GET /api/v1/analytics/global`
+  - [x] Documentación
 
 **Entregables**:
 - ✅ Servicio de analytics funcionando
@@ -3090,38 +3090,38 @@ jobs:
 
 #### Semana 3: Integración Completa
 
-- [ ] **10. Integración de todos los endpoints**
-  - [ ] Crear `src/app.ts` con Express
-  - [ ] Configurar middleware global:
-    - [ ] validateUserAgent
-    - [ ] rateLimit
-    - [ ] antiAbuse
-    - [ ] errorHandler
-    - [ ] CORS
-    - [ ] Helmet
-  - [ ] Registrar todas las rutas
-  - [ ] Configurar versionado de API (`/api/v1`)
+- [x] **10. Integración de todos los endpoints**
+  - [x] Crear `src/app.ts` con Express
+  - [x] Configurar middleware global:
+    - [x] validateUserAgent
+    - [x] rateLimit
+    - [x] antiAbuse
+    - [x] errorHandler
+    - [x] CORS
+    - [x] Helmet
+  - [x] Registrar todas las rutas
+  - [x] Configurar versionado de API (`/api/v1`)
 
-- [ ] **11. Manejo de Errores**
-  - [ ] Crear `src/middleware/errorHandler.ts`
-  - [ ] Manejo centralizado de errores
-  - [ ] Respuestas JSON consistentes
-  - [ ] Logging de errores
-  - [ ] Tests de manejo de errores
+- [x] **11. Manejo de Errores**
+  - [x] Crear `src/middleware/errorHandler.ts`
+  - [x] Manejo centralizado de errores
+  - [x] Respuestas JSON consistentes
+  - [x] Logging de errores
+  - [x] Tests de manejo de errores
 
-- [ ] **12. Validación de Request**
-  - [ ] Crear `src/middleware/validation.ts`
-  - [ ] Validación de parámetros con Joi/Zod
-  - [ ] Validación de query params
-  - [ ] Mensajes de error claros
-  - [ ] Tests de validación
+- [x] **12. Validación de Request**
+  - [x] Crear `src/middleware/validation.ts`
+  - [x] Validación de parámetros con Joi/Zod
+  - [x] Validación de query params
+  - [x] Mensajes de error claros
+  - [x] Tests de validación
 
-- [ ] **13. OpenAPI/Swagger**
-  - [ ] Instalar swagger-jsdoc y swagger-ui-express
-  - [ ] Crear `src/config/swagger.ts`
-  - [ ] Documentar todos los endpoints
-  - [ ] Configurar Swagger UI en `/docs`
-  - [ ] Validar que spec coincide con implementación
+- [x] **13. OpenAPI/Swagger**
+  - [x] Instalar swagger-jsdoc y swagger-ui-express
+  - [x] Crear `src/config/swagger.ts`
+  - [x] Documentar todos los endpoints
+  - [x] Configurar Swagger UI en `/docs`
+  - [x] Validar que spec coincide con implementación
 
 **Entregables**:
 - ✅ API completamente integrada
@@ -3131,49 +3131,49 @@ jobs:
 
 #### Semana 4: Testing Completo y Documentación Final
 
-- [ ] **14. Tests de Integración Completos**
-  - [ ] Tests de todos los endpoints
-  - [ ] Tests de flujos completos
-  - [ ] Tests de edge cases
-  - [ ] Tests de seguridad (User-Agent, rate limiting, anti-abuso)
-  - [ ] Cobertura mínima: 60%+
+- [x] **14. Tests de Integración Completos**
+  - [x] Tests de todos los endpoints
+  - [x] Tests de flujos completos
+  - [x] Tests de edge cases
+  - [x] Tests de seguridad (User-Agent, rate limiting, anti-abuso)
+  - [x] Cobertura mínima: 60%+ (actual: 92.53%)
 
-- [ ] **15. Documentación Final**
-  - [ ] Actualizar `README.md` completo:
-    - [ ] Instalación paso a paso
-    - [ ] Configuración
-    - [ ] Uso básico
-    - [ ] Ejemplos de requests
-  - [ ] Completar `docs/INSTALLATION.md`:
-    - [ ] Requisitos
-    - [ ] Instalación local
-    - [ ] Instalación con Docker
-    - [ ] Configuración de variables de entorno
-    - [ ] Verificación de instalación
-  - [ ] Completar `docs/USAGE.md`:
-    - [ ] Autenticación (User-Agent)
-    - [ ] Rate limiting
-    - [ ] Ejemplos de todos los endpoints
-    - [ ] Manejo de errores
-    - [ ] Mejores prácticas
+- [x] **15. Documentación Final**
+  - [x] Actualizar `README.md` completo:
+    - [x] Instalación paso a paso
+    - [x] Configuración
+    - [x] Uso básico
+    - [x] Ejemplos de requests
+  - [x] Completar `docs/INSTALLATION.md`:
+    - [x] Requisitos
+    - [x] Instalación local
+    - [x] Instalación con Docker
+    - [x] Configuración de variables de entorno
+    - [x] Verificación de instalación
+  - [x] Completar `docs/USAGE.md`:
+    - [x] Autenticación (User-Agent)
+    - [x] Rate limiting
+    - [x] Ejemplos de todos los endpoints
+    - [x] Manejo de errores
+    - [x] Mejores prácticas
 
-- [ ] **16. Estándares de Código**
-  - [ ] Configurar ESLint con reglas estrictas
-  - [ ] Configurar Prettier
-  - [ ] Revisar todo el código y aplicar estándares
-  - [ ] Agregar pre-commit hooks (opcional pero recomendado)
+- [x] **16. Estándares de Código**
+  - [x] Configurar ESLint con reglas estrictas
+  - [x] Configurar Prettier
+  - [x] Revisar todo el código y aplicar estándares
+  - [x] Agregar pre-commit hooks (opcional pero recomendado)
 
-- [ ] **17. Preparación para Producción**
-  - [ ] Variables de entorno documentadas
-  - [ ] Logging configurado para producción
-  - [ ] Health check funcionando
-  - [ ] Documentación de deployment básica
-  - [ ] Actualizar CHANGELOG.md con cambios de Fase 1
-  - [ ] Tag de versión inicial (v0.1.0)
+- [x] **17. Preparación para Producción**
+  - [x] Variables de entorno documentadas
+  - [x] Logging configurado para producción
+  - [x] Health check funcionando
+  - [x] Documentación de deployment básica
+  - [x] Actualizar CHANGELOG.md con cambios de Fase 1
+  - [x] Tag de versión inicial (v0.1.0)
 
 **Entregables Fase 1**:
 - ✅ API MVP funcional
-- ✅ Tests pasando (60%+ cobertura)
+- ✅ Tests pasando (92.53% cobertura, superando el objetivo de 60%+)
 - ✅ Documentación completa
 - ✅ Código con estándares aplicados
 - ✅ Manual de instalación completo

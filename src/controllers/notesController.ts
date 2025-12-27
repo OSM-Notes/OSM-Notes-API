@@ -9,6 +9,7 @@ import { logger } from '../utils/logger';
 import { ApiError } from '../middleware/errorHandler';
 import { SearchFilters } from '../types';
 import { validateSearchFilters } from '../middleware/validation';
+import { setPaginationHeaders } from '../utils/pagination';
 
 /**
  * @swagger
@@ -253,6 +254,19 @@ export async function searchNotes(req: Request, res: Response, next: NextFunctio
     logger.debug('Searching notes', { filters });
 
     const result = await noteService.searchNotes(filters);
+
+    // Set pagination headers
+    setPaginationHeaders(res, result.pagination, '/api/v1/notes', {
+      country: filters.country,
+      status: filters.status,
+      hashtag: filters.hashtag,
+      date_from: filters.date_from,
+      date_to: filters.date_to,
+      user_id: filters.user_id,
+      application: filters.application,
+      bbox: filters.bbox,
+      limit: filters.limit,
+    });
 
     res.json(result);
   } catch (error) {
