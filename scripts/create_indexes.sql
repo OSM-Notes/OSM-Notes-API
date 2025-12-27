@@ -2,9 +2,16 @@
 -- Run this script to create recommended indexes for optimal query performance
 -- 
 -- Usage:
---   psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f scripts/create_indexes.sql
+--   # For local testing (osm_notes_api_test):
+--   psql -U $(whoami) -d osm_notes_api_test -f scripts/create_indexes.sql
 --
--- Note: Some indexes may already exist. The script uses IF NOT EXISTS to avoid errors.
+--   # For production (osm_notes_dwh):
+--   psql -h $DB_HOST -U $DB_USER -d osm_notes_dwh -f scripts/create_indexes.sql
+--
+-- Note: 
+--   - Some indexes may already exist. The script uses IF NOT EXISTS to avoid errors.
+--   - Indexes for dwh schema are only created if the schema exists (production only).
+--   - For local testing with osm_notes_api_test, only public schema indexes are created.
 
 -- ============================================================================
 -- CRITICAL INDEXES - Required for basic query performance
@@ -42,14 +49,30 @@ CREATE INDEX IF NOT EXISTS idx_notes_country_created ON public.notes(id_country,
 CREATE INDEX IF NOT EXISTS idx_notes_status_created ON public.notes(status, created_at DESC);
 
 -- ============================================================================
--- DATAMART INDEXES - For analytics queries
+-- DATAMART INDEXES - For analytics queries (production only)
 -- ============================================================================
 
--- Datamart Users index
-CREATE INDEX IF NOT EXISTS idx_datamart_users_user_id ON dwh.datamartUsers(user_id);
+-- These indexes are only created if the dwh schema exists
+-- For local testing (osm_notes_api_test), these will be skipped
 
--- Datamart Countries index
-CREATE INDEX IF NOT EXISTS idx_datamart_countries_country_id ON dwh.datamartCountries(country_id);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = 'dwh') THEN
+    -- Datamart Users index
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'dwh' AND table_name = 'datamartusers') THEN
+      CREATE INDEX IF NOT EXISTS idx_datamart_users_user_id ON dwh.datamartUsers(user_id);
+      RAISE NOTICE 'Created index: idx_datamart_users_user_id';
+    END IF;
+    
+    -- Datamart Countries index
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'dwh' AND table_name = 'datamartcountries') THEN
+      CREATE INDEX IF NOT EXISTS idx_datamart_countries_country_id ON dwh.datamartCountries(country_id);
+      RAISE NOTICE 'Created index: idx_datamart_countries_country_id';
+    END IF;
+  ELSE
+    RAISE NOTICE 'Skipping dwh schema indexes (schema not available in test database)';
+  END IF;
+END $$;
 
 -- ============================================================================
 -- SPATIAL INDEXES - For bounding box queries (optional, requires PostGIS)
