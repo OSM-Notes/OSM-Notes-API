@@ -1,5 +1,12 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npx --no -- commitlint --edit ${1}
+# Commit message hook: Validate commit message format
+# This hook ensures commit messages follow Conventional Commits format:
+# <type>(<scope>): <subject>
+#
+# Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
 
+set -e  # Exit on error
+
+npx --no -- commitlint --edit ${1}

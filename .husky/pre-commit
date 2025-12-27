@@ -1,7 +1,23 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npm run lint
-npm run type-check
+# Pre-commit hook: Run code quality checks before commit
+# This hook ensures code quality by running:
+# 1. ESLint (linting)
+# 2. TypeScript type checking
+# 3. Prettier format checking
+
+set -e  # Exit on error
+
+echo "🔍 Running pre-commit checks..."
+
+echo "📝 Checking code formatting..."
 npm run format:check
 
+echo "🔧 Running linter..."
+npm run lint
+
+echo "✅ Running type check..."
+npm run type-check
+
+echo "✅ All pre-commit checks passed!"

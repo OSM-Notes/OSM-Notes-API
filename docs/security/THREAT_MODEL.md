@@ -250,7 +250,7 @@ This document identifies potential threats to OSM Notes API and the mitigations 
 - ✅ Error handling
 - ✅ Automatic blocking (AIs, bots)
 - ✅ Dependency updates (Dependabot)
-- ✅ Incident response plan (to be created)
+- ✅ Incident response plan (documented in SECURITY_POLICY.md and RUNBOOK.md)
 
 ## Risk Assessment
 

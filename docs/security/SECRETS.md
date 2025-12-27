@@ -137,13 +137,13 @@ OAUTH_CALLBACK_URL=http://localhost:3000/auth/callback
 
 ## Checklist
 
-- [ ] All secrets in environment variables
-- [ ] `.env` in `.gitignore`
-- [ ] `.env.example` documented (without real values)
-- [ ] Secrets rotated regularly
-- [ ] Access to secrets limited
-- [ ] Monitoring for exposure
-- [ ] Incident response plan documented
+- [x] All secrets in environment variables
+- [x] `.env` in `.gitignore`
+- [x] `.env.example` documented (without real values)
+- [ ] Secrets rotated regularly (operational process)
+- [ ] Access to secrets limited (operational process)
+- [ ] Monitoring for exposure (operational process)
+- [x] Incident response plan documented (see SECURITY_POLICY.md and RUNBOOK.md)
 
 ## References
 

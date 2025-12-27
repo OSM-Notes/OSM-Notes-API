@@ -50,7 +50,13 @@ npm test -- tests/unit/services/userService.test.ts
 
 ### 4. Code Quality Checks
 
-Before committing, ensure:
+**Pre-commit hooks automatically run these checks** before each commit:
+
+- ✅ Code formatting (Prettier)
+- ✅ Linting (ESLint)
+- ✅ Type checking (TypeScript)
+
+You can also run them manually:
 
 ```bash
 # Type checking
@@ -59,12 +65,17 @@ npm run type-check
 # Linting
 npm run lint
 
-# Formatting
+# Formatting check
 npm run format:check
+
+# Format code automatically
+npm run format
 
 # Tests
 npm test
 ```
+
+**Note**: If pre-commit hooks fail, fix the issues before committing. The hooks prevent commits with code quality issues.
 
 ### 5. Commit Changes
 
@@ -79,6 +90,11 @@ git commit -m "fix(middleware): correct User-Agent validation"
 git commit -m "docs(readme): update installation instructions"
 git commit -m "test(services): add tests for noteService"
 ```
+
+**Commit Message Validation**: 
+- The `commit-msg` hook automatically validates commit messages using commitlint
+- Invalid format will prevent the commit
+- Follow the format: `<type>(<scope>): <subject>`
 
 **Commit Types**:
 - `feat`: New feature
