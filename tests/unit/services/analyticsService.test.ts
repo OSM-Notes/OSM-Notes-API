@@ -116,5 +116,83 @@ describe('analyticsService', () => {
       // This depends on business logic - for now, we'll expect it to handle gracefully
       await expect(analyticsService.getGlobalAnalytics()).rejects.toThrow();
     });
+
+    it('should handle string values from database (notes_created_last_30_days)', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            dimension_global_id: 1,
+            history_whole_open: 0,
+            history_whole_closed: 0,
+            currently_open_count: null,
+            avg_days_to_resolution: null,
+            resolution_rate: null,
+            notes_created_last_30_days: '5000', // String instead of number
+            notes_resolved_last_30_days: null,
+            active_users_count: null,
+            notes_backlog_size: null,
+            applications_used: [],
+            top_countries: [],
+          },
+        ],
+        rowCount: 1,
+      });
+
+      const result = await analyticsService.getGlobalAnalytics();
+
+      expect(result.notes_created_last_30_days).toBe(5000);
+    });
+
+    it('should handle string values from database (notes_resolved_last_30_days)', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            dimension_global_id: 1,
+            history_whole_open: 0,
+            history_whole_closed: 0,
+            currently_open_count: null,
+            avg_days_to_resolution: null,
+            resolution_rate: null,
+            notes_created_last_30_days: null,
+            notes_resolved_last_30_days: '4500', // String instead of number
+            active_users_count: null,
+            notes_backlog_size: null,
+            applications_used: [],
+            top_countries: [],
+          },
+        ],
+        rowCount: 1,
+      });
+
+      const result = await analyticsService.getGlobalAnalytics();
+
+      expect(result.notes_resolved_last_30_days).toBe(4500);
+    });
+
+    it('should handle string values from database (notes_backlog_size)', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            dimension_global_id: 1,
+            history_whole_open: 0,
+            history_whole_closed: 0,
+            currently_open_count: null,
+            avg_days_to_resolution: null,
+            resolution_rate: null,
+            notes_created_last_30_days: null,
+            notes_resolved_last_30_days: null,
+            active_users_count: null,
+            notes_backlog_size: '50000', // String instead of number
+            applications_used: [],
+            top_countries: [],
+          },
+        ],
+        rowCount: 1,
+      });
+
+      const result = await analyticsService.getGlobalAnalytics();
+
+      expect(result.notes_backlog_size).toBe(50000);
+    });
   });
 });

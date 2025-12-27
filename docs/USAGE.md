@@ -526,8 +526,8 @@ curl http://localhost:3000/api/v1/users/12345
 ### 2. Respect Rate Limits
 
 - Implement retry with exponential backoff
-- Respect `X-RateLimit-*` headers
-- Use `X-RateLimit-Reset` to know when to retry
+- Respect `RateLimit-*` headers (standard headers, not `X-RateLimit-*`)
+- Use `RateLimit-Reset` to know when to retry
 
 ### 3. Handle Errors Appropriately
 
@@ -538,7 +538,7 @@ try {
   });
   
   if (response.status === 429) {
-    const resetTime = response.headers.get('X-RateLimit-Reset');
+    const resetTime = response.headers.get('RateLimit-Reset');
     // Wait until resetTime
   }
   

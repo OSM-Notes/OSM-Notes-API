@@ -80,11 +80,40 @@ npm run build
 # Verify types
 npm run type-check
 
-# Run tests
+# Run tests (requires test database)
 npm test
+
+# Run tests with coverage report
+npm run test:coverage
+
+# Run only unit tests
+npm run test:unit
+
+# Run only integration tests
+npm run test:integration
 
 # Verify formatting
 npm run format:check
+```
+
+**Note**: Integration tests require a test database. By default, tests use:
+- **Database**: `osm_notes_api_test`
+- **User**: `osm_notes_test_user`
+- **Password**: `osm_notes_test_pass`
+
+To set up the test database, create the user and database in PostgreSQL:
+```sql
+CREATE USER osm_notes_test_user WITH PASSWORD 'osm_notes_test_pass';
+ALTER USER osm_notes_test_user CREATEDB;
+CREATE DATABASE osm_notes_api_test OWNER osm_notes_test_user;
+GRANT ALL PRIVILEGES ON DATABASE osm_notes_api_test TO osm_notes_test_user;
+```
+
+You can override these defaults by setting environment variables:
+```bash
+export DB_NAME=your_test_db
+export DB_USER=your_test_user
+export DB_PASSWORD=your_test_password
 ```
 
 ### 6. Start Application

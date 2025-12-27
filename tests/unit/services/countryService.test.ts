@@ -136,5 +136,141 @@ describe('countryService', () => {
       expect(result.country_name).toBeNull();
       expect(result).toEqual(mockCountry);
     });
+
+    it('should handle string values from database (notes_health_score)', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            dimension_country_id: 45,
+            country_id: 42,
+            country_name: 'Colombia',
+            country_name_en: 'Colombia',
+            country_name_es: 'Colombia',
+            iso_alpha2: 'CO',
+            history_whole_open: 0,
+            history_whole_closed: 0,
+            avg_days_to_resolution: null,
+            resolution_rate: null,
+            notes_health_score: '75.5', // String instead of number
+            new_vs_resolved_ratio: null,
+            notes_backlog_size: null,
+            notes_created_last_30_days: null,
+            notes_resolved_last_30_days: null,
+            users_open_notes: [],
+            applications_used: [],
+            hashtags: [],
+            activity_by_year: {},
+            working_hours_of_week_opening: [],
+          },
+        ],
+        rowCount: 1,
+      });
+
+      const result = await countryService.getCountryProfile(42);
+
+      expect(result.notes_health_score).toBe(75.5);
+    });
+
+    it('should handle string values from database (notes_backlog_size)', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            dimension_country_id: 45,
+            country_id: 42,
+            country_name: 'Colombia',
+            country_name_en: 'Colombia',
+            country_name_es: 'Colombia',
+            iso_alpha2: 'CO',
+            history_whole_open: 0,
+            history_whole_closed: 0,
+            avg_days_to_resolution: null,
+            resolution_rate: null,
+            notes_health_score: null,
+            new_vs_resolved_ratio: null,
+            notes_backlog_size: '50', // String instead of number
+            notes_created_last_30_days: null,
+            notes_resolved_last_30_days: null,
+            users_open_notes: [],
+            applications_used: [],
+            hashtags: [],
+            activity_by_year: {},
+            working_hours_of_week_opening: [],
+          },
+        ],
+        rowCount: 1,
+      });
+
+      const result = await countryService.getCountryProfile(42);
+
+      expect(result.notes_backlog_size).toBe(50);
+    });
+
+    it('should handle string values from database (notes_created_last_30_days)', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            dimension_country_id: 45,
+            country_id: 42,
+            country_name: 'Colombia',
+            country_name_en: 'Colombia',
+            country_name_es: 'Colombia',
+            iso_alpha2: 'CO',
+            history_whole_open: 0,
+            history_whole_closed: 0,
+            avg_days_to_resolution: null,
+            resolution_rate: null,
+            notes_health_score: null,
+            new_vs_resolved_ratio: null,
+            notes_backlog_size: null,
+            notes_created_last_30_days: '100', // String instead of number
+            notes_resolved_last_30_days: null,
+            users_open_notes: [],
+            applications_used: [],
+            hashtags: [],
+            activity_by_year: {},
+            working_hours_of_week_opening: [],
+          },
+        ],
+        rowCount: 1,
+      });
+
+      const result = await countryService.getCountryProfile(42);
+
+      expect(result.notes_created_last_30_days).toBe(100);
+    });
+
+    it('should handle string values from database (notes_resolved_last_30_days)', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            dimension_country_id: 45,
+            country_id: 42,
+            country_name: 'Colombia',
+            country_name_en: 'Colombia',
+            country_name_es: 'Colombia',
+            iso_alpha2: 'CO',
+            history_whole_open: 0,
+            history_whole_closed: 0,
+            avg_days_to_resolution: null,
+            resolution_rate: null,
+            notes_health_score: null,
+            new_vs_resolved_ratio: null,
+            notes_backlog_size: null,
+            notes_created_last_30_days: null,
+            notes_resolved_last_30_days: '80', // String instead of number
+            users_open_notes: [],
+            applications_used: [],
+            hashtags: [],
+            activity_by_year: {},
+            working_hours_of_week_opening: [],
+          },
+        ],
+        rowCount: 1,
+      });
+
+      const result = await countryService.getCountryProfile(42);
+
+      expect(result.notes_resolved_last_30_days).toBe(80);
+    });
   });
 });

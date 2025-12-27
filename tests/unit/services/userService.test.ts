@@ -130,5 +130,205 @@ describe('userService', () => {
       expect(result.username).toBeNull();
       expect(result).toEqual(mockUser);
     });
+
+    it('should handle string values from database (history fields)', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            dimension_user_id: 123,
+            user_id: 12345,
+            username: 'test_user',
+            history_whole_open: '100', // String instead of number
+            history_whole_closed: '50', // String instead of number
+            history_whole_commented: '75', // String instead of number
+            avg_days_to_resolution: null,
+            resolution_rate: null,
+            user_response_time: null,
+            days_since_last_action: null,
+            applications_used: [],
+            collaboration_patterns: {},
+            countries_open_notes: [],
+            hashtags: [],
+            date_starting_creating_notes: null,
+            date_starting_solving_notes: null,
+            last_year_activity: null,
+            working_hours_of_week_opening: [],
+            activity_by_year: {},
+          },
+        ],
+        rowCount: 1,
+      });
+
+      const result = await userService.getUserProfile(12345);
+
+      expect(result.history_whole_open).toBe(100);
+      expect(result.history_whole_closed).toBe(50);
+      expect(result.history_whole_commented).toBe(75);
+    });
+
+    it('should handle string values from database (avg_days_to_resolution)', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            dimension_user_id: 123,
+            user_id: 12345,
+            username: 'test_user',
+            history_whole_open: 0,
+            history_whole_closed: 0,
+            history_whole_commented: 0,
+            avg_days_to_resolution: '5.5', // String instead of number
+            resolution_rate: null,
+            user_response_time: null,
+            days_since_last_action: null,
+            applications_used: [],
+            collaboration_patterns: {},
+            countries_open_notes: [],
+            hashtags: [],
+            date_starting_creating_notes: null,
+            date_starting_solving_notes: null,
+            last_year_activity: null,
+            working_hours_of_week_opening: [],
+            activity_by_year: {},
+          },
+        ],
+        rowCount: 1,
+      });
+
+      const result = await userService.getUserProfile(12345);
+
+      expect(result.avg_days_to_resolution).toBe(5.5);
+    });
+
+    it('should handle null avg_days_to_resolution', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            dimension_user_id: 123,
+            user_id: 12345,
+            username: 'test_user',
+            history_whole_open: 0,
+            history_whole_closed: 0,
+            history_whole_commented: 0,
+            avg_days_to_resolution: null,
+            resolution_rate: null,
+            user_response_time: null,
+            days_since_last_action: null,
+            applications_used: [],
+            collaboration_patterns: {},
+            countries_open_notes: [],
+            hashtags: [],
+            date_starting_creating_notes: null,
+            date_starting_solving_notes: null,
+            last_year_activity: null,
+            working_hours_of_week_opening: [],
+            activity_by_year: {},
+          },
+        ],
+        rowCount: 1,
+      });
+
+      const result = await userService.getUserProfile(12345);
+
+      expect(result.avg_days_to_resolution).toBeNull();
+    });
+
+    it('should handle string values from database (resolution_rate)', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            dimension_user_id: 123,
+            user_id: 12345,
+            username: 'test_user',
+            history_whole_open: 0,
+            history_whole_closed: 0,
+            history_whole_commented: 0,
+            avg_days_to_resolution: null,
+            resolution_rate: '50.0', // String instead of number
+            user_response_time: null,
+            days_since_last_action: null,
+            applications_used: [],
+            collaboration_patterns: {},
+            countries_open_notes: [],
+            hashtags: [],
+            date_starting_creating_notes: null,
+            date_starting_solving_notes: null,
+            last_year_activity: null,
+            working_hours_of_week_opening: [],
+            activity_by_year: {},
+          },
+        ],
+        rowCount: 1,
+      });
+
+      const result = await userService.getUserProfile(12345);
+
+      expect(result.resolution_rate).toBe(50.0);
+    });
+
+    it('should handle string values from database (user_response_time)', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            dimension_user_id: 123,
+            user_id: 12345,
+            username: 'test_user',
+            history_whole_open: 0,
+            history_whole_closed: 0,
+            history_whole_commented: 0,
+            avg_days_to_resolution: null,
+            resolution_rate: null,
+            user_response_time: '2.3', // String instead of number
+            days_since_last_action: null,
+            applications_used: [],
+            collaboration_patterns: {},
+            countries_open_notes: [],
+            hashtags: [],
+            date_starting_creating_notes: null,
+            date_starting_solving_notes: null,
+            last_year_activity: null,
+            working_hours_of_week_opening: [],
+            activity_by_year: {},
+          },
+        ],
+        rowCount: 1,
+      });
+
+      const result = await userService.getUserProfile(12345);
+
+      expect(result.user_response_time).toBe(2.3);
+    });
+
+    it('should handle string values from database (days_since_last_action)', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            dimension_user_id: 123,
+            user_id: 12345,
+            username: 'test_user',
+            history_whole_open: 0,
+            history_whole_closed: 0,
+            history_whole_commented: 0,
+            avg_days_to_resolution: null,
+            resolution_rate: null,
+            user_response_time: null,
+            days_since_last_action: '5', // String instead of number
+            applications_used: [],
+            collaboration_patterns: {},
+            countries_open_notes: [],
+            hashtags: [],
+            date_starting_creating_notes: null,
+            date_starting_solving_notes: null,
+            last_year_activity: null,
+            working_hours_of_week_opening: [],
+            activity_by_year: {},
+          },
+        ],
+        rowCount: 1,
+      });
+
+      const result = await userService.getUserProfile(12345);
+
+      expect(result.days_since_last_action).toBe(5);
+    });
   });
 });

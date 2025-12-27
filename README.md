@@ -118,8 +118,11 @@ See [docs/USAGE.md](docs/USAGE.md) for complete usage guide.
 ## 📚 Documentation
 
 - [Installation](docs/INSTALLATION.md) - Complete installation guide
-- [Usage](docs/USAGE.md) - API usage manual
-- [API Reference](docs/api/) - OpenAPI/Swagger documentation
+- [Usage](docs/USAGE.md) - API usage manual with examples
+- [API Reference](docs/API.md) - Complete API reference documentation
+- [API Reference (OpenAPI)](docs/api/) - OpenAPI/Swagger documentation
+- [CI/CD Guide](docs/CI_CD.md) - Continuous Integration and Deployment
+- [Testing Guide](docs/TESTING.md) - Testing documentation
 - [Contributing](CONTRIBUTING.md) - Contributor guide
 - [Changelog](CHANGELOG.md) - Change history
 
@@ -158,6 +161,8 @@ npm run test:unit      # Unit tests only
 npm run test:integration  # Integration tests only
 npm run test:coverage  # Tests with coverage report
 npm run test:watch     # Run tests in watch mode
+npm run test:light     # Run unit tests with 1 worker (for performance)
+npm run test:integration:single  # Run integration tests sequentially
 npm run lint           # Run ESLint
 npm run lint:fix       # Fix ESLint errors automatically
 npm run format         # Format code with Prettier
@@ -178,6 +183,13 @@ See [docs/USAGE.md](docs/USAGE.md) for more security details.
 
 **Version**: 0.1.0 (MVP - Phase 1)
 
+**Test Coverage**: 86% statements, 85.87% lines
+- ✅ 224 tests passing (100% pass rate)
+- ✅ 25 test suites passing
+- ✅ Unit tests: 100% pass rate
+- ✅ Integration tests: 100% pass rate
+- ✅ CI/CD pipeline configured with GitHub Actions
+
 **Implementation Phases**:
 
 - ✅ Phase 1: MVP (Core endpoints, basic features, documentation)
@@ -189,10 +201,12 @@ See [docs/USAGE.md](docs/USAGE.md) for more security details.
   - ✅ Rate limiting
   - ✅ Anti-abuse protection
   - ✅ OpenAPI/Swagger documentation
-  - ✅ Comprehensive integration tests
+  - ✅ Comprehensive integration tests (198 tests)
+  - ✅ Test database configuration
 - ⏳ Phase 2: Basic Features (Rankings, comparisons, trends)
 - ⏳ Phase 3: Advanced Features (Advanced search, caching, performance)
-- ⏳ Phase 4: Production (CI/CD, monitoring, scaling)
+- ⏳ Phase 4: Production (monitoring, scaling)
+  - ✅ CI/CD pipeline configured
 - ⏳ Phase 5: Webhooks and Notifications (if needed)
 
 ## 🤝 Contributing

@@ -298,5 +298,208 @@ describe('noteService', () => {
         }
       }
     });
+
+    it('should handle bbox filter with invalid format (not 4 parts)', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [],
+        rowCount: 0,
+      });
+
+      mockQuery.mockResolvedValueOnce({
+        rows: [{ count: '0' }],
+        rowCount: 1,
+      });
+
+      const filters: SearchFilters = {
+        bbox: '1,2,3', // Invalid: only 3 parts instead of 4
+        page: 1,
+        limit: 20,
+      };
+
+      const result = await noteService.searchNotes(filters);
+
+      expect(result.data).toEqual([]);
+      // bbox filter should be ignored when invalid
+    });
+
+    it('should handle bbox filter with valid format', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            note_id: 1,
+            latitude: '4.5',
+            longitude: '-74.0',
+            status: 'open',
+            created_at: new Date(),
+            closed_at: null,
+            id_user: 1,
+            id_country: 1,
+            comments_count: '0',
+          },
+        ],
+        rowCount: 1,
+      });
+
+      mockQuery.mockResolvedValueOnce({
+        rows: [{ count: '1' }],
+        rowCount: 1,
+      });
+
+      const filters: SearchFilters = {
+        bbox: '1.0,2.0,3.0,4.0', // Valid: 4 parts
+        page: 1,
+        limit: 20,
+      };
+
+      const result = await noteService.searchNotes(filters);
+
+      expect(result.data).toHaveLength(1);
+      expect(mockQuery).toHaveBeenCalledWith(
+        expect.stringContaining('longitude >='),
+        expect.arrayContaining([1.0, 3.0, 2.0, 4.0])
+      );
+    });
+
+    it('should handle string values from database (latitude, longitude, comments_count)', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            note_id: 1,
+            latitude: '4.6097', // String instead of number
+            longitude: '-74.0817', // String instead of number
+            status: 'open',
+            created_at: new Date(),
+            closed_at: null,
+            id_user: 1,
+            id_country: 1,
+            comments_count: '5', // String instead of number
+          },
+        ],
+        rowCount: 1,
+      });
+
+      mockQuery.mockResolvedValueOnce({
+        rows: [{ count: '1' }],
+        rowCount: 1,
+      });
+
+      const filters: SearchFilters = {
+        page: 1,
+        limit: 20,
+      };
+
+      const result = await noteService.searchNotes(filters);
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].latitude).toBe(4.6097);
+      expect(result.data[0].longitude).toBe(-74.0817);
+      expect(result.data[0].comments_count).toBe(5);
+    });
+
+    it('should handle null comments_count from database', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            note_id: 1,
+            latitude: 4.6097,
+            longitude: -74.0817,
+            status: 'open',
+            created_at: new Date(),
+            closed_at: null,
+            id_user: 1,
+            id_country: 1,
+            comments_count: null, // null value
+          },
+        ],
+        rowCount: 1,
+      });
+
+      mockQuery.mockResolvedValueOnce({
+        rows: [{ count: '1' }],
+        rowCount: 1,
+      });
+
+      const filters: SearchFilters = {
+        page: 1,
+        limit: 20,
+      };
+
+      const result = await noteService.searchNotes(filters);
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].comments_count).toBe(0); // Should default to 0
+    });
+
+    it('should handle string count from database', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [],
+        rowCount: 0,
+      });
+
+      mockQuery.mockResolvedValueOnce({
+        rows: [{ count: '42' }], // String instead of number
+        rowCount: 1,
+      });
+
+      const filters: SearchFilters = {
+        page: 1,
+        limit: 20,
+      };
+
+      const result = await noteService.searchNotes(filters);
+
+      expect(result.pagination.total).toBe(42);
+      expect(result.pagination.total_pages).toBe(3); // 42 / 20 = 2.1, rounded up = 3
+    });
+
+    it('should handle null count from database', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [],
+        rowCount: 0,
+      });
+
+      mockQuery.mockResolvedValueOnce({
+        rows: [{ count: null }], // null count
+        rowCount: 1,
+      });
+
+      const filters: SearchFilters = {
+        page: 1,
+        limit: 20,
+      };
+
+      const result = await noteService.searchNotes(filters);
+
+      // When countRow.count is null, total will be null
+      expect(result.pagination.total).toBeNull();
+      // Math.ceil(null / limit) = Math.ceil(NaN) = NaN, but TypeScript may coerce to 0
+      // The actual behavior depends on how Math.ceil handles NaN
+      expect(result.pagination.total_pages).toBeDefined();
+    });
+
+    it('should handle missing count row', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [],
+        rowCount: 0,
+      });
+
+      mockQuery.mockResolvedValueOnce({
+        rows: [], // No count row
+        rowCount: 0,
+      });
+
+      const filters: SearchFilters = {
+        page: 1,
+        limit: 20,
+      };
+
+      const result = await noteService.searchNotes(filters);
+
+      // When countRow is undefined, the code uses countRow ? ... : 0
+      // So if rows[0] is undefined, countRow is undefined and total should be 0
+      // But if rows is empty array, countRow will be undefined
+      expect(result.pagination.total).toBe(0);
+      expect(result.pagination.total_pages).toBe(0);
+    });
   });
 });
