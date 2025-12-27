@@ -535,16 +535,22 @@ k6 run k6-benchmark.js
 To analyze query performance, use the provided analysis script:
 
 ```bash
-# Option 1: Using the helper script (requires .env file)
+# Option 1: Using the helper script (for local testing with osm_notes_api_test)
 ./scripts/run_analysis.sh
 
-# Option 2: Direct execution with password
-PGPASSWORD=your_password psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f scripts/analyze_queries.sql
+# Option 2: Direct execution (for local testing, uses peer authentication)
+psql -U $(whoami) -d osm_notes_api_test -f scripts/analyze_queries.sql
 
-# Option 3: Using environment variables
-export PGPASSWORD=your_password
-psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f scripts/analyze_queries.sql
+# Option 3: For production analysis (osm_notes_dwh)
+DB_NAME=osm_notes_dwh DB_USER=postgres PGPASSWORD=your_password ./scripts/run_analysis.sh
+
+# Option 4: Direct execution with password
+PGPASSWORD=your_password psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f scripts/analyze_queries.sql
 ```
+
+**Note**: 
+- For **local testing**: Use `osm_notes_api_test` database (default in scripts)
+- For **production analysis**: Use `osm_notes_dwh` database (set `DB_NAME=osm_notes_dwh`)
 
 This script will:
 - Execute EXPLAIN ANALYZE on all API queries

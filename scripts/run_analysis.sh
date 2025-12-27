@@ -10,20 +10,18 @@ if [ -f .env ]; then
 fi
 
 # Set defaults
+# Note: For local testing, use osm_notes_api_test
+# For production analysis, use osm_notes_dwh
 DB_HOST=${DB_HOST:-localhost}
 DB_PORT=${DB_PORT:-5432}
-DB_NAME=${DB_NAME:-osm_notes_dwh}
-DB_USER=${DB_USER:-postgres}
+DB_NAME=${DB_NAME:-osm_notes_api_test}
+DB_USER=${DB_USER:-$(whoami)}
 DB_PASSWORD=${DB_PASSWORD:-}
 
-# Check if password is set
-if [ -z "$DB_PASSWORD" ]; then
-    echo "Error: DB_PASSWORD not set. Please set it in .env or as environment variable."
-    echo "You can also use: PGPASSWORD=your_password $0"
-    exit 1
+# Set password if provided, otherwise use peer authentication
+if [ -n "$DB_PASSWORD" ]; then
+    export PGPASSWORD="$DB_PASSWORD"
 fi
-
-export PGPASSWORD="$DB_PASSWORD"
 
 echo "=================================================================================="
 echo "Running Query Performance Analysis"
