@@ -535,7 +535,14 @@ k6 run k6-benchmark.js
 To analyze query performance, use the provided analysis script:
 
 ```bash
-# Run comprehensive query analysis
+# Option 1: Using the helper script (requires .env file)
+./scripts/run_analysis.sh
+
+# Option 2: Direct execution with password
+PGPASSWORD=your_password psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f scripts/analyze_queries.sql
+
+# Option 3: Using environment variables
+export PGPASSWORD=your_password
 psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f scripts/analyze_queries.sql
 ```
 
