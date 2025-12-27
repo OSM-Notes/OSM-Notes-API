@@ -286,7 +286,30 @@ In production (`osm_notes_dwh`), you need:
 
 ## Creating the Schema
 
-### Option 1: Using the Provided Script
+### Option 1: Using OSM-Notes-Ingestion Hybrid Script (Recommended)
+
+**This is the recommended approach** as it ensures all projects use the same mock data:
+
+```bash
+# Load mock data using OSM-Notes-Ingestion's hybrid script
+./scripts/load_mock_data.sh
+
+# Or with custom database settings
+./scripts/load_mock_data.sh --db-name osm_notes_api_test --db-user $(whoami)
+```
+
+This script:
+- Uses the same mock data generation as OSM-Notes-Ingestion
+- Creates all required tables and indexes
+- Inserts mock notes, comments, and countries
+- Ensures consistency across all projects
+
+**Prerequisites**:
+- OSM-Notes-Ingestion repository cloned (default: `../OSM-Notes-Ingestion`)
+- PostgreSQL database exists: `createdb osm_notes_api_test`
+- PostGIS extension installed: `CREATE EXTENSION IF NOT EXISTS postgis;`
+
+### Option 2: Using the Provided Scripts
 
 A script is provided to create the schema structure:
 
@@ -294,15 +317,21 @@ A script is provided to create the schema structure:
 # For local testing
 psql -U $(whoami) -d osm_notes_api_test -f scripts/create_schema.sql
 
+# Insert sample data
+psql -U $(whoami) -d osm_notes_api_test -f scripts/insert_sample_data.sql
+
+# Create indexes
+psql -U $(whoami) -d osm_notes_api_test -f scripts/create_indexes.sql
+
 # For production
 psql -h $DB_HOST -U $DB_USER -d osm_notes_dwh -f scripts/create_schema.sql
 ```
 
-### Option 2: Manual Creation
+### Option 3: Manual Creation
 
 See the SQL definitions above for each table.
 
-### Option 3: Import from Existing Database
+### Option 4: Import from Existing Database
 
 If you have an existing OSM Notes database, you can export and import:
 
@@ -364,6 +393,33 @@ psql -U $(whoami) -d osm_notes_api_test -c "
 - [Installation Guide](INSTALLATION.md) - Installation instructions
 - [Performance Guide](PERFORMANCE.md) - Index recommendations
 - [API Reference](API.md) - API endpoint documentation
+- [OSM-Notes-Ingestion](https://github.com/osmlatam/OSM-Notes-Ingestion) - Data ingestion repository
+
+---
+
+## Quick Start: Loading Mock Data
+
+The fastest way to get started with mock data:
+
+```bash
+# 1. Ensure database exists
+createdb osm_notes_api_test
+
+# 2. Load mock data using OSM-Notes-Ingestion hybrid script
+./scripts/load_mock_data.sh
+
+# 3. Verify data was loaded
+psql -d osm_notes_api_test -c "SELECT COUNT(*) FROM notes;"
+psql -d osm_notes_api_test -c "SELECT COUNT(*) FROM countries;"
+
+# 4. Run API tests
+npm test
+
+# 5. Start the API
+npm start
+```
+
+This ensures you're using the same mock data as OSM-Notes-Ingestion tests.
 
 ---
 
