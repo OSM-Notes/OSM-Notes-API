@@ -475,6 +475,117 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      http://localhost:3000/api/v1/analytics/global
 ```
 
+### Search Endpoints
+
+#### Search Users
+
+Search for users by username or user_id.
+
+```bash
+GET /api/v1/search/users?q=<query>
+```
+
+**Query Parameters**:
+- `q` (string, required): Search query (username pattern or user_id)
+
+**Examples**:
+
+Search by username pattern:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/search/users?q=test"
+```
+
+Search by exact user_id:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/search/users?q=12345"
+```
+
+**Response**:
+```json
+{
+  "data": [
+    {
+      "user_id": 12345,
+      "username": "test_user",
+      "history_whole_open": 100,
+      "history_whole_closed": 50
+    }
+  ],
+  "count": 1
+}
+```
+
+**Behavior**:
+- If query is numeric (e.g., "12345"), searches for exact user_id match
+- If query is text (e.g., "test"), searches username with pattern matching (case-insensitive)
+- Results are limited to 50 users maximum
+- Returns empty array if no matches found
+
+**Error Responses**:
+- `400 Bad Request`: Missing or empty query parameter
+- `500 Internal Server Error`: Server error
+
+#### Search Countries
+
+Search for countries by name (any language), ISO code, or country_id.
+
+```bash
+GET /api/v1/search/countries?q=<query>
+```
+
+**Query Parameters**:
+- `q` (string, required): Search query (country name pattern, ISO code, or country_id)
+
+**Examples**:
+
+Search by country name:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/search/countries?q=Colombia"
+```
+
+Search by ISO code:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/search/countries?q=CO"
+```
+
+Search by exact country_id:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/search/countries?q=42"
+```
+
+**Response**:
+```json
+{
+  "data": [
+    {
+      "country_id": 42,
+      "country_name": "Colombia",
+      "country_name_en": "Colombia",
+      "country_name_es": "Colombia",
+      "iso_alpha2": "CO",
+      "history_whole_open": 1000,
+      "history_whole_closed": 800
+    }
+  ],
+  "count": 1
+}
+```
+
+**Behavior**:
+- If query is numeric (e.g., "42"), searches for exact country_id match
+- If query is text, searches in `country_name`, `country_name_en`, `country_name_es`, and `iso_alpha2` fields (case-insensitive)
+- Results are limited to 50 countries maximum
+- Returns empty array if no matches found
+
+**Error Responses**:
+- `400 Bad Request`: Missing or empty query parameter
+- `500 Internal Server Error`: Server error
+
 ## Error Handling
 
 ### HTTP Status Codes
