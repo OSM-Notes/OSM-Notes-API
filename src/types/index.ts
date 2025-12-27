@@ -138,3 +138,81 @@ export interface GlobalAnalytics {
   applications_used?: unknown; // JSON array
   top_countries?: unknown; // JSON array
 }
+
+/**
+ * Valid metrics for user rankings
+ */
+export type UserRankingMetric =
+  | 'history_whole_open'
+  | 'history_whole_closed'
+  | 'history_whole_commented'
+  | 'resolution_rate'
+  | 'avg_days_to_resolution';
+
+/**
+ * Valid metrics for country rankings
+ */
+export type CountryRankingMetric =
+  | 'history_whole_open'
+  | 'history_whole_closed'
+  | 'resolution_rate'
+  | 'avg_days_to_resolution'
+  | 'notes_health_score';
+
+/**
+ * User ranking entry
+ */
+export interface UserRankingEntry {
+  rank: number;
+  user_id: number;
+  username: string | null;
+  value: number | null;
+}
+
+/**
+ * Country ranking entry
+ */
+export interface CountryRankingEntry {
+  rank: number;
+  country_id: number;
+  country_name: string | null;
+  value: number | null;
+}
+
+/**
+ * User rankings result
+ */
+export interface UserRankingsResult {
+  metric: UserRankingMetric;
+  country?: number;
+  order: 'asc' | 'desc';
+  rankings: UserRankingEntry[];
+}
+
+/**
+ * Country rankings result
+ */
+export interface CountryRankingsResult {
+  metric: CountryRankingMetric;
+  order: 'asc' | 'desc';
+  rankings: CountryRankingEntry[];
+}
+
+/**
+ * User rankings query parameters
+ */
+export interface UserRankingsParams {
+  metric: UserRankingMetric;
+  country?: number;
+  limit: number;
+  order?: 'asc' | 'desc';
+}
+
+/**
+ * Country rankings query parameters
+ */
+export interface CountryRankingsParams {
+  metric: CountryRankingMetric;
+  limit: number;
+  order?: 'asc' | 'desc';
+}

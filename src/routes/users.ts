@@ -4,6 +4,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import * as usersController from '../controllers/usersController';
+import * as userRankingsController from '../controllers/userRankingsController';
 
 const router = Router();
 
@@ -15,6 +16,13 @@ function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => P
     void Promise.resolve(fn(req, res, next)).catch(next);
   };
 }
+
+/**
+ * @route   GET /api/v1/users/rankings
+ * @desc    Get user rankings by metric
+ * @access  Public
+ */
+router.get('/rankings', asyncHandler(userRankingsController.getUserRankings));
 
 /**
  * @route   GET /api/v1/users/:user_id
