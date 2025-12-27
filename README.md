@@ -121,6 +121,7 @@ See [docs/USAGE.md](docs/USAGE.md) for complete usage guide.
 - [Usage](docs/USAGE.md) - API usage manual with examples
 - [API Reference](docs/API.md) - Complete API reference documentation
 - [API Reference (OpenAPI)](docs/api/) - OpenAPI/Swagger documentation
+- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
 - [CI/CD Guide](docs/CI_CD.md) - Continuous Integration and Deployment
 - [Testing Guide](docs/TESTING.md) - Testing documentation
 - [Contributing](CONTRIBUTING.md) - Contributor guide
