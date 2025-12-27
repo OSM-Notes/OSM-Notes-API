@@ -43,8 +43,9 @@ import { logger } from '../utils/logger';
  * @param redisClient - Redis client instance from getRedisClient()
  * @returns RedisStore instance or undefined if Redis is not available
  * @private
+ * @internal Exported for testing only
  */
-function createRedisStoreAdapter(
+export function createRedisStoreAdapter(
   redisClient: ReturnType<typeof getRedisClient>
 ): Store | undefined {
   if (!redisClient) {
@@ -132,12 +133,9 @@ function createRedisStoreAdapter(
  * @param req - Express request object
  * @returns Rate limit key in format: `rate_limit:{ip}:{userAgent}`
  * @private
- *
- * @example
- * // Key format: "rate_limit:192.168.1.1:MyApp/1.0"
- * // Uses User-Agent info if available from validateUserAgent middleware
+ * @internal Exported for testing only
  */
-function generateKey(req: Request): string {
+export function generateKey(req: Request): string {
   const ip = req.ip || req.socket.remoteAddress || 'unknown';
   const userAgent = req.get('User-Agent') || 'unknown';
   // Use User-Agent info if available (from validateUserAgent middleware)
@@ -155,13 +153,9 @@ function generateKey(req: Request): string {
  *
  * @returns Store instance (RedisStore or undefined for memory store)
  * @private
- *
- * @description
- * Attempts to create a Redis store for distributed rate limiting.
- * Falls back to in-memory store if Redis is not available or connection fails.
- * This ensures graceful degradation when Redis is unavailable.
+ * @internal Exported for testing only
  */
-function createStore(): Store | undefined {
+export function createStore(): Store | undefined {
   const redisClient = getRedisClient();
 
   if (redisClient) {
