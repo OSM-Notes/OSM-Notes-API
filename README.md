@@ -123,6 +123,7 @@ See [docs/USAGE.md](docs/USAGE.md) for complete usage guide.
 - [API Reference (OpenAPI)](docs/api/) - OpenAPI/Swagger documentation
 - [Deployment Guide](docs/DEPLOYMENT.md) - Production deployment instructions
 - [Operations Runbook](docs/RUNBOOK.md) - Operational procedures and runbook
+- [Performance Guide](docs/PERFORMANCE.md) - Performance optimization and indexing
 - [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
 - [CI/CD Guide](docs/CI_CD.md) - Continuous Integration and Deployment
 - [Testing Guide](docs/TESTING.md) - Testing documentation
