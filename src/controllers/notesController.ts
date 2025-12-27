@@ -8,6 +8,7 @@ import * as noteService from '../services/noteService';
 import { logger } from '../utils/logger';
 import { ApiError } from '../middleware/errorHandler';
 import { SearchFilters } from '../types';
+import { validateSearchFilters } from '../middleware/validation';
 
 /**
  * @swagger
@@ -229,6 +230,13 @@ export async function getNoteComments(
  */
 export async function searchNotes(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    // Validate filters using Joi schema (throws ApiError if invalid)
+    // This will throw if validation fails, which will be caught by error handler
+    validateSearchFilters(req, res, () => {
+      // Validation passed, continue
+    });
+
+    // Build filters from validated query parameters
     const filters: SearchFilters = {
       country: req.query.country ? parseInt(String(req.query.country), 10) : undefined,
       status: req.query.status as 'open' | 'closed' | 'reopened' | undefined,
@@ -241,23 +249,6 @@ export async function searchNotes(req: Request, res: Response, next: NextFunctio
       page: req.query.page ? parseInt(String(req.query.page), 10) : 1,
       limit: req.query.limit ? parseInt(String(req.query.limit), 10) : 20,
     };
-
-    // Validate page and limit
-    if (filters.page !== undefined && (isNaN(filters.page) || filters.page < 1)) {
-      throw new ApiError(400, 'Invalid page number');
-    }
-
-    if (
-      filters.limit !== undefined &&
-      (isNaN(filters.limit) || filters.limit < 1 || filters.limit > 100)
-    ) {
-      throw new ApiError(400, 'Invalid limit (must be between 1 and 100)');
-    }
-
-    // Validate status if provided
-    if (filters.status && !['open', 'closed', 'reopened'].includes(filters.status)) {
-      throw new ApiError(400, 'Invalid status (must be open, closed, or reopened)');
-    }
 
     logger.debug('Searching notes', { filters });
 

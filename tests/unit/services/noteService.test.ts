@@ -217,6 +217,276 @@ describe('noteService', () => {
       expect(result.pagination.total).toBe(2);
     });
 
+    it('should filter by country', async () => {
+      const mockNotes: Note[] = [
+        {
+          note_id: 1,
+          latitude: 4.6097,
+          longitude: -74.0817,
+          status: 'open' as NoteStatus,
+          created_at: new Date('2024-01-15T10:30:00Z'),
+          closed_at: null,
+          id_user: 67890,
+          id_country: 42,
+          comments_count: 1,
+        },
+      ];
+
+      mockQuery.mockResolvedValueOnce({
+        rows: mockNotes,
+        rowCount: 1,
+      });
+
+      mockQuery.mockResolvedValueOnce({
+        rows: [{ count: '1' }],
+        rowCount: 1,
+      });
+
+      const filters: SearchFilters = {
+        country: 42,
+        page: 1,
+        limit: 20,
+      };
+
+      const result = await noteService.searchNotes(filters);
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].id_country).toBe(42);
+      const firstCall = mockQuery.mock.calls[0] as [string, unknown[]] | undefined;
+      expect(firstCall).toBeDefined();
+      if (firstCall) {
+        const [query, params] = firstCall;
+        expect(query).toContain('id_country =');
+        expect(params).toEqual(expect.arrayContaining([42]));
+      }
+    });
+
+    it('should filter by user_id', async () => {
+      const mockNotes: Note[] = [
+        {
+          note_id: 1,
+          latitude: 4.6097,
+          longitude: -74.0817,
+          status: 'open' as NoteStatus,
+          created_at: new Date('2024-01-15T10:30:00Z'),
+          closed_at: null,
+          id_user: 12345,
+          id_country: 42,
+          comments_count: 0,
+        },
+      ];
+
+      mockQuery.mockResolvedValueOnce({
+        rows: mockNotes,
+        rowCount: 1,
+      });
+
+      mockQuery.mockResolvedValueOnce({
+        rows: [{ count: '1' }],
+        rowCount: 1,
+      });
+
+      const filters: SearchFilters = {
+        user_id: 12345,
+        page: 1,
+        limit: 20,
+      };
+
+      const result = await noteService.searchNotes(filters);
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].id_user).toBe(12345);
+      const firstCall = mockQuery.mock.calls[0] as [string, unknown[]] | undefined;
+      expect(firstCall).toBeDefined();
+      if (firstCall) {
+        const [query, params] = firstCall;
+        expect(query).toContain('id_user =');
+        expect(params).toEqual(expect.arrayContaining([12345]));
+      }
+    });
+
+    it('should filter by date_from', async () => {
+      const mockNotes: Note[] = [
+        {
+          note_id: 1,
+          latitude: 4.6097,
+          longitude: -74.0817,
+          status: 'open' as NoteStatus,
+          created_at: new Date('2024-02-01T10:30:00Z'),
+          closed_at: null,
+          id_user: 67890,
+          id_country: 42,
+          comments_count: 0,
+        },
+      ];
+
+      mockQuery.mockResolvedValueOnce({
+        rows: mockNotes,
+        rowCount: 1,
+      });
+
+      mockQuery.mockResolvedValueOnce({
+        rows: [{ count: '1' }],
+        rowCount: 1,
+      });
+
+      const filters: SearchFilters = {
+        date_from: '2024-02-01',
+        page: 1,
+        limit: 20,
+      };
+
+      const result = await noteService.searchNotes(filters);
+
+      expect(result.data).toHaveLength(1);
+      const firstCall = mockQuery.mock.calls[0] as [string, unknown[]] | undefined;
+      expect(firstCall).toBeDefined();
+      if (firstCall) {
+        const [query, params] = firstCall;
+        expect(query).toContain('created_at >=');
+        expect(params).toEqual(expect.arrayContaining(['2024-02-01']));
+      }
+    });
+
+    it('should filter by date_to', async () => {
+      const mockNotes: Note[] = [
+        {
+          note_id: 1,
+          latitude: 4.6097,
+          longitude: -74.0817,
+          status: 'open' as NoteStatus,
+          created_at: new Date('2024-01-15T10:30:00Z'),
+          closed_at: null,
+          id_user: 67890,
+          id_country: 42,
+          comments_count: 0,
+        },
+      ];
+
+      mockQuery.mockResolvedValueOnce({
+        rows: mockNotes,
+        rowCount: 1,
+      });
+
+      mockQuery.mockResolvedValueOnce({
+        rows: [{ count: '1' }],
+        rowCount: 1,
+      });
+
+      const filters: SearchFilters = {
+        date_to: '2024-01-31',
+        page: 1,
+        limit: 20,
+      };
+
+      const result = await noteService.searchNotes(filters);
+
+      expect(result.data).toHaveLength(1);
+      const firstCall = mockQuery.mock.calls[0] as [string, unknown[]] | undefined;
+      expect(firstCall).toBeDefined();
+      if (firstCall) {
+        const [query, params] = firstCall;
+        expect(query).toContain('created_at <=');
+        expect(params).toEqual(expect.arrayContaining(['2024-01-31']));
+      }
+    });
+
+    it('should filter by date range (date_from and date_to)', async () => {
+      const mockNotes: Note[] = [
+        {
+          note_id: 1,
+          latitude: 4.6097,
+          longitude: -74.0817,
+          status: 'open' as NoteStatus,
+          created_at: new Date('2024-01-20T10:30:00Z'),
+          closed_at: null,
+          id_user: 67890,
+          id_country: 42,
+          comments_count: 0,
+        },
+      ];
+
+      mockQuery.mockResolvedValueOnce({
+        rows: mockNotes,
+        rowCount: 1,
+      });
+
+      mockQuery.mockResolvedValueOnce({
+        rows: [{ count: '1' }],
+        rowCount: 1,
+      });
+
+      const filters: SearchFilters = {
+        date_from: '2024-01-01',
+        date_to: '2024-01-31',
+        page: 1,
+        limit: 20,
+      };
+
+      const result = await noteService.searchNotes(filters);
+
+      expect(result.data).toHaveLength(1);
+      const firstCall = mockQuery.mock.calls[0] as [string, unknown[]] | undefined;
+      expect(firstCall).toBeDefined();
+      if (firstCall) {
+        const [query, params] = firstCall;
+        expect(query).toContain('created_at >=');
+        expect(query).toContain('created_at <=');
+        expect(params).toEqual(expect.arrayContaining(['2024-01-01', '2024-01-31']));
+      }
+    });
+
+    it('should combine multiple filters (country, user_id, status)', async () => {
+      const mockNotes: Note[] = [
+        {
+          note_id: 1,
+          latitude: 4.6097,
+          longitude: -74.0817,
+          status: 'open' as NoteStatus,
+          created_at: new Date('2024-01-15T10:30:00Z'),
+          closed_at: null,
+          id_user: 12345,
+          id_country: 42,
+          comments_count: 0,
+        },
+      ];
+
+      mockQuery.mockResolvedValueOnce({
+        rows: mockNotes,
+        rowCount: 1,
+      });
+
+      mockQuery.mockResolvedValueOnce({
+        rows: [{ count: '1' }],
+        rowCount: 1,
+      });
+
+      const filters: SearchFilters = {
+        country: 42,
+        user_id: 12345,
+        status: 'open',
+        page: 1,
+        limit: 20,
+      };
+
+      const result = await noteService.searchNotes(filters);
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].id_country).toBe(42);
+      expect(result.data[0].id_user).toBe(12345);
+      expect(result.data[0].status).toBe('open');
+      const firstCall = mockQuery.mock.calls[0] as [string, unknown[]] | undefined;
+      expect(firstCall).toBeDefined();
+      if (firstCall) {
+        const [query, params] = firstCall;
+        expect(query).toContain('id_country =');
+        expect(query).toContain('id_user =');
+        expect(query).toContain('status =');
+        // Verify parameters include country, status, and user_id
+        expect(params).toEqual(expect.arrayContaining([42, 'open', 12345]));
+      }
+    });
+
     it('should handle pagination correctly', async () => {
       const mockNotes: Note[] = Array(20)
         .fill(null)

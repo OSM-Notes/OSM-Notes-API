@@ -3185,25 +3185,25 @@ jobs:
 
 ### Semana 5-6: Búsqueda y Filtros
 
-- [ ] **18. Búsqueda Básica (TDD)**
-  - [ ] Tests primero: `tests/unit/services/searchService.test.ts`
-  - [ ] Implementar `src/services/searchService.ts`
-  - [ ] Endpoints: `GET /api/v1/search/users`, `GET /api/v1/search/countries`
-  - [ ] Tests de integración
-  - [ ] Documentación
+- [x] **18. Búsqueda Básica (TDD)**
+  - [x] Tests primero: `tests/unit/services/searchService.test.ts`
+  - [x] Implementar `src/services/searchService.ts`
+  - [x] Endpoints: `GET /api/v1/search/users`, `GET /api/v1/search/countries`
+  - [x] Tests de integración
+  - [x] Documentación
 
-- [ ] **19. Filtros Simples (TDD)**
-  - [ ] Tests primero
-  - [ ] Implementar filtros por fecha, país, usuario
-  - [ ] Validación de filtros
+- [x] **19. Filtros Simples (TDD)**
+  - [x] Tests primero
+  - [x] Implementar filtros por fecha, país, usuario
+  - [x] Validación de filtros
   - [ ] Tests de integración
   - [ ] Documentación
 
 - [ ] **20. Paginación (TDD)**
-  - [ ] Tests primero
-  - [ ] Implementar paginación estándar (limit/offset)
+  - [x] Tests primero
+  - [x] Implementar paginación estándar (limit/offset)
   - [ ] Headers de paginación
-  - [ ] Tests de integración
+  - [x] Tests de integración
   - [ ] Documentación
 
 - [ ] **21. Rankings (TDD)**
