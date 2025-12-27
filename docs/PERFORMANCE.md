@@ -532,11 +532,28 @@ k6 run k6-benchmark.js
 
 ### EXPLAIN ANALYZE
 
-To analyze query performance:
+To analyze query performance, use the provided analysis script:
+
+```bash
+# Run comprehensive query analysis
+psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f scripts/analyze_queries.sql
+```
+
+This script will:
+- Execute EXPLAIN ANALYZE on all API queries
+- Show execution plans and timing
+- Check existing indexes
+- Show index usage statistics
+- Display table sizes and statistics
+- Provide recommendations
+
+**Manual Analysis**:
+
+You can also analyze individual queries manually:
 
 ```sql
 -- Example: Analyze getNoteById query
-EXPLAIN ANALYZE
+EXPLAIN (ANALYZE, BUFFERS, VERBOSE)
 SELECT
   n.note_id,
   n.latitude,
@@ -554,10 +571,11 @@ GROUP BY n.note_id, n.latitude, n.longitude, n.status, n.created_at, n.closed_at
 ```
 
 **Key Metrics to Check**:
-- **Execution Time**: Should be < 100ms for simple queries
-- **Index Usage**: Look for "Index Scan" vs "Seq Scan"
+- **Execution Time**: Should be < 100ms for simple queries, < 500ms for complex queries
+- **Index Usage**: Look for "Index Scan" vs "Seq Scan" (prefer Index Scan)
 - **Join Type**: Prefer "Index Join" over "Hash Join" for small datasets
-- **Rows**: Check if estimated rows match actual rows
+- **Rows**: Check if estimated rows match actual rows (indicates stale statistics)
+- **Buffers**: Check shared buffers hit ratio (should be > 95%)
 
 ### Query Performance Monitoring
 
