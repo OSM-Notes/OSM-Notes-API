@@ -62,7 +62,7 @@ describe('noteService', () => {
     });
 
     it('should throw ApiError with 404 when note does not exist', async () => {
-      mockQuery.mockResolvedValueOnce({
+      mockQuery.mockResolvedValue({
         rows: [],
         rowCount: 0,
       });

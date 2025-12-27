@@ -49,6 +49,7 @@ describe('Environment Variable Validation', () => {
       process.env.DB_USER = 'test_user';
       process.env.DB_PASSWORD = 'test_pass';
       process.env.NODE_ENV = 'development'; // Explicitly set for test
+      process.env.REDIS_HOST = 'localhost'; // Explicitly set to test default value
 
       const env = validateEnv();
       expect(env.PORT).toBe(3000);

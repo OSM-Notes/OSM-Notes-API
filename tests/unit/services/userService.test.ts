@@ -72,7 +72,7 @@ describe('userService', () => {
     });
 
     it('should throw ApiError with 404 when user does not exist', async () => {
-      mockQuery.mockResolvedValueOnce({
+      mockQuery.mockResolvedValue({
         rows: [],
         rowCount: 0,
       });

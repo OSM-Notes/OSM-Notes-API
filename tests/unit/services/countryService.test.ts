@@ -73,7 +73,7 @@ describe('countryService', () => {
     });
 
     it('should throw ApiError with 404 when country does not exist', async () => {
-      mockQuery.mockResolvedValueOnce({
+      mockQuery.mockResolvedValue({
         rows: [],
         rowCount: 0,
       });
