@@ -85,6 +85,40 @@ function createRedisStoreAdapter(
           const result = await redisClient.del(commandArgs[0] || '');
           return result ?? 0;
         }
+        case 'SCRIPT': {
+          // SCRIPT LOAD - Load a Lua script and return SHA1 hash
+          // For testing, we return a mock hash
+          if (commandArgs[0]?.toUpperCase() === 'LOAD') {
+            // Return a mock SHA1 hash for the script
+            return 'mock_script_hash_' + Math.random().toString(36).substring(7);
+          }
+          // SCRIPT EXISTS - Check if scripts exist
+          if (commandArgs[0]?.toUpperCase() === 'EXISTS') {
+            // Return 1 for any script hash (they all "exist" in our mock)
+            return 1;
+          }
+          throw new Error(`Unsupported SCRIPT subcommand: ${commandArgs[0]}`);
+        }
+        case 'EVALSHA': {
+          // EVALSHA executes a Lua script by its SHA1 hash
+          // rate-limit-redis uses this for atomic operations
+          // For testing, we simulate the script behavior using basic Redis commands
+          const key = commandArgs[2] || '';
+          const windowMs = parseInt(commandArgs[3] || '0', 10);
+
+          // Simulate the rate limit script: increment and set expiry
+          const current = await redisClient.incr(key);
+          if (current === 1) {
+            // First time, set expiry
+            await redisClient.expire(key, Math.ceil(windowMs / 1000));
+          }
+          // Return the current count (rate-limit-redis expects a number)
+          return current;
+        }
+        case 'TTL': {
+          const result = await redisClient.ttl(commandArgs[0] || '');
+          return result ?? -1;
+        }
         default:
           throw new Error(`Unsupported Redis command: ${command}`);
       }

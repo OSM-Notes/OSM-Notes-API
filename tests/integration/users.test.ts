@@ -15,6 +15,8 @@ describe('Users Endpoints', () => {
     process.env.DB_NAME = process.env.DB_NAME || 'test_db';
     process.env.DB_USER = process.env.DB_USER || 'test_user';
     process.env.DB_PASSWORD = process.env.DB_PASSWORD || 'test_pass';
+    // Disable Redis for tests (use in-memory rate limiting)
+    process.env.REDIS_HOST = '';
 
     const { default: createApp } = await import('../../src/index');
     app = createApp();

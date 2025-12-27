@@ -10,7 +10,7 @@
     "test": "jest",
     "test:unit": "jest --testPathPattern=unit",
     "test:integration": "jest --testPathPattern=integration",
-    "test:integration:single": "jest --testPathPattern=integration --maxWorkers=1 --runInBand",
+    "test:integration:single": "jest --testPathPattern=integration --runInBand",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
     "test:light": "jest --maxWorkers=1 --testPathPattern=unit",

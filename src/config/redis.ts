@@ -102,6 +102,13 @@ export async function disconnectRedis(): Promise<void> {
 }
 
 /**
+ * Reset Redis client (useful for testing)
+ */
+export function resetRedisClient(): void {
+  redisClient = null;
+}
+
+/**
  * Test Redis connection
  */
 export async function testRedisConnection(): Promise<boolean> {
