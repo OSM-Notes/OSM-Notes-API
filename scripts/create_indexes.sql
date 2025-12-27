@@ -130,12 +130,42 @@ END $$;
 -- ANALYZE TABLES - Update statistics for query planner
 -- ============================================================================
 
-ANALYZE public.notes;
-ANALYZE public.note_comments;
-ANALYZE public.note_comments_text;
-ANALYZE dwh.datamartUsers;
-ANALYZE dwh.datamartCountries;
-ANALYZE dwh.datamartGlobal;
+-- Analyze tables (only if they exist)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'notes') THEN
+    ANALYZE public.notes;
+    RAISE NOTICE 'Analyzed: public.notes';
+  END IF;
+  
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'note_comments') THEN
+    ANALYZE public.note_comments;
+    RAISE NOTICE 'Analyzed: public.note_comments';
+  END IF;
+  
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'note_comments_text') THEN
+    ANALYZE public.note_comments_text;
+    RAISE NOTICE 'Analyzed: public.note_comments_text';
+  END IF;
+  
+  -- Analyze dwh tables if schema exists (production only)
+  IF EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = 'dwh') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'dwh' AND table_name = 'datamartusers') THEN
+      ANALYZE dwh.datamartUsers;
+      RAISE NOTICE 'Analyzed: dwh.datamartUsers';
+    END IF;
+    
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'dwh' AND table_name = 'datamartcountries') THEN
+      ANALYZE dwh.datamartCountries;
+      RAISE NOTICE 'Analyzed: dwh.datamartCountries';
+    END IF;
+    
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'dwh' AND table_name = 'datamartglobal') THEN
+      ANALYZE dwh.datamartGlobal;
+      RAISE NOTICE 'Analyzed: dwh.datamartGlobal';
+    END IF;
+  END IF;
+END $$;
 
 -- ============================================================================
 -- VERIFICATION QUERIES - Check index usage
