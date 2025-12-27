@@ -8,8 +8,8 @@ process.env.LOG_LEVEL = 'error'; // Suppress logs during tests
 // Set required environment variables for tests (before any imports)
 process.env.DB_HOST = process.env.DB_HOST || 'localhost';
 process.env.DB_NAME = process.env.DB_NAME || 'osm_notes_api_test';
-process.env.DB_USER = process.env.DB_USER || 'postgres';
-process.env.DB_PASSWORD = process.env.DB_PASSWORD || '';
+process.env.DB_USER = process.env.DB_USER || 'osm_notes_test_user';
+process.env.DB_PASSWORD = process.env.DB_PASSWORD || 'osm_notes_test_pass';
 process.env.DB_PORT = process.env.DB_PORT || '5432';
 // Disable Redis for tests (use in-memory rate limiting)
 // Only set if not already set (allows individual tests to override)

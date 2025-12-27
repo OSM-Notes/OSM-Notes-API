@@ -8,8 +8,8 @@
 const dbHost = process.env.DB_HOST || 'localhost';
 const dbPort = process.env.DB_PORT || '5432';
 const dbName = process.env.DB_NAME || 'osm_notes_api_test';
-const dbUser = process.env.DB_USER || 'postgres';
-const dbPassword = process.env.DB_PASSWORD || '';
+const dbUser = process.env.DB_USER || 'osm_notes_test_user';
+const dbPassword = process.env.DB_PASSWORD || 'osm_notes_test_pass';
 
 process.env.DB_HOST = dbHost;
 process.env.DB_PORT = dbPort;
@@ -89,7 +89,9 @@ describe('Database Integration Tests', () => {
       const results = await Promise.all(queries);
       expect(results).toHaveLength(10);
       results.forEach((result, index) => {
-        expect((result.rows[0] as { value: number }).value).toBe(index);
+        const value = (result.rows[0] as { value: number | string }).value;
+        // PostgreSQL may return as string or number depending on type handling
+        expect(Number(value)).toBe(index);
       });
     });
   });
