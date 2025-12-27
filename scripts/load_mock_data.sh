@@ -269,6 +269,36 @@ execute_hybrid_script() {
   fi
 }
 
+# Function to create performance indexes
+create_performance_indexes() {
+  log_info "Creating performance indexes..."
+
+  local psql_cmd="psql"
+  if [[ -n "${DB_HOST}" ]]; then
+    psql_cmd="${psql_cmd} -h ${DB_HOST} -p ${DB_PORT}"
+  fi
+  if [[ -n "${DB_PASSWORD}" ]]; then
+    export PGPASSWORD="${DB_PASSWORD}"
+  fi
+
+  local indexes_script="${PROJECT_ROOT}/scripts/create_indexes.sql"
+
+  if [[ ! -f "${indexes_script}" ]]; then
+    log_warning "Indexes script not found: ${indexes_script}"
+    return 0
+  fi
+
+  log_info "Executing: ${indexes_script}"
+  if ${psql_cmd} -U "${DB_USER}" -d "${DB_NAME}" -f "${indexes_script}" > /tmp/create_indexes.log 2>&1; then
+    log_success "Performance indexes created successfully"
+    return 0
+  else
+    log_warning "Index creation had warnings (check /tmp/create_indexes.log)"
+    # Don't fail - indexes might already exist
+    return 0
+  fi
+}
+
 # Function to verify data was loaded
 verify_data_loaded() {
   log_info "Verifying data was loaded..."
@@ -396,6 +426,15 @@ main() {
     log_warning "Data verification had issues (this might be OK)"
   fi
 
+  # Create performance indexes (if data was loaded successfully)
+  if [[ ${exit_code} -eq 0 ]]; then
+    log_info ""
+    log_info "Creating performance indexes..."
+    if ! create_performance_indexes; then
+      log_warning "Index creation had issues (this might be OK if indexes already exist)"
+    fi
+  fi
+
   log_info ""
   log_info "=================================================================================="
   if [[ ${exit_code} -eq 0 ]]; then
@@ -405,6 +444,7 @@ main() {
     log_info "  1. Run API tests: npm test"
     log_info "  2. Start the API: npm start"
     log_info "  3. Query the database: psql -d ${DB_NAME}"
+    log_info "  4. Analyze query performance: psql -d ${DB_NAME} -f scripts/analyze_queries.sql"
   else
     log_error "Mock data loading completed with errors"
     log_info "Check /tmp/load_mock_data.log for details"
