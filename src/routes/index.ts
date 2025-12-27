@@ -9,6 +9,7 @@ import notesRouter from './notes';
 import usersRouter from './users';
 import countriesRouter from './countries';
 import analyticsRouter from './analytics';
+import searchRouter from './search';
 
 const router = Router();
 const { apiVersion } = getAppConfig();
@@ -75,5 +76,10 @@ router.use(`/api/${apiVersion}/countries`, countriesRouter);
  * Analytics routes
  */
 router.use(`/api/${apiVersion}/analytics`, analyticsRouter);
+
+/**
+ * Search routes
+ */
+router.use(`/api/${apiVersion}/search`, searchRouter);
 
 export default router;
