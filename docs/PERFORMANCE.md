@@ -530,6 +530,36 @@ k6 run k6-benchmark.js
 
 ## Monitoring and Profiling
 
+### Creating Performance Indexes
+
+#### Option 1: Using load_mock_data.sh (Recommended for Local Testing)
+
+If you're using mock data from OSM-Notes-Ingestion, indexes are created automatically:
+
+```bash
+# Load mock data and create indexes automatically
+./scripts/load_mock_data.sh
+
+# The script will:
+# 1. Load mock data from OSM-Notes-Ingestion
+# 2. Create all performance indexes automatically
+# 3. Verify data and indexes were created successfully
+```
+
+#### Option 2: Manual Index Creation
+
+If you need to create indexes manually or update existing ones:
+
+```bash
+# For local testing (osm_notes_api_test)
+psql -U $(whoami) -d osm_notes_api_test -f scripts/create_indexes.sql
+
+# For production (osm_notes_dwh)
+psql -h $DB_HOST -U $DB_USER -d osm_notes_dwh -f scripts/create_indexes.sql
+```
+
+**Note**: The script uses `IF NOT EXISTS`, so it's safe to run multiple times.
+
 ### EXPLAIN ANALYZE
 
 To analyze query performance, use the provided analysis script:
@@ -551,6 +581,7 @@ PGPASSWORD=your_password psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f scripts/ana
 **Note**: 
 - For **local testing**: Use `osm_notes_api_test` database (default in scripts)
 - For **production analysis**: Use `osm_notes_dwh` database (set `DB_NAME=osm_notes_dwh`)
+- **Indexes are created automatically** when using `load_mock_data.sh`
 
 This script will:
 - Execute EXPLAIN ANALYZE on all API queries
