@@ -230,3 +230,59 @@ export interface CountryRankingsParams {
   limit: number;
   order?: 'asc' | 'desc';
 }
+
+/**
+ * Hashtag entry
+ */
+export interface HashtagEntry {
+  hashtag: string;
+  count: number;
+}
+
+/**
+ * Hashtag list result
+ */
+export interface HashtagListResult {
+  data: HashtagEntry[];
+  pagination: Pagination;
+}
+
+/**
+ * Hashtag details - user summary
+ */
+export interface HashtagUserSummary {
+  user_id: number;
+  username: string | null;
+  history_whole_open: number;
+  history_whole_closed: number;
+}
+
+/**
+ * Hashtag details - country summary
+ */
+export interface HashtagCountrySummary {
+  country_id: number;
+  country_name: string | null;
+  history_whole_open: number;
+  history_whole_closed: number;
+}
+
+/**
+ * Hashtag details result
+ */
+export interface HashtagDetailsResult {
+  hashtag: string;
+  users_count: number;
+  countries_count: number;
+  users: HashtagUserSummary[];
+  countries: HashtagCountrySummary[];
+}
+
+/**
+ * Hashtag list query parameters
+ */
+export interface HashtagListParams {
+  page?: number;
+  limit?: number;
+  order?: 'asc' | 'desc';
+}

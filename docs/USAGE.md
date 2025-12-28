@@ -796,6 +796,159 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 - `400 Bad Request`: Missing or invalid metric, invalid limit/order parameters
 - `500 Internal Server Error`: Server error
 
+### Hashtags Endpoints
+
+#### List Hashtags
+
+Get a list of all hashtags with usage counts.
+
+```bash
+GET /api/v1/hashtags?page=<page>&limit=<limit>&order=<order>
+```
+
+**Query Parameters**:
+- `page` (integer, optional): Page number (default: 1, minimum: 1)
+- `limit` (integer, optional): Results per page (default: 50, minimum: 1, maximum: 100)
+- `order` (string, optional): Sort order by count - `asc` or `desc` (default: `desc`)
+
+**Examples**:
+
+Get first page of hashtags (most common first):
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/hashtags"
+```
+
+Get second page with 20 results per page:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/hashtags?page=2&limit=20"
+```
+
+Get hashtags sorted by count ascending (least common first):
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/hashtags?order=asc"
+```
+
+**Response**:
+```json
+{
+  "data": [
+    {
+      "hashtag": "fixme",
+      "count": 1250
+    },
+    {
+      "hashtag": "vandalism",
+      "count": 850
+    },
+    {
+      "hashtag": "damaged",
+      "count": 420
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 50,
+    "total": 150,
+    "total_pages": 3
+  }
+}
+```
+
+**Response Headers**:
+- `X-Total-Count`: Total number of hashtags
+- `X-Page`: Current page number
+- `X-Per-Page`: Results per page
+- `X-Total-Pages`: Total number of pages
+- `Link`: Navigation links (RFC 5988)
+
+**Error Responses**:
+- `400 Bad Request`: Invalid parameters (e.g., invalid order value)
+- `500 Internal Server Error`: Server error
+
+#### Hashtag Details
+
+Get detailed information about a specific hashtag, including users and countries using it.
+
+```bash
+GET /api/v1/hashtags/:hashtag
+```
+
+**Path Parameters**:
+- `hashtag` (string, **required**): The hashtag name (without #). The API automatically removes # if present.
+
+**Examples**:
+
+Get details for "fixme" hashtag:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/hashtags/fixme"
+```
+
+Get details with # prefix (automatically removed):
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/hashtags/%23fixme"
+```
+
+**Response**:
+```json
+{
+  "hashtag": "fixme",
+  "users_count": 150,
+  "countries_count": 25,
+  "users": [
+    {
+      "user_id": 12345,
+      "username": "example_user",
+      "history_whole_open": 100,
+      "history_whole_closed": 50
+    },
+    {
+      "user_id": 67890,
+      "username": "another_user",
+      "history_whole_open": 80,
+      "history_whole_closed": 40
+    }
+  ],
+  "countries": [
+    {
+      "country_id": 42,
+      "country_name": "Colombia",
+      "history_whole_open": 500,
+      "history_whole_closed": 300
+    },
+    {
+      "country_id": 43,
+      "country_name": "Spain",
+      "history_whole_open": 300,
+      "history_whole_closed": 200
+    }
+  ]
+}
+```
+
+**Response Details**:
+- `hashtag`: The hashtag name (without #)
+- `users_count`: Total number of users using this hashtag
+- `countries_count`: Total number of countries where this hashtag is used
+- `users`: Array of up to 50 users using this hashtag, sorted by `history_whole_open` (descending)
+- `countries`: Array of up to 50 countries using this hashtag, sorted by `history_whole_open` (descending)
+
+**Note**: The `users` and `countries` arrays are limited to 50 entries each, but `users_count` and `countries_count` reflect the total count.
+
+**Error Responses**:
+- `400 Bad Request`: Invalid hashtag parameter (empty or invalid)
+- `500 Internal Server Error`: Server error
+
+**Use Cases**:
+- Discover popular hashtags in the OSM Notes community
+- Analyze hashtag usage patterns across users and countries
+- Find users or countries associated with specific topics (e.g., "#fixme", "#vandalism")
+- Track hashtag trends over time
+
 ### Caching
 
 The API uses Redis-based response caching to improve performance and reduce database load. Caching is automatically enabled for GET requests to certain endpoints.

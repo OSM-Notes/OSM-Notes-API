@@ -11,6 +11,7 @@ import usersRouter from './users';
 import countriesRouter from './countries';
 import analyticsRouter from './analytics';
 import searchRouter from './search';
+import hashtagsRouter from './hashtags';
 
 const router = Router();
 const { apiVersion } = getAppConfig();
@@ -87,5 +88,10 @@ router.use(`/api/${apiVersion}/analytics`, analyticsRouter);
  * Search routes
  */
 router.use(`/api/${apiVersion}/search`, searchRouter);
+
+/**
+ * Hashtags routes
+ */
+router.use(`/api/${apiVersion}/hashtags`, hashtagsRouter);
 
 export default router;
