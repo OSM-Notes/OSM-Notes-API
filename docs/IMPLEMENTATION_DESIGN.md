@@ -3263,13 +3263,13 @@ jobs:
 
 ### Semana 8-9: Búsqueda Avanzada y Endpoints Adicionales
 
-- [ ] **25. Búsqueda Avanzada (TDD)**
-  - [ ] Tests primero
-  - [ ] Múltiples filtros simultáneos
-  - [ ] Operadores lógicos (AND/OR)
-  - [ ] Búsqueda por texto
-  - [ ] Tests de integración
-  - [ ] Documentación
+- [x] **25. Búsqueda Avanzada (TDD)**
+  - [x] Tests primero
+  - [x] Múltiples filtros simultáneos
+  - [x] Operadores lógicos (AND/OR)
+  - [x] Búsqueda por texto
+  - [x] Tests de integración
+  - [x] Documentación
 
 - [ ] **26. Endpoints de Hashtags (TDD)**
   - [ ] Tests primero

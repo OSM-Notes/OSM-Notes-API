@@ -301,6 +301,65 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      "http://localhost:3000/api/v1/notes?bbox=-74.1,4.6,-74.0,4.7"
 ```
 
+#### Advanced Search Notes
+
+The advanced search feature extends the basic search with text search capabilities and logical operators (AND/OR) for combining multiple filters.
+
+**Text Search**:
+Search for notes containing specific text in their comments:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/notes?text=test"
+```
+
+**Logical Operators**:
+Combine multiple filters using AND (default) or OR operators:
+
+**AND Operator** (default - all conditions must match):
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/notes?country=42&status=open&operator=AND"
+```
+
+**OR Operator** (any condition can match):
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/notes?country=42&status=open&operator=OR"
+```
+
+**Combining Text Search with Filters**:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/notes?text=test&country=42&status=open&operator=AND"
+```
+
+**Advanced Query Parameters**:
+- `text` (string): Search for text in note comments (1-500 characters, case-insensitive)
+- `operator` (string): Logical operator to combine filters (`AND` or `OR`, default: `AND`)
+- All standard search parameters are also supported (`country`, `status`, `user_id`, `date_from`, `date_to`, `bbox`, `page`, `limit`)
+
+**When Advanced Search is Used**:
+Advanced search is automatically enabled when either `text` or `operator` parameters are provided. When advanced search is used:
+- Text search searches within note comments
+- Filters can be combined with AND or OR operators
+- Standard search features (pagination, filters) remain available
+
+**Examples**:
+
+Search notes with text "help" in comments:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/notes?text=help"
+```
+
+Search notes in Colombia OR Spain with text "fix":
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/notes?country=42&country=43&text=fix&operator=OR"
+```
+
+**Note**: When using OR operator with multiple values of the same filter (e.g., multiple countries), you may need to make separate requests or use the text search combined with other filters.
+
 ### User Profile Endpoint
 
 Get detailed user profile with analytics and statistics.

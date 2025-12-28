@@ -52,6 +52,20 @@ export interface SearchFilters {
 }
 
 /**
+ * Advanced search filters with logical operators
+ */
+export interface AdvancedSearchFilters extends Omit<SearchFilters, 'hashtag' | 'application'> {
+  /**
+   * Text search in note comments
+   */
+  text?: string;
+  /**
+   * Logical operator to combine filters: 'AND' (default) or 'OR'
+   */
+  operator?: 'AND' | 'OR';
+}
+
+/**
  * Pagination metadata
  */
 export interface Pagination {

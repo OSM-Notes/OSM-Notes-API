@@ -27,6 +27,9 @@ export const searchFiltersSchema = Joi.object({
     .pattern(/^-?\d+\.?\d*,-?\d+\.?\d*,-?\d+\.?\d*,-?\d+\.?\d*$/)
     .message('bbox must be in format: min_lon,min_lat,max_lon,max_lat')
     .optional(),
+  // Advanced search parameters
+  text: Joi.string().min(1).max(500).optional(),
+  operator: Joi.string().valid('AND', 'OR').default('AND').optional(),
   page: Joi.number().integer().min(1).default(1).optional(),
   limit: Joi.number().integer().min(1).max(100).default(20).optional(),
 }).custom((value, helpers) => {
