@@ -534,6 +534,156 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      http://localhost:3000/api/v1/analytics/global
 ```
 
+### Comparison Endpoint
+
+Compare multiple users or countries side-by-side by their metrics.
+
+```bash
+GET /api/v1/analytics/comparison?type=<type>&ids=<ids>
+```
+
+**Query Parameters**:
+- `type` (string, **required**): Type of entities to compare. Valid values:
+  - `users`: Compare users
+  - `countries`: Compare countries
+- `ids` (string, **required**): Comma-separated list of IDs to compare (maximum 10 IDs)
+
+**Examples**:
+
+Compare two users:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/analytics/comparison?type=users&ids=12345,67890"
+```
+
+Compare multiple countries:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/analytics/comparison?type=countries&ids=42,43,44"
+```
+
+Compare single user:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/analytics/comparison?type=users&ids=12345"
+```
+
+**Response (Users Comparison)**:
+```json
+{
+  "type": "users",
+  "entities": [
+    {
+      "user_id": 12345,
+      "username": "user1",
+      "history_whole_open": 100,
+      "history_whole_closed": 50,
+      "history_whole_commented": 75,
+      "avg_days_to_resolution": 5.5,
+      "resolution_rate": 50.0,
+      "user_response_time": 2.3
+    },
+    {
+      "user_id": 67890,
+      "username": "user2",
+      "history_whole_open": 200,
+      "history_whole_closed": 150,
+      "history_whole_commented": 100,
+      "avg_days_to_resolution": 3.2,
+      "resolution_rate": 75.0,
+      "user_response_time": 1.8
+    }
+  ]
+}
+```
+
+**Response (Countries Comparison)**:
+```json
+{
+  "type": "countries",
+  "entities": [
+    {
+      "country_id": 42,
+      "country_name": "Colombia",
+      "country_name_en": "Colombia",
+      "country_name_es": "Colombia",
+      "iso_alpha2": "CO",
+      "history_whole_open": 1000,
+      "history_whole_closed": 800,
+      "avg_days_to_resolution": 7.2,
+      "resolution_rate": 80.0,
+      "notes_health_score": 75.5,
+      "new_vs_resolved_ratio": 1.2,
+      "notes_backlog_size": 50,
+      "notes_created_last_30_days": 100,
+      "notes_resolved_last_30_days": 80
+    },
+    {
+      "country_id": 43,
+      "country_name": "Spain",
+      "country_name_en": "Spain",
+      "country_name_es": "España",
+      "iso_alpha2": "ES",
+      "history_whole_open": 2000,
+      "history_whole_closed": 1800,
+      "avg_days_to_resolution": 5.1,
+      "resolution_rate": 90.0,
+      "notes_health_score": 85.0,
+      "new_vs_resolved_ratio": 1.1,
+      "notes_backlog_size": 30,
+      "notes_created_last_30_days": 200,
+      "notes_resolved_last_30_days": 180
+    }
+  ]
+}
+```
+
+**Response Details**:
+- `type`: Type of comparison (`users` or `countries`)
+- `entities`: Array of entities with their metrics for side-by-side comparison
+
+**User Metrics Included**:
+- `user_id`: OSM user ID
+- `username`: OSM username (may be null)
+- `history_whole_open`: Total notes opened
+- `history_whole_closed`: Total notes closed
+- `history_whole_commented`: Total comments made
+- `avg_days_to_resolution`: Average days to resolve notes
+- `resolution_rate`: Resolution rate percentage
+- `user_response_time`: Average response time in days
+
+**Country Metrics Included**:
+- `country_id`: Country ID
+- `country_name`: Country name (may be null)
+- `country_name_en`: Country name in English (may be null)
+- `country_name_es`: Country name in Spanish (may be null)
+- `iso_alpha2`: ISO 3166-1 alpha-2 code (may be null)
+- `history_whole_open`: Total notes opened
+- `history_whole_closed`: Total notes closed
+- `avg_days_to_resolution`: Average days to resolve notes
+- `resolution_rate`: Resolution rate percentage
+- `notes_health_score`: Health score (0-100, may be null)
+- `new_vs_resolved_ratio`: Ratio of new vs resolved notes (may be null)
+- `notes_backlog_size`: Current backlog size (may be null)
+- `notes_created_last_30_days`: Notes created in last 30 days (may be null)
+- `notes_resolved_last_30_days`: Notes resolved in last 30 days (may be null)
+
+**Error Responses**:
+- `400 Bad Request`: Missing or invalid parameters (e.g., invalid type, empty ids, invalid ID format, more than 10 IDs)
+- `500 Internal Server Error`: Server error
+
+**Use Cases**:
+- Compare performance metrics between multiple users
+- Analyze differences between countries' note management
+- Benchmark user or country performance
+- Identify best practices by comparing top performers
+
+**Note**: 
+- Maximum 10 IDs can be compared in a single request
+- IDs can be separated by commas with optional whitespace
+- Invalid IDs in the list will cause the request to fail with 400 error
+- If an ID doesn't exist, it will simply not appear in the results (empty entities array)
+
 ### Search Endpoints
 
 #### Search Users

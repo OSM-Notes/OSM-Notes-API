@@ -39,4 +39,15 @@ router.get(
   asyncHandler(analyticsController.getGlobalAnalytics)
 );
 
+/**
+ * @route   GET /api/v1/analytics/comparison
+ * @desc    Compare users or countries by their metrics
+ * @access  Public
+ */
+router.get(
+  '/comparison',
+  cacheHandler(cacheMiddleware({ ttl: 300 })),
+  asyncHandler(analyticsController.getComparison)
+);
+
 export default router;
