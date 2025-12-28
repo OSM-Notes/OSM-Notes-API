@@ -145,13 +145,13 @@ The API will be available at `http://localhost:3000`
 
 2. **Start services**:
    ```bash
-   docker-compose -f docker/docker-compose.yml up -d
+   docker compose -f docker/docker compose.yml up -d
    ```
 
 3. **Verify everything is running**:
    ```bash
-   docker-compose -f docker/docker-compose.yml ps
-   docker-compose -f docker/docker-compose.yml logs api
+   docker compose -f docker/docker compose.yml ps
+   docker compose -f docker/docker compose.yml logs api
    ```
 
 4. **Health check**:
@@ -285,6 +285,6 @@ Once installed:
 
 If you encounter problems during installation:
 
-1. Review logs: `npm run dev` or `docker-compose logs`
+1. Review logs: `npm run dev` or `docker compose logs`
 2. Verify all requirements are met
 3. Open an issue on GitHub with problem details

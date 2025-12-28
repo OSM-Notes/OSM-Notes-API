@@ -294,10 +294,10 @@ npm test -- --verbose tests/unit/services/userService.test.ts
 
 ```bash
 # View logs
-docker-compose -f docker/docker-compose.yml logs -f api
+docker compose -f docker/docker compose.yml logs -f api
 
 # Execute commands in container
-docker-compose -f docker/docker-compose.yml exec api sh
+docker compose -f docker/docker compose.yml exec api sh
 ```
 
 ## Resources

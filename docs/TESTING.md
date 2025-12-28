@@ -287,7 +287,7 @@ Si tienes Docker Compose configurado:
 ```bash
 # Levantar servicios
 cd docker
-docker-compose -f docker-compose.dev.yml up -d
+docker compose -f docker compose.dev.yml up -d
 
 # Esperar a que los servicios estén listos
 sleep 10
@@ -297,7 +297,7 @@ curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
      http://localhost:3000/health
 
 # Detener servicios
-docker-compose -f docker-compose.dev.yml down
+docker compose -f docker compose.dev.yml down
 ```
 
 ### 7. Verificar Respuestas JSON

@@ -564,13 +564,13 @@ const userNotes = await fetch('/api/v1/users/12345/notes?status=open&limit=20').
 import requests
 
 def get_user_stats(user_id):
-    response = requests.get(f'https://api.osm-notes.org/v1/users/{user_id}')
+    response = requests.get(f'https://notes-api.osm.lat/v1/users/{user_id}')
     data = response.json()
     return f"Usuario {data['username']}: {data['history_whole_open']} notas abiertas"
 
 # Bot de GitHub que muestra contribuciones
 def get_contributions(username):
-    response = requests.get(f'https://api.osm-notes.org/v1/search/users?username={username}')
+    response = requests.get(f'https://notes-api.osm.lat/v1/search/users?username={username}')
     # ...
 ```
 
@@ -913,7 +913,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 #### Opción 1: Subdominio Dedicado (Recomendada)
 
-**URL**: `https://api-docs.osm-notes.org` o `https://docs.api.osm-notes.org`
+**URL**: `https://docs.notes-api.osm.lat` o `https://notes-api.osm.lat/docs`
 
 **Ventajas**:
 - ✅ URL profesional y memorable
@@ -928,7 +928,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 #### Opción 2: Ruta en el API
 
-**URL**: `https://api.osm-notes.org/docs` o `https://api.osm-notes.org/api-docs`
+**URL**: `https://notes-api.osm.lat/docs` o `https://notes-api.osm.lat/api-docs`
 
 **Ventajas**:
 - ✅ Todo en un solo dominio
@@ -1018,7 +1018,7 @@ const options = {
     },
     servers: [
       {
-        url: 'https://api.osm-notes.org/v1',
+        url: 'https://notes-api.osm.lat/v1',
         description: 'Production server'
       }
     ]
@@ -1338,7 +1338,7 @@ export const options = {
 };
 
 export default function () {
-  const response = http.get('https://api.osm-notes.org/v1/users/12345', {
+  const response = http.get('https://notes-api.osm.lat/v1/users/12345', {
     headers: { 'User-Agent': 'LoadTest/1.0' }
   });
   

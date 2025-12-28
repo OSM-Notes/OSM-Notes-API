@@ -31,7 +31,7 @@ const swaggerDefinition = {
       description: 'Development server',
     },
     {
-      url: 'https://api.osm-notes.org',
+      url: 'https://notes-api.osm.lat',
       description: 'Production server',
     },
   ],

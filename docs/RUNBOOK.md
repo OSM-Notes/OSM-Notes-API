@@ -32,19 +32,19 @@ This runbook provides step-by-step procedures for operating and maintaining the 
 curl -H "User-Agent: Monitor/1.0 (ops@example.com)" http://localhost:3000/health
 
 # View logs (Docker)
-docker-compose -f docker/docker-compose.yml logs -f api
+docker compose -f docker/docker-compose.yml logs -f api
 
 # View logs (PM2)
 pm2 logs osm-notes-api
 
 # Restart service (Docker)
-docker-compose -f docker/docker-compose.yml restart api
+docker compose -f docker/docker-compose.yml restart api
 
 # Restart service (PM2)
 pm2 restart osm-notes-api
 
 # Check service status (Docker)
-docker-compose -f docker/docker-compose.yml ps
+docker compose -f docker/docker-compose.yml ps
 
 # Check service status (PM2)
 pm2 status
@@ -90,33 +90,33 @@ Before deploying, verify:
 git pull origin main
 
 # 2. Build new image
-docker-compose -f docker/docker-compose.yml build api
+docker compose -f docker/docker-compose.yml build api
 
 # 3. Stop current service
-docker-compose -f docker/docker-compose.yml stop api
+docker compose -f docker/docker-compose.yml stop api
 
 # 4. Start new service
-docker-compose -f docker/docker-compose.yml up -d api
+docker compose -f docker/docker-compose.yml up -d api
 
 # 5. Verify deployment
 curl -H "User-Agent: Monitor/1.0 (ops@example.com)" http://localhost:3000/health
 
 # 6. Check logs
-docker-compose -f docker/docker-compose.yml logs -f api
+docker compose -f docker/docker-compose.yml logs -f api
 ```
 
 **Zero-Downtime Deployment** (with multiple instances):
 
 ```bash
 # 1. Scale up
-docker-compose -f docker/docker-compose.yml up -d --scale api=2
+docker compose -f docker/docker-compose.yml up -d --scale api=2
 
 # 2. Wait for new instance to be healthy
 sleep 10
 curl -H "User-Agent: Monitor/1.0 (ops@example.com)" http://localhost:3000/health
 
 # 3. Remove old instance
-docker-compose -f docker/docker-compose.yml up -d --scale api=1
+docker compose -f docker/docker-compose.yml up -d --scale api=1
 ```
 
 #### Method 2: PM2 (Node.js Direct)
@@ -187,7 +187,7 @@ After deployment, verify:
 3. **Logs**:
    ```bash
    # Check for errors
-   docker-compose -f docker/docker-compose.yml logs api | grep -i error
+   docker compose -f docker/docker-compose.yml logs api | grep -i error
    # or
    pm2 logs osm-notes-api --lines 100 | grep -i error
    ```
@@ -256,7 +256,7 @@ Monitor logs for errors:
 
 ```bash
 # Watch for errors in real-time
-docker-compose -f docker/docker-compose.yml logs -f api | grep -i error
+docker compose -f docker/docker-compose.yml logs -f api | grep -i error
 
 # Or with PM2
 pm2 logs osm-notes-api --err
@@ -335,11 +335,11 @@ Rollback immediately if:
 docker images | grep osm-notes-api
 
 # 2. Stop current service
-docker-compose -f docker/docker-compose.yml stop api
+docker compose -f docker/docker-compose.yml stop api
 
 # 3. Tag and start previous version
 docker tag osm-notes-api:previous-version osm-notes-api:latest
-docker-compose -f docker/docker-compose.yml up -d api
+docker compose -f docker/docker-compose.yml up -d api
 
 # 4. Verify rollback
 curl -H "User-Agent: Monitor/1.0 (ops@example.com)" http://localhost:3000/health
@@ -369,7 +369,7 @@ If using backup/restore strategy:
 
 ```bash
 # 1. Stop service
-docker-compose -f docker/docker-compose.yml stop api
+docker compose -f docker/docker-compose.yml stop api
 # or
 pm2 stop osm-notes-api
 
@@ -377,7 +377,7 @@ pm2 stop osm-notes-api
 # (Follow your backup restore procedure)
 
 # 3. Start service
-docker-compose -f docker/docker-compose.yml up -d api
+docker compose -f docker/docker-compose.yml up -d api
 # or
 pm2 start osm-notes-api
 
@@ -404,7 +404,7 @@ After rollback:
 
 **Docker**:
 ```bash
-docker-compose -f docker/docker-compose.yml restart api
+docker compose -f docker/docker-compose.yml restart api
 ```
 
 **PM2**:
@@ -422,16 +422,16 @@ sudo systemctl restart osm-notes-api
 **Docker**:
 ```bash
 # All logs
-docker-compose -f docker/docker-compose.yml logs api
+docker compose -f docker/docker-compose.yml logs api
 
 # Follow logs
-docker-compose -f docker/docker-compose.yml logs -f api
+docker compose -f docker/docker-compose.yml logs -f api
 
 # Last 100 lines
-docker-compose -f docker/docker-compose.yml logs --tail=100 api
+docker compose -f docker/docker-compose.yml logs --tail=100 api
 
 # Errors only
-docker-compose -f docker/docker-compose.yml logs api | grep -i error
+docker compose -f docker/docker-compose.yml logs api | grep -i error
 ```
 
 **PM2**:
@@ -453,7 +453,7 @@ pm2 logs osm-notes-api --lines 0
 
 **Docker**:
 ```bash
-docker-compose -f docker/docker-compose.yml ps
+docker compose -f docker/docker-compose.yml ps
 docker ps | grep osm-notes-api
 ```
 
@@ -476,7 +476,7 @@ sudo systemctl status osm-notes-api
 nano .env
 
 # Restart service
-docker-compose -f docker/docker-compose.yml restart api
+docker compose -f docker/docker-compose.yml restart api
 ```
 
 **PM2**:
@@ -542,14 +542,14 @@ curl http://localhost:3000/metrics
 
 1. **Check service status**:
    ```bash
-   docker-compose -f docker/docker-compose.yml ps
+   docker compose -f docker/docker-compose.yml ps
    # or
    pm2 status
    ```
 
 2. **Check logs for errors**:
    ```bash
-   docker-compose -f docker/docker-compose.yml logs --tail=100 api
+   docker compose -f docker/docker-compose.yml logs --tail=100 api
    # or
    pm2 logs osm-notes-api --lines 100 --err
    ```
@@ -561,7 +561,7 @@ curl http://localhost:3000/metrics
 
 4. **Restart service**:
    ```bash
-   docker-compose -f docker/docker-compose.yml restart api
+   docker compose -f docker/docker-compose.yml restart api
    # or
    pm2 restart osm-notes-api
    ```
@@ -580,7 +580,7 @@ curl http://localhost:3000/metrics
 
 1. **Check error logs**:
    ```bash
-   docker-compose -f docker/docker-compose.yml logs api | grep -i error | tail -50
+   docker compose -f docker/docker-compose.yml logs api | grep -i error | tail -50
    ```
 
 2. **Check database**:
@@ -605,7 +605,7 @@ curl http://localhost:3000/metrics
 
 6. **If not deployment-related, scale up**:
    ```bash
-   docker-compose -f docker/docker-compose.yml up -d --scale api=2
+   docker compose -f docker/docker-compose.yml up -d --scale api=2
    ```
 
 ### Database Connection Issues
@@ -640,7 +640,7 @@ curl http://localhost:3000/metrics
 5. **Restart database connection**:
    ```bash
    # Restart API service to reset connections
-   docker-compose -f docker/docker-compose.yml restart api
+   docker compose -f docker/docker-compose.yml restart api
    ```
 
 6. **If unresolved, contact DBA**:
@@ -667,14 +667,14 @@ curl http://localhost:3000/metrics
 
 3. **Restart service**:
    ```bash
-   docker-compose -f docker/docker-compose.yml restart api
+   docker compose -f docker/docker-compose.yml restart api
    # or
    pm2 restart osm-notes-api
    ```
 
 4. **If persistent, scale horizontally**:
    ```bash
-   docker-compose -f docker/docker-compose.yml up -d --scale api=2
+   docker compose -f docker/docker-compose.yml up -d --scale api=2
    ```
 
 ### Rate Limiting Issues

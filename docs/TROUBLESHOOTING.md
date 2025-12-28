@@ -58,7 +58,7 @@ npm run dev
 npm start
 
 # Docker
-docker-compose logs -f api
+docker compose logs -f api
 ```
 
 ---
@@ -165,7 +165,7 @@ DEL rate-limit:*
 tail -f logs/app.log
 
 # Docker logs
-docker-compose logs -f api
+docker compose logs -f api
 ```
 
 ---
@@ -336,8 +336,13 @@ echo $REDIS_PORT
 4. **Connection Refused**:
    - Check `redis.conf`: `bind 0.0.0.0` (for remote access)
    - Check firewall: `sudo ufw allow 6379/tcp`
+   - Verify Redis is running: `sudo systemctl status redis-server`
+   - Start Redis if not running: `sudo systemctl start redis-server`
+   - See [TROUBLESHOOTING_REDIS.md](TROUBLESHOOTING_REDIS.md) for detailed steps
 
 **Note**: Redis is optional. If not configured (`REDIS_HOST` empty), the API uses in-memory rate limiting (not persistent across restarts).
+
+**Quick Fix**: If Redis is on the same machine, use `REDIS_HOST=localhost` instead of the IP address.
 
 ### Rate Limiting Not Working
 
@@ -521,13 +526,13 @@ PORT=3001
 **Diagnosis**:
 ```bash
 # Check logs
-docker-compose logs api
+docker compose logs api
 
 # Check container status
-docker-compose ps
+docker compose ps
 
 # Check environment variables
-docker-compose config
+docker compose config
 ```
 
 **Common Issues**:
@@ -539,12 +544,12 @@ docker-compose config
 **Solution**:
 ```bash
 # Rebuild containers
-docker-compose down
-docker-compose build --no-cache
-docker-compose up -d
+docker compose down
+docker compose build --no-cache
+docker compose up -d
 
 # Check logs
-docker-compose logs -f api
+docker compose logs -f api
 ```
 
 ### Environment Variables Not Loading
@@ -555,7 +560,7 @@ docker-compose logs -f api
 1. Verify `.env` file exists in project root
 2. Check `.env` syntax (no spaces around `=`)
 3. Restart application after changing `.env`
-4. For Docker: Use `env_file` in `docker-compose.yml`
+4. For Docker: Use `env_file` in `docker compose.yml`
 
 ---
 
@@ -590,7 +595,7 @@ tail -f logs/app.log
 tail -f logs/error.log
 
 # Docker
-docker-compose logs -f api
+docker compose logs -f api
 
 # PM2
 pm2 logs osm-notes-api

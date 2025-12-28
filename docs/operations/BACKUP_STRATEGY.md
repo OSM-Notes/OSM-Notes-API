@@ -165,8 +165,8 @@ git checkout <tag-or-commit>
 **Files to Backup**:
 - `.env` (production)
 - `.env.example` (template)
-- `docker-compose.yml`
-- `docker-compose.prod.yml`
+- `docker compose.yml`
+- `docker compose.prod.yml`
 
 **Frequency**: 
 - Before each deployment
@@ -190,7 +190,7 @@ npm run type-check  # Validates env vars
 ### Docker Configurations
 
 **Files to Backup**:
-- `docker/docker-compose.yml`
+- `docker/docker compose.yml`
 - `docker/Dockerfile`
 - `docker/prometheus/prometheus.yml`
 - `docker/prometheus/alerts.yml`

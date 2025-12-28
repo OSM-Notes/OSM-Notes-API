@@ -45,7 +45,7 @@ http://localhost:3000
 
 **Production**:
 ```
-https://api.osm-notes.org
+https://notes-api.osm.lat
 ```
 
 All API endpoints are prefixed with `/api/v1/` except the health check endpoint.
@@ -727,7 +727,7 @@ http://localhost:3000/docs
 
 **Production**:
 ```
-https://api.osm-notes.org/docs
+https://notes-api.osm.lat/docs
 ```
 
 ### OpenAPI JSON
@@ -741,7 +741,7 @@ http://localhost:3000/docs/json
 
 **Production**:
 ```
-https://api.osm-notes.org/docs/json
+https://notes-api.osm.lat/docs/json
 ```
 
 ---

@@ -75,10 +75,10 @@ Grafana visualiza las métricas recolectadas por Prometheus mediante dashboards.
 
 ```bash
 # Iniciar servicios de monitoreo (Prometheus + Grafana)
-docker-compose --profile monitoring up -d prometheus grafana
+docker compose --profile monitoring up -d prometheus grafana
 
 # Ver logs
-docker-compose --profile monitoring logs -f prometheus grafana
+docker compose --profile monitoring logs -f prometheus grafana
 ```
 
 ### Acceso
@@ -221,12 +221,12 @@ topk(10, sum by (route) (rate(http_requests_total[5m])))
 
 2. Verificar configuración de Prometheus:
    ```bash
-   docker-compose exec prometheus promtool check config /etc/prometheus/prometheus.yml
+   docker compose exec prometheus promtool check config /etc/prometheus/prometheus.yml
    ```
 
 3. Verificar logs de Prometheus:
    ```bash
-   docker-compose logs prometheus
+   docker compose logs prometheus
    ```
 
 ### Grafana no muestra datos
@@ -247,7 +247,7 @@ topk(10, sum by (route) (rate(http_requests_total[5m])))
 
 2. Verificar sintaxis del archivo de alertas:
    ```bash
-   docker-compose exec prometheus promtool check rules /etc/prometheus/alerts.yml
+   docker compose exec prometheus promtool check rules /etc/prometheus/alerts.yml
    ```
 
 ## Próximos Pasos

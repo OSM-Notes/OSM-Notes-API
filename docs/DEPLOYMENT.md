@@ -2,6 +2,8 @@
 
 This guide covers deployment of OSM Notes API to production environments.
 
+**For specific deployment to server 192.168.0.7, see [DEPLOYMENT_PRODUCTION.md](DEPLOYMENT_PRODUCTION.md).**
+
 ## Prerequisites
 
 - Node.js >= 18.0.0
@@ -53,7 +55,7 @@ All required environment variables must be set before deployment. See `.env.exam
 
 2. **Build and start**:
    ```bash
-   docker-compose -f docker/docker-compose.yml up -d
+   docker compose -f docker/docker-compose.yml up -d
    ```
 
 3. **Verify deployment**:
@@ -62,13 +64,13 @@ All required environment variables must be set before deployment. See `.env.exam
    curl http://localhost:3000/health
    
    # Check logs
-   docker-compose -f docker/docker-compose.yml logs -f api
+   docker compose -f docker/docker-compose.yml logs -f api
    ```
 
 4. **Monitor**:
    ```bash
    # Container status
-   docker-compose -f docker/docker-compose.yml ps
+   docker compose -f docker/docker-compose.yml ps
    
    # Resource usage
    docker stats osm-notes-api
@@ -183,7 +185,7 @@ If Prometheus is configured:
 
 ```bash
 # Start with monitoring profile
-docker-compose -f docker/docker-compose.yml --profile monitoring up -d
+docker compose -f docker/docker-compose.yml --profile monitoring up -d
 
 # Access Prometheus
 http://localhost:9090
@@ -254,7 +256,7 @@ pg_dump -h $DB_HOST -U $DB_USER -d $DB_NAME > backup.sql
 1. **Restore from backup** (if needed)
 2. **Redeploy application**:
    ```bash
-   docker-compose -f docker/docker-compose.yml up -d --force-recreate
+   docker compose -f docker/docker-compose.yml up -d --force-recreate
    ```
 3. **Verify health**:
    ```bash
@@ -301,12 +303,12 @@ If deployment fails:
 
 1. **Stop new version**:
    ```bash
-   docker-compose -f docker/docker-compose.yml down
+   docker compose -f docker/docker-compose.yml down
    ```
 
 2. **Restore previous version**:
    ```bash
-   docker-compose -f docker/docker-compose.yml up -d
+   docker compose -f docker/docker-compose.yml up -d
    # or use previous image tag
    docker run -d --name osm-notes-api osm-notes-api:previous-version
    ```

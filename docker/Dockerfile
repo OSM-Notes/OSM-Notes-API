@@ -6,11 +6,17 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files (ensure package-lock.json is included)
+COPY package.json package-lock.json* ./
 
 # Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Use npm ci if package-lock.json exists, otherwise use npm install
+RUN if [ -f package-lock.json ]; then \
+      npm ci --omit=dev && npm cache clean --force; \
+    else \
+      echo "Warning: package-lock.json not found, using npm install"; \
+      npm install --omit=dev && npm cache clean --force; \
+    fi
 
 # Copy source code
 COPY . .
@@ -27,11 +33,17 @@ WORKDIR /app
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
 
-# Copy package files
-COPY package*.json ./
+# Copy package files (ensure package-lock.json is included)
+COPY package.json package-lock.json* ./
 
 # Install only production dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Use npm ci if package-lock.json exists, otherwise use npm install
+RUN if [ -f package-lock.json ]; then \
+      npm ci --omit=dev && npm cache clean --force; \
+    else \
+      echo "Warning: package-lock.json not found, using npm install"; \
+      npm install --omit=dev && npm cache clean --force; \
+    fi
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
