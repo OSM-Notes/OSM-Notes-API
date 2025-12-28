@@ -20,10 +20,12 @@ scrape_configs:
   - job_name: 'osm-notes-api'
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['api:3000']
+      # API running on host machine (accessed via Docker gateway)
+      - targets: ['172.19.0.1:3000']
         labels:
           service: 'api'
           version: '0.1.0'
+          source: 'host'
 
   - job_name: 'prometheus'
     static_configs:

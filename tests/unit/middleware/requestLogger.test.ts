@@ -6,9 +6,9 @@ import { Request, Response, NextFunction } from 'express';
 import { requestLogger, getRequestId } from '../../../src/middleware/requestLogger';
 import { logger } from '../../../src/utils/logger';
 
-// Mock uuid
-jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'test-uuid-1234'),
+// Mock crypto.randomUUID
+jest.mock('crypto', () => ({
+  randomUUID: jest.fn(() => 'test-uuid-1234'),
 }));
 
 // Mock logger
@@ -57,10 +57,10 @@ describe('requestLogger middleware', () => {
     });
 
     it('should generate different request IDs for different requests', () => {
-      // Get the mocked uuid module
-      const uuidModule = jest.requireMock<{ v4: jest.Mock }>('uuid');
+      // Get the mocked crypto module
+      const cryptoModule = jest.requireMock<{ randomUUID: jest.Mock }>('crypto');
       let callCount = 0;
-      uuidModule.v4.mockImplementation(() => {
+      cryptoModule.randomUUID.mockImplementation(() => {
         callCount++;
         return `test-uuid-${callCount}`;
       });
@@ -75,8 +75,8 @@ describe('requestLogger middleware', () => {
       expect(req2.requestId).toBe('test-uuid-2');
 
       // Reset mock
-      uuidModule.v4.mockReset();
-      uuidModule.v4.mockReturnValue('test-uuid-1234');
+      cryptoModule.randomUUID.mockReset();
+      cryptoModule.randomUUID.mockReturnValue('test-uuid-1234');
     });
 
     it('should set startTime', () => {

@@ -12,7 +12,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { logger } from '../utils/logger';
 
 /**
@@ -34,7 +34,7 @@ declare global {
  */
 export function requestLogger(req: Request, res: Response, next: NextFunction): void {
   // Generate unique request ID
-  const requestId = uuidv4();
+  const requestId: string = randomUUID();
   req.requestId = requestId;
   req.startTime = Date.now();
 
