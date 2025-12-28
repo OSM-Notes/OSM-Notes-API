@@ -3224,14 +3224,14 @@ jobs:
 
 ### Semana 7: Cache y Monitoreo Básico
 
-- [ ] **22. Cache Básico (TDD)**
-  - [ ] Tests primero: `tests/unit/middleware/cache.test.ts`
-  - [ ] Crear `src/middleware/cache.ts`
-  - [ ] Integrar Redis para cache
-  - [ ] TTLs por endpoint
-  - [ ] Invalidación de cache
-  - [ ] Tests de integración (hit/miss)
-  - [ ] Documentación
+- [x] **22. Cache Básico (TDD)**
+  - [x] Tests primero: `tests/unit/middleware/cache.test.ts`
+  - [x] Crear `src/middleware/cache.ts`
+  - [x] Integrar Redis para cache
+  - [x] TTLs por endpoint
+  - [x] Invalidación de cache
+  - [x] Tests de integración (hit/miss)
+  - [x] Documentación
 
 - [ ] **23. Logging Estructurado Mejorado**
   - [ ] Agregar más contexto a logs

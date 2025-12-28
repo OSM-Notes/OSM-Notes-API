@@ -737,6 +737,49 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 - `400 Bad Request`: Missing or invalid metric, invalid limit/order parameters
 - `500 Internal Server Error`: Server error
 
+### Caching
+
+The API uses Redis-based response caching to improve performance and reduce database load. Caching is automatically enabled for GET requests to certain endpoints.
+
+**Cache Headers**:
+- `X-Cache`: Indicates cache status:
+  - `HIT`: Response was served from cache
+  - `MISS`: Response was generated and cached
+  - `DISABLED`: Cache is not available (Redis not configured or error occurred)
+
+**Cached Endpoints**:
+- `/api/v1/analytics/global` - 10 minutes TTL
+- `/api/v1/users/:user_id` - 5 minutes TTL
+- `/api/v1/countries/:country_id` - 5 minutes TTL
+- `/api/v1/users/rankings` - 5 minutes TTL
+- `/api/v1/countries/rankings` - 5 minutes TTL
+
+**Cache Behavior**:
+- Only successful responses (2xx status codes) are cached
+- Cache keys are generated from the request method, path, and query parameters
+- Different query parameters result in different cache entries
+- Cache automatically expires after the TTL (Time To Live)
+- Cache gracefully degrades if Redis is unavailable (continues without caching)
+
+**Example**:
+```bash
+# First request - Cache MISS
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     http://localhost:3000/api/v1/analytics/global
+
+# Response includes:
+# X-Cache: MISS
+
+# Second identical request - Cache HIT (if within TTL)
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     http://localhost:3000/api/v1/analytics/global
+
+# Response includes:
+# X-Cache: HIT
+```
+
+**Note**: Cache is optional. If Redis is not configured, the API continues to work normally without caching. The `X-Cache` header will show `DISABLED` in this case.
+
 ## Error Handling
 
 ### HTTP Status Codes
