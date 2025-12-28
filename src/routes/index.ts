@@ -5,6 +5,7 @@
 import { Router } from 'express';
 import { getAppConfig } from '../config/app';
 import healthRouter from './health';
+import metricsRouter from './metrics';
 import notesRouter from './notes';
 import usersRouter from './users';
 import countriesRouter from './countries';
@@ -56,6 +57,11 @@ router.get(`/api/${apiVersion}`, (_req, res) => {
  * Health check routes
  */
 router.use('/health', healthRouter);
+
+/**
+ * Metrics routes (Prometheus)
+ */
+router.use('/metrics', metricsRouter);
 
 /**
  * Notes routes

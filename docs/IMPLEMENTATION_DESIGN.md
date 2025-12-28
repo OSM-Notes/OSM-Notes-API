@@ -3239,16 +3239,16 @@ jobs:
   - [x] Logging de performance (tiempo de respuesta)
   - [x] Tests de logging
 
-- [ ] **24. Monitoreo Básico (Prometheus)**
-  - [ ] Instalar prom-client
-  - [ ] Crear `src/middleware/metrics.ts`
-  - [ ] Métricas básicas:
-    - [ ] HTTP request duration
-    - [ ] HTTP request count
-    - [ ] Error count
-  - [ ] Endpoint `/metrics` para Prometheus
-  - [ ] Tests de métricas
-  - [ ] Documentación
+- [x] **24. Monitoreo Básico (Prometheus)**
+  - [x] Instalar prom-client (ya estaba instalado)
+  - [x] Crear `src/middleware/metrics.ts`
+  - [x] Métricas básicas:
+    - [x] HTTP request duration
+    - [x] HTTP request count
+    - [x] Error count
+  - [x] Endpoint `/metrics` para Prometheus
+  - [x] Tests de métricas (unitarios e integración)
+  - [x] Documentación
 
 **Entregables**:
 - ✅ Cache funcionando

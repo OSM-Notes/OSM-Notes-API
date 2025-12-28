@@ -780,6 +780,66 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 
 **Note**: Cache is optional. If Redis is not configured, the API continues to work normally without caching. The `X-Cache` header will show `DISABLED` in this case.
 
+### Metrics Endpoint
+
+The API exposes Prometheus metrics for monitoring and observability. The metrics endpoint is available at `/metrics` and does not require User-Agent validation.
+
+**Endpoint**:
+```bash
+GET /metrics
+```
+
+**Response Format**: Prometheus text format (text/plain)
+
+**Available Metrics**:
+
+1. **HTTP Request Duration** (`http_request_duration_seconds`):
+   - Histogram tracking response time in seconds
+   - Labels: `method`, `route`, `status_code`
+   - Buckets: 0.1s, 0.5s, 1s, 2s, 5s, 10s
+
+2. **HTTP Request Count** (`http_requests_total`):
+   - Counter tracking total number of HTTP requests
+   - Labels: `method`, `route`, `status_code`
+
+3. **HTTP Error Count** (`http_errors_total`):
+   - Counter tracking HTTP errors (4xx and 5xx)
+   - Labels: `method`, `route`, `status_code`
+
+4. **Default Node.js Metrics**:
+   - CPU usage
+   - Memory usage
+   - Event loop lag
+   - Active handles/requests
+
+**Example**:
+```bash
+# Get metrics
+curl http://localhost:3000/metrics
+
+# Response (Prometheus format):
+# # HELP http_requests_total Total number of HTTP requests
+# # TYPE http_requests_total counter
+# http_requests_total{method="GET",route="/api/v1/users/:id",status_code="200"} 42
+# http_request_duration_seconds_bucket{method="GET",route="/api/v1/users/:id",le="0.1"} 35
+# ...
+```
+
+**Integration with Prometheus**:
+
+Configure Prometheus to scrape metrics from the API:
+
+```yaml
+# prometheus.yml
+scrape_configs:
+  - job_name: 'osm-notes-api'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['api:3000']
+```
+
+**Note**: The `/metrics` endpoint is excluded from User-Agent validation and rate limiting to allow Prometheus to scrape metrics without restrictions.
+
 ## Error Handling
 
 ### HTTP Status Codes

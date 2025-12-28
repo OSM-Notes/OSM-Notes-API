@@ -14,9 +14,11 @@ import { validateUserAgent } from './middleware/validateUserAgent';
 import { rateLimitMiddleware } from './middleware/rateLimit';
 import { antiAbuseMiddleware } from './middleware/antiAbuse';
 import { requestLogger } from './middleware/requestLogger';
+import { metricsMiddleware } from './middleware/metrics';
 import { logger } from './utils/logger';
 import routes from './routes';
 import docsRouter from './routes/docs';
+import metricsRouter from './routes/metrics';
 
 /**
  * Create and configure Express application
@@ -75,6 +77,9 @@ function createApp(): Express {
   // Enhanced request logging middleware (must be before other middleware to capture all requests)
   app.use(requestLogger);
 
+  // Metrics endpoint (excluded from User-Agent validation for Prometheus scraping)
+  app.use('/metrics', metricsRouter);
+
   // User-Agent validation middleware (must be before routes)
   app.use(validateUserAgent);
 
@@ -83,6 +88,9 @@ function createApp(): Express {
 
   // Rate limiting middleware (must be after User-Agent validation and anti-abuse)
   app.use(rateLimitMiddleware);
+
+  // Metrics middleware (must be after rate limiting to track all requests)
+  app.use(metricsMiddleware);
 
   // API Documentation (Swagger) - excluded from User-Agent validation for easier access
   app.use('/docs', docsRouter);
