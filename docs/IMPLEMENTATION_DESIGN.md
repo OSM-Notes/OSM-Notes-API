@@ -3206,12 +3206,13 @@ jobs:
   - [x] Tests de integración
   - [x] Documentación
 
-- [ ] **21. Rankings (TDD)**
-  - [ ] Tests primero
-  - [ ] Endpoints: `GET /api/v1/users/rankings`, `GET /api/v1/countries/rankings`
-  - [ ] Ordenamiento configurable
-  - [ ] Tests de integración
-  - [ ] Documentación
+- [x] **21. Rankings (TDD)**
+  - [x] Tests primero
+  - [x] Endpoints: `GET /api/v1/users/rankings`, `GET /api/v1/countries/rankings`
+  - [x] Ordenamiento configurable
+  - [x] Validación de parámetros (Joi)
+  - [x] Tests de integración
+  - [x] Documentación
 
 **Entregables**:
 - ✅ Búsqueda funcionando

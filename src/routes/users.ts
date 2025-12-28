@@ -5,6 +5,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import * as usersController from '../controllers/usersController';
 import * as userRankingsController from '../controllers/userRankingsController';
+import { validateUserRankings } from '../middleware/validation';
 
 const router = Router();
 
@@ -22,7 +23,7 @@ function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => P
  * @desc    Get user rankings by metric
  * @access  Public
  */
-router.get('/rankings', asyncHandler(userRankingsController.getUserRankings));
+router.get('/rankings', validateUserRankings, asyncHandler(userRankingsController.getUserRankings));
 
 /**
  * @route   GET /api/v1/users/:user_id

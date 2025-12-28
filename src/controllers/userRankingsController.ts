@@ -6,7 +6,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as userRankingsService from '../services/userRankingsService';
 import { logger } from '../utils/logger';
-import { ApiError } from '../middleware/errorHandler';
 import { UserRankingsParams, UserRankingMetric } from '../types';
 
 /**
@@ -91,30 +90,11 @@ export async function getUserRankings(
   next: NextFunction
 ): Promise<void> {
   try {
-    const metric = req.query.metric as string | undefined;
+    // Parameters are already validated by validateUserRankings middleware
+    const metric = req.query.metric as string;
     const country = req.query.country ? parseInt(String(req.query.country), 10) : undefined;
-    const limit = req.query.limit ? parseInt(String(req.query.limit), 10) : 10;
-    const order = (req.query.order as 'asc' | 'desc' | undefined) || 'desc';
-
-    // Validate required parameters
-    if (!metric) {
-      return next(new ApiError(400, 'Metric parameter is required'));
-    }
-
-    const validMetrics = [
-      'history_whole_open',
-      'history_whole_closed',
-      'history_whole_commented',
-      'resolution_rate',
-      'avg_days_to_resolution',
-    ];
-    if (!validMetrics.includes(metric)) {
-      return next(new ApiError(400, 'Invalid metric'));
-    }
-
-    if (isNaN(limit) || limit < 1 || limit > 100) {
-      return next(new ApiError(400, 'Limit must be between 1 and 100'));
-    }
+    const limit = parseInt(String(req.query.limit || '10'), 10);
+    const order = (req.query.order as 'asc' | 'desc') || 'desc';
 
     const params: UserRankingsParams = {
       metric: metric as UserRankingMetric,

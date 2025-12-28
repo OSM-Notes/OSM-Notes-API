@@ -49,6 +49,51 @@ export const searchFiltersSchema = Joi.object({
 });
 
 /**
+ * Schema for validating user rankings parameters
+ */
+export const userRankingsSchema = Joi.object({
+  metric: Joi.string()
+    .valid(
+      'history_whole_open',
+      'history_whole_closed',
+      'history_whole_commented',
+      'resolution_rate',
+      'avg_days_to_resolution'
+    )
+    .required()
+    .messages({
+      'any.only':
+        'Metric must be one of: history_whole_open, history_whole_closed, history_whole_commented, resolution_rate, avg_days_to_resolution',
+      'any.required': 'Metric parameter is required',
+    }),
+  country: Joi.number().integer().positive().optional(),
+  limit: Joi.number().integer().min(1).max(100).default(10).optional(),
+  order: Joi.string().valid('asc', 'desc').default('desc').optional(),
+});
+
+/**
+ * Schema for validating country rankings parameters
+ */
+export const countryRankingsSchema = Joi.object({
+  metric: Joi.string()
+    .valid(
+      'history_whole_open',
+      'history_whole_closed',
+      'resolution_rate',
+      'avg_days_to_resolution',
+      'notes_health_score'
+    )
+    .required()
+    .messages({
+      'any.only':
+        'Metric must be one of: history_whole_open, history_whole_closed, resolution_rate, avg_days_to_resolution, notes_health_score',
+      'any.required': 'Metric parameter is required',
+    }),
+  limit: Joi.number().integer().min(1).max(100).default(10).optional(),
+  order: Joi.string().valid('asc', 'desc').default('desc').optional(),
+});
+
+/**
  * Middleware to validate search filters
  */
 export function validateSearchFilters(req: Request, _res: Response, next: NextFunction): void {
@@ -62,6 +107,62 @@ export function validateSearchFilters(req: Request, _res: Response, next: NextFu
   if (error) {
     const messages = error.details.map((detail) => detail.message).join(', ');
     throw new ApiError(400, `Invalid filters: ${messages}`);
+  }
+
+  // Replace query with validated values (convert to strings for Express compatibility)
+  const validatedQuery: Record<string, string> = {};
+  for (const [key, val] of Object.entries(value)) {
+    if (val !== undefined) {
+      validatedQuery[key] = String(val);
+    }
+  }
+  req.query = validatedQuery as typeof req.query;
+
+  next();
+}
+
+/**
+ * Middleware to validate user rankings parameters
+ */
+export function validateUserRankings(req: Request, _res: Response, next: NextFunction): void {
+  const validationResult = userRankingsSchema.validate(req.query, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+  const error = validationResult.error;
+  const value = validationResult.value as Record<string, unknown>;
+
+  if (error) {
+    const messages = error.details.map((detail) => detail.message).join(', ');
+    return next(new ApiError(400, `Invalid parameters: ${messages}`));
+  }
+
+  // Replace query with validated values (convert to strings for Express compatibility)
+  const validatedQuery: Record<string, string> = {};
+  for (const [key, val] of Object.entries(value)) {
+    if (val !== undefined) {
+      validatedQuery[key] = String(val);
+    }
+  }
+  req.query = validatedQuery as typeof req.query;
+
+  next();
+}
+
+/**
+ * Middleware to validate country rankings parameters
+ */
+export function validateCountryRankings(req: Request, _res: Response, next: NextFunction): void {
+  const validationResult = countryRankingsSchema.validate(req.query, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+  const error = validationResult.error;
+  const value = validationResult.value as Record<string, unknown>;
+
+  if (error) {
+    const messages = error.details.map((detail) => detail.message).join(', ');
+    return next(new ApiError(400, `Invalid parameters: ${messages}`));
   }
 
   // Replace query with validated values (convert to strings for Express compatibility)

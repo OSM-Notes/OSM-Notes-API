@@ -586,6 +586,157 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 - `400 Bad Request`: Missing or empty query parameter
 - `500 Internal Server Error`: Server error
 
+### Rankings Endpoints
+
+#### User Rankings
+
+Get rankings of users by various metrics.
+
+```bash
+GET /api/v1/users/rankings?metric=<metric>&country=<country_id>&limit=<limit>&order=<order>
+```
+
+**Query Parameters**:
+- `metric` (string, **required**): Metric to rank by. Valid values:
+  - `history_whole_open`: Total notes opened
+  - `history_whole_closed`: Total notes closed
+  - `history_whole_commented`: Total comments made
+  - `resolution_rate`: Resolution rate percentage
+  - `avg_days_to_resolution`: Average days to resolve notes
+- `country` (integer, optional): Filter rankings by country ID
+- `limit` (integer, optional): Number of results to return (1-100, default: 10)
+- `order` (string, optional): Sort order - `asc` or `desc` (default: `desc`)
+
+**Examples**:
+
+Get top 10 users by notes opened:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/users/rankings?metric=history_whole_open&limit=10"
+```
+
+Get top 5 users by resolution rate in a specific country:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/users/rankings?metric=resolution_rate&country=42&limit=5"
+```
+
+Get users with lowest average resolution time (ascending order):
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/users/rankings?metric=avg_days_to_resolution&order=asc&limit=20"
+```
+
+**Response**:
+```json
+{
+  "metric": "history_whole_open",
+  "country": 42,
+  "order": "desc",
+  "rankings": [
+    {
+      "rank": 1,
+      "user_id": 12345,
+      "username": "top_user",
+      "value": 500
+    },
+    {
+      "rank": 2,
+      "user_id": 67890,
+      "username": "second_user",
+      "value": 450
+    }
+  ]
+}
+```
+
+**Response Fields**:
+- `metric`: The metric used for ranking
+- `country`: Country ID if filtering by country (optional)
+- `order`: Sort order applied (`asc` or `desc`)
+- `rankings`: Array of ranking entries, each containing:
+  - `rank`: Position in the ranking (1-based)
+  - `user_id`: User ID
+  - `username`: Username (may be null)
+  - `value`: Metric value (may be null)
+
+**Error Responses**:
+- `400 Bad Request`: Missing or invalid metric, invalid limit/order/country parameters
+- `500 Internal Server Error`: Server error
+
+#### Country Rankings
+
+Get rankings of countries by various metrics.
+
+```bash
+GET /api/v1/countries/rankings?metric=<metric>&limit=<limit>&order=<order>
+```
+
+**Query Parameters**:
+- `metric` (string, **required**): Metric to rank by. Valid values:
+  - `history_whole_open`: Total notes opened
+  - `history_whole_closed`: Total notes closed
+  - `resolution_rate`: Resolution rate percentage
+  - `avg_days_to_resolution`: Average days to resolve notes
+  - `notes_health_score`: Overall health score for notes
+- `limit` (integer, optional): Number of results to return (1-100, default: 10)
+- `order` (string, optional): Sort order - `asc` or `desc` (default: `desc`)
+
+**Examples**:
+
+Get top 10 countries by notes opened:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/countries/rankings?metric=history_whole_open&limit=10"
+```
+
+Get top 5 countries by resolution rate:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/countries/rankings?metric=resolution_rate&limit=5"
+```
+
+Get countries with best health scores:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/countries/rankings?metric=notes_health_score&order=desc&limit=20"
+```
+
+**Response**:
+```json
+{
+  "metric": "history_whole_open",
+  "order": "desc",
+  "rankings": [
+    {
+      "rank": 1,
+      "country_id": 42,
+      "country_name": "Colombia",
+      "value": 100000
+    },
+    {
+      "rank": 2,
+      "country_id": 1,
+      "country_name": "United States",
+      "value": 95000
+    }
+  ]
+}
+```
+
+**Response Fields**:
+- `metric`: The metric used for ranking
+- `order`: Sort order applied (`asc` or `desc`)
+- `rankings`: Array of ranking entries, each containing:
+  - `rank`: Position in the ranking (1-based)
+  - `country_id`: Country ID
+  - `country_name`: Country name (may be null)
+  - `value`: Metric value (may be null)
+
+**Error Responses**:
+- `400 Bad Request`: Missing or invalid metric, invalid limit/order parameters
+- `500 Internal Server Error`: Server error
+
 ## Error Handling
 
 ### HTTP Status Codes
