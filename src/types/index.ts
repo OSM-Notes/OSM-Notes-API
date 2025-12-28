@@ -341,3 +341,32 @@ export interface CountryComparisonResult {
  * Union type for comparison results
  */
 export type ComparisonResult = UserComparisonResult | CountryComparisonResult;
+
+/**
+ * Trend entry for a specific year
+ */
+export interface TrendEntry {
+  year: string;
+  open: number;
+  closed: number;
+}
+
+/**
+ * Trends query parameters
+ */
+export interface TrendsParams {
+  type: 'users' | 'countries' | 'global';
+  user_id?: number;
+  country_id?: number;
+}
+
+/**
+ * Trends result
+ */
+export interface TrendsResult {
+  type: 'users' | 'countries' | 'global';
+  entity_id?: number;
+  entity_name?: string | null;
+  trends: TrendEntry[];
+  working_hours?: number[]; // Array of 168 numbers (24 hours * 7 days)
+}

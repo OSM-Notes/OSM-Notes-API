@@ -3271,26 +3271,26 @@ jobs:
   - [x] Tests de integración
   - [x] Documentación
 
-- [ ] **26. Endpoints de Hashtags (TDD)**
-  - [ ] Tests primero
-  - [ ] `GET /api/v1/hashtags`
-  - [ ] `GET /api/v1/hashtags/:hashtag`
-  - [ ] Tests de integración
-  - [ ] Documentación
+- [x] **26. Endpoints de Hashtags (TDD)**
+  - [x] Tests primero
+  - [x] `GET /api/v1/hashtags`
+  - [x] `GET /api/v1/hashtags/:hashtag`
+  - [x] Tests de integración
+  - [x] Documentación
 
-- [ ] **27. Comparaciones (TDD)**
-  - [ ] Tests primero
-  - [ ] `GET /api/v1/analytics/comparison`
-  - [ ] Comparar usuarios/países
-  - [ ] Tests de integración
-  - [ ] Documentación
+- [x] **27. Comparaciones (TDD)**
+  - [x] Tests primero
+  - [x] `GET /api/v1/analytics/comparison`
+  - [x] Comparar usuarios/países
+  - [x] Tests de integración
+  - [x] Documentación
 
-- [ ] **28. Tendencias (TDD)**
-  - [ ] Tests primero
-  - [ ] `GET /api/v1/analytics/trends`
-  - [ ] Análisis temporal
-  - [ ] Tests de integración
-  - [ ] Documentación
+- [x] **28. Tendencias (TDD)**
+  - [x] Tests primero
+  - [x] `GET /api/v1/analytics/trends`
+  - [x] Análisis temporal
+  - [x] Tests de integración
+  - [x] Documentación
 
 **Entregables**:
 - ✅ Búsqueda avanzada funcionando

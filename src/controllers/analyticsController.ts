@@ -6,8 +6,10 @@
 import { Request, Response, NextFunction } from 'express';
 import * as analyticsService from '../services/analyticsService';
 import * as comparisonService from '../services/comparisonService';
+import * as trendsService from '../services/trendsService';
 import { logger } from '../utils/logger';
 import { ApiError } from '../middleware/errorHandler';
+import { TrendsResult } from '../types';
 
 /**
  * @swagger
@@ -198,6 +200,109 @@ export async function getComparison(
     } else {
       result = await comparisonService.compareCountries(ids);
     }
+
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * @swagger
+ * /api/v1/analytics/trends:
+ *   get:
+ *     summary: Get temporal trends for users, countries, or global analytics
+ *     tags: [Analytics]
+ *     security:
+ *       - UserAgent: []
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [users, countries, global]
+ *           required: true
+ *         description: Type of entity to get trends for
+ *       - in: query
+ *         name: user_id
+ *         schema:
+ *           type: integer
+ *         description: User ID (required if type is 'users')
+ *       - in: query
+ *         name: country_id
+ *         schema:
+ *           type: integer
+ *         description: Country ID (required if type is 'countries')
+ *     responses:
+ *       200:
+ *         description: Trends data with temporal analysis
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TrendsResult'
+ *       400:
+ *         description: Invalid parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Entity not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+export async function getTrends(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { type, user_id, country_id } = req.query;
+
+    if (!type || (type !== 'users' && type !== 'countries' && type !== 'global')) {
+      throw new ApiError(
+        400,
+        'Invalid or missing "type" parameter. Must be "users", "countries", or "global".'
+      );
+    }
+
+    const params: {
+      type: 'users' | 'countries' | 'global';
+      user_id?: number;
+      country_id?: number;
+    } = {
+      type: type as 'users' | 'countries' | 'global',
+    };
+
+    if (type === 'users') {
+      if (!user_id) {
+        throw new ApiError(400, 'Missing "user_id" parameter for user trends.');
+      }
+      const userId = parseInt(String(user_id), 10);
+      if (isNaN(userId)) {
+        throw new ApiError(400, 'Invalid "user_id" parameter. Must be a valid number.');
+      }
+      params.user_id = userId;
+    }
+
+    if (type === 'countries') {
+      if (!country_id) {
+        throw new ApiError(400, 'Missing "country_id" parameter for country trends.');
+      }
+      const countryId = parseInt(String(country_id), 10);
+      if (isNaN(countryId)) {
+        throw new ApiError(400, 'Invalid "country_id" parameter. Must be a valid number.');
+      }
+      params.country_id = countryId;
+    }
+
+    logger.debug('Fetching trends', { params });
+
+    const result: TrendsResult = await trendsService.getTrends(params);
 
     res.json(result);
   } catch (error) {

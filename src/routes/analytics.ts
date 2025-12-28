@@ -5,6 +5,10 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import * as analyticsController from '../controllers/analyticsController';
 import { cacheMiddleware } from '../middleware/cache';
+import { validateUserAgent } from '../middleware/validateUserAgent';
+import { rateLimitMiddleware } from '../middleware/rateLimit';
+import { requestLogger } from '../middleware/requestLogger';
+import { metricsMiddleware } from '../middleware/metrics';
 
 const router = Router();
 
@@ -35,6 +39,10 @@ function cacheHandler(
  */
 router.get(
   '/global',
+  validateUserAgent,
+  rateLimitMiddleware,
+  requestLogger,
+  metricsMiddleware,
   cacheHandler(cacheMiddleware({ ttl: 600 })),
   asyncHandler(analyticsController.getGlobalAnalytics)
 );
@@ -46,8 +54,27 @@ router.get(
  */
 router.get(
   '/comparison',
+  validateUserAgent,
+  rateLimitMiddleware,
+  requestLogger,
+  metricsMiddleware,
   cacheHandler(cacheMiddleware({ ttl: 300 })),
   asyncHandler(analyticsController.getComparison)
+);
+
+/**
+ * @route   GET /api/v1/analytics/trends
+ * @desc    Get temporal trends for users, countries, or global
+ * @access  Public
+ */
+router.get(
+  '/trends',
+  validateUserAgent,
+  rateLimitMiddleware,
+  requestLogger,
+  metricsMiddleware,
+  cacheHandler(cacheMiddleware({ ttl: 600 })),
+  asyncHandler(analyticsController.getTrends)
 );
 
 export default router;

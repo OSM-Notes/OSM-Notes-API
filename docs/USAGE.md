@@ -534,6 +534,123 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      http://localhost:3000/api/v1/analytics/global
 ```
 
+### Trends Endpoint
+
+The trends endpoint provides temporal analysis of notes activity for users, countries, or globally.
+
+**Endpoint**: `GET /api/v1/analytics/trends`
+
+**Query Parameters**:
+- `type` (required): Type of entity to get trends for. Must be one of:
+  - `users`: Get trends for a specific user
+  - `countries`: Get trends for a specific country
+  - `global`: Get global trends
+- `user_id` (required if `type=users`): User ID to get trends for
+- `country_id` (required if `type=countries`): Country ID to get trends for
+
+**Example Request - User Trends**:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/analytics/trends?type=users&user_id=12345"
+```
+
+**Example Response - User Trends**:
+```json
+{
+  "type": "users",
+  "entity_id": 12345,
+  "entity_name": "example_user",
+  "trends": [
+    {
+      "year": "2020",
+      "open": 10,
+      "closed": 5
+    },
+    {
+      "year": "2021",
+      "open": 20,
+      "closed": 15
+    },
+    {
+      "year": "2022",
+      "open": 30,
+      "closed": 25
+    }
+  ],
+  "working_hours": [0, 1, 2, 3, 4, 5, 6]
+}
+```
+
+**Example Request - Country Trends**:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/analytics/trends?type=countries&country_id=42"
+```
+
+**Example Response - Country Trends**:
+```json
+{
+  "type": "countries",
+  "entity_id": 42,
+  "entity_name": "Colombia",
+  "trends": [
+    {
+      "year": "2020",
+      "open": 1000,
+      "closed": 800
+    },
+    {
+      "year": "2021",
+      "open": 1200,
+      "closed": 1000
+    }
+  ],
+  "working_hours": [0, 1, 2, 3, 4, 5, 6]
+}
+```
+
+**Example Request - Global Trends**:
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/api/v1/analytics/trends?type=global"
+```
+
+**Example Response - Global Trends**:
+```json
+{
+  "type": "global",
+  "trends": [
+    {
+      "year": "2020",
+      "open": 100000,
+      "closed": 80000
+    },
+    {
+      "year": "2021",
+      "open": 120000,
+      "closed": 100000
+    }
+  ]
+}
+```
+
+**Response Fields**:
+- `type`: Type of entity (`users`, `countries`, or `global`)
+- `entity_id`: ID of the entity (only for users and countries)
+- `entity_name`: Name of the entity (only for users and countries)
+- `trends`: Array of trend entries, each containing:
+  - `year`: Year as a string (e.g., "2020")
+  - `open`: Number of notes opened in that year
+  - `closed`: Number of notes closed in that year
+- `working_hours`: Array of 168 numbers representing activity by hour of week (24 hours × 7 days) (only for users and countries)
+
+**Error Responses**:
+- `400 Bad Request`: Missing or invalid parameters
+- `404 Not Found`: Entity not found
+- `500 Internal Server Error`: Server error
+
+**Note**: Trends are sorted by year in ascending order. The `working_hours` field is optional and may not be present for all entities.
+
 ### Comparison Endpoint
 
 Compare multiple users or countries side-by-side by their metrics.
