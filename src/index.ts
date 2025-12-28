@@ -13,6 +13,7 @@ import { errorHandler, notFoundHandler, ApiError } from './middleware/errorHandl
 import { validateUserAgent } from './middleware/validateUserAgent';
 import { rateLimitMiddleware } from './middleware/rateLimit';
 import { antiAbuseMiddleware } from './middleware/antiAbuse';
+import { requestLogger } from './middleware/requestLogger';
 import { logger } from './utils/logger';
 import routes from './routes';
 import docsRouter from './routes/docs';
@@ -71,16 +72,8 @@ function createApp(): Express {
     }
   );
 
-  // Request logging middleware
-  app.use((req: Request, _res: Response, next: NextFunction) => {
-    logger.info('Incoming request', {
-      method: req.method,
-      path: req.path,
-      ip: req.ip,
-      userAgent: req.get('User-Agent'),
-    });
-    next();
-  });
+  // Enhanced request logging middleware (must be before other middleware to capture all requests)
+  app.use(requestLogger);
 
   // User-Agent validation middleware (must be before routes)
   app.use(validateUserAgent);

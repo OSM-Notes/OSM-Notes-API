@@ -30,13 +30,19 @@ export function errorHandler(
   res: Response,
   _next: NextFunction
 ): void {
+  // Get request ID if available
+  const requestId = (req as Request & { requestId?: string }).requestId;
+
   // Log error
   logger.error('Error occurred', {
+    requestId,
     error: err.message,
     stack: err.stack,
     path: req.path,
     method: req.method,
     ip: req.ip,
+    userAgent: req.get('User-Agent'),
+    statusCode: err instanceof ApiError ? err.statusCode : 500,
   });
 
   // Handle known API errors

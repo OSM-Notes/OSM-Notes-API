@@ -39,6 +39,7 @@ describe('errorHandler', () => {
       path: '/test',
       method: 'GET',
       ip: '127.0.0.1',
+      get: jest.fn().mockReturnValue('TestApp/1.0 (test@example.com)'),
     };
 
     mockResponse = {
@@ -187,12 +188,15 @@ describe('errorHandler', () => {
       errorHandler(error, mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(logger.error).toHaveBeenCalledWith('Error occurred', {
+        requestId: undefined,
         error: 'Test error',
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         stack: expect.any(String),
         path: '/test',
         method: 'GET',
         ip: '127.0.0.1',
+        userAgent: 'TestApp/1.0 (test@example.com)',
+        statusCode: 400,
       });
     });
   });
