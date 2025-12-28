@@ -60,6 +60,17 @@ const httpErrorsTotal = new promClient.Counter({
 });
 
 /**
+ * Rate limit exceeded counter
+ * Tracks number of requests blocked by rate limiting
+ */
+const rateLimitExceededTotal = new promClient.Counter({
+  name: 'rate_limit_exceeded_total',
+  help: 'Total number of requests blocked by rate limiting',
+  labelNames: ['ip', 'user_agent'],
+  registers: [register],
+});
+
+/**
  * Normalize route path for metrics
  * Replaces dynamic segments with placeholders
  *
@@ -131,6 +142,19 @@ export function metricsMiddleware(req: Request, res: Response, next: NextFunctio
  */
 export async function getMetrics(): Promise<string> {
   return register.metrics();
+}
+
+/**
+ * Track rate limit exceeded event
+ *
+ * @param ip - IP address that exceeded rate limit
+ * @param userAgent - User-Agent that exceeded rate limit
+ */
+export function trackRateLimitExceeded(ip: string, userAgent: string): void {
+  rateLimitExceededTotal.inc({
+    ip: ip || 'unknown',
+    user_agent: userAgent || 'unknown',
+  });
 }
 
 /**

@@ -3302,33 +3302,33 @@ jobs:
 
 ### Semana 10: Monitoreo Completo
 
-- [ ] **29. Dashboards Grafana**
-  - [ ] Configurar Grafana
-  - [ ] Crear dashboards:
-    - [ ] Requests por segundo
-    - [ ] Latencia (P50, P95, P99)
-    - [ ] Errores por tipo
-    - [ ] Rate limiting activado
-    - [ ] User-Agents más comunes
-  - [ ] Documentación
+- [x] **29. Dashboards Grafana**
+  - [x] Configurar Grafana
+  - [x] Crear dashboards:
+    - [x] Requests por segundo
+    - [x] Latencia (P50, P95, P99)
+    - [x] Errores por tipo
+    - [x] Rate limiting activado
+    - [x] User-Agents más comunes
+  - [x] Documentación
 
-- [ ] **30. Alertas**
-  - [ ] Configurar alertas en Prometheus/Grafana:
-    - [ ] Alto número de errores
-    - [ ] Latencia alta
-    - [ ] Rate limiting frecuente
-  - [ ] Documentación
+- [x] **30. Alertas**
+  - [x] Configurar alertas en Prometheus/Grafana:
+    - [x] Alto número de errores
+    - [x] Latencia alta
+    - [x] Rate limiting frecuente
+  - [x] Documentación
 
-- [ ] **31. Tests de Carga Básicos**
-  - [ ] Crear scripts k6 para endpoints principales
-  - [ ] Ejecutar tests de carga
-  - [ ] Documentar resultados
-  - [ ] Optimizar si es necesario
+- [x] **31. Tests de Carga Básicos**
+  - [x] Crear scripts k6 para endpoints principales
+  - [ ] Ejecutar tests de carga (pendiente ejecución manual)
+  - [x] Documentar resultados
+  - [ ] Optimizar si es necesario (pendiente ejecución de tests)
 
 **Entregables**:
 - ✅ Dashboards Grafana funcionando
 - ✅ Alertas configuradas
-- ✅ Tests de carga ejecutados
+- ✅ Scripts de tests de carga creados
 - ✅ Documentación actualizada
 
 ---

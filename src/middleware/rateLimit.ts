@@ -35,6 +35,7 @@ import type { Store } from 'express-rate-limit';
 import { Request, Response } from 'express';
 import { getRedisClient } from '../config/redis';
 import { logger } from '../utils/logger';
+import { trackRateLimitExceeded } from './metrics';
 
 /**
  * Redis client adapter for rate-limit-redis
@@ -217,9 +218,15 @@ export const rateLimitMiddleware = rateLimit({
   store: createStore(),
   keyGenerator: generateKey,
   handler: (req: Request, res: Response) => {
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    const userAgent = req.get('User-Agent') || 'unknown';
+
+    // Track rate limit exceeded in metrics
+    trackRateLimitExceeded(ip, userAgent);
+
     logger.warn('Rate limit exceeded', {
-      ip: req.ip,
-      userAgent: req.get('User-Agent'),
+      ip,
+      userAgent,
       path: req.path,
     });
     res.status(429).json({
