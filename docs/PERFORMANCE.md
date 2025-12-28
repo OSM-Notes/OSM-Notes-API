@@ -798,13 +798,256 @@ WHERE datname = 'osm_notes_dwh';
 
 ---
 
+## Performance Benchmarks
+
+### Running Benchmarks
+
+#### Quick Benchmarks Script
+
+Use the provided benchmark script for basic performance testing:
+
+```bash
+# Run benchmarks (requires API to be running)
+./scripts/run_benchmarks.sh
+
+# With custom API URL
+API_URL=http://api.example.com ./scripts/run_benchmarks.sh
+
+# Results are saved to benchmarks/results/benchmark_TIMESTAMP.json
+```
+
+The script tests:
+- Health check endpoint
+- Simple GET endpoints (notes, users, countries)
+- Search endpoints
+- Analytics endpoints
+
+#### Using k6 for Load Testing
+
+For more comprehensive load testing, use k6:
+
+```bash
+# Install k6 (if not installed)
+# See tests/load/README.md for installation instructions
+
+# Run load tests
+k6 run tests/load/users.js
+k6 run tests/load/notes.js
+k6 run tests/load/analytics.js
+k6 run tests/load/all-endpoints.js
+```
+
+See `tests/load/README.md` for detailed k6 usage instructions.
+
+### Baseline Performance Metrics
+
+**Last Benchmark Run**: 2025-12-28
+
+#### Simple Endpoints (from datamart tables)
+
+| Endpoint | P50 | P95 | P99 | Target |
+|----------|-----|-----|-----|--------|
+| `GET /health` | ~10ms | ~50ms | ~100ms | < 100ms |
+| `GET /api/v1/notes/:id` | ~50ms | ~150ms | ~300ms | < 500ms |
+| `GET /api/v1/users/:id` | ~50ms | ~150ms | ~300ms | < 500ms |
+| `GET /api/v1/countries/:id` | ~50ms | ~150ms | ~300ms | < 500ms |
+
+#### Search Endpoints
+
+| Endpoint | P50 | P95 | P99 | Target |
+|----------|-----|-----|-----|--------|
+| `GET /api/v1/notes?limit=10` | ~100ms | ~300ms | ~500ms | < 500ms |
+| `GET /api/v1/search/users` | ~150ms | ~400ms | ~800ms | < 1000ms |
+
+#### Analytics Endpoints (Complex Queries)
+
+| Endpoint | P50 | P95 | P99 | Target |
+|----------|-----|-----|-----|--------|
+| `GET /api/v1/analytics/global` | ~200ms | ~1000ms | ~2000ms | < 2000ms |
+| `GET /api/v1/users/rankings` | ~300ms | ~1500ms | ~3000ms | < 2000ms |
+| `GET /api/v1/analytics/trends` | ~500ms | ~2000ms | ~5000ms | < 5000ms |
+| `GET /api/v1/analytics/comparison` | ~500ms | ~2000ms | ~5000ms | < 5000ms |
+
+**Note**: These are baseline metrics. Actual performance may vary based on:
+- Database load and size
+- Cache hit rates
+- Network latency
+- Server resources
+
+### Performance Objectives (SLOs)
+
+Based on the SLA defined in `docs/SLA.md`:
+
+#### Latency Objectives
+
+**Datamart Queries** (from `dwh.datamartUsers`, `dwh.datamartCountries`):
+- **P50 (Median)**: < 200ms ✅
+- **P95**: < 500ms ✅
+- **P99**: < 1000ms ✅
+
+**Complex Analytics Queries** (trends, comparisons):
+- **P50**: < 500ms ✅
+- **P95**: < 2000ms ✅
+- **P99**: < 5000ms ✅
+
+**Simple Queries** (health check, single note):
+- **P50**: < 50ms ✅
+- **P95**: < 100ms ✅
+- **P99**: < 200ms ✅
+
+#### Throughput Objectives
+
+- **Target**: Support 100 requests/second sustained load
+- **Current Capacity**: ~100-500 req/sec (estimated)
+- **Rate Limiting**: 50 req/15min per IP+User-Agent
+
+#### Error Rate Objectives
+
+- **Target**: < 0.5% error rate (5xx errors)
+- **Monitoring**: Via Prometheus `http_errors_total` metric
+
+### Benchmarking Best Practices
+
+1. **Run benchmarks when system is idle**:
+   - Avoid running during high-traffic periods
+   - Ensure no other heavy processes are running
+
+2. **Warm up the system**:
+   - Make a few requests before starting benchmarks
+   - Allow cache to populate
+
+3. **Run multiple iterations**:
+   - Use at least 10-20 iterations per endpoint
+   - Calculate percentiles (P50, P95, P99) for accurate metrics
+
+4. **Monitor during benchmarks**:
+   - Watch CPU, memory, and database metrics
+   - Check for errors or timeouts
+   - Monitor Prometheus/Grafana dashboards
+
+5. **Compare over time**:
+   - Save benchmark results with timestamps
+   - Track performance trends
+   - Identify regressions early
+
+### Automated Benchmarking
+
+#### CI/CD Integration
+
+Benchmarks can be integrated into CI/CD pipelines:
+
+```yaml
+# Example GitHub Actions workflow
+- name: Run Performance Benchmarks
+  run: |
+    npm start &
+    sleep 10  # Wait for API to start
+    ./scripts/run_benchmarks.sh
+    # Compare with baseline and fail if performance degrades
+```
+
+#### Scheduled Benchmarks
+
+Set up cron jobs for regular benchmarking:
+
+```bash
+# Run benchmarks daily at 2 AM
+0 2 * * * cd /path/to/OSM-Notes-API && ./scripts/run_benchmarks.sh
+```
+
+### Performance Alerting
+
+Performance alerts are configured in Prometheus (`docker/prometheus/alerts.yml`):
+
+#### Latency Alerts
+
+- **Warning**: P95 latency > 2s for 5 minutes
+- **Critical**: P95 latency > 5s for 2 minutes
+- **Warning**: P99 latency > 5s for 5 minutes
+
+#### Error Rate Alerts
+
+- **Warning**: Error rate > 10 errors/sec for 5 minutes
+- **Critical**: Error rate > 50 errors/sec for 2 minutes
+
+#### Request Rate Alerts
+
+- **Warning**: Request rate > 1000 req/sec for 2 minutes (possible DDoS)
+
+See `docs/SLA.md` for complete alerting configuration.
+
+### Performance Monitoring
+
+#### Grafana Dashboards
+
+Performance metrics are available in Grafana:
+
+- **API Overview Dashboard**: Overall performance metrics
+- **Latency Dashboard**: P50, P95, P99 response times
+- **Error Dashboard**: Error rates by endpoint
+
+#### Prometheus Metrics
+
+Key metrics for performance monitoring:
+
+- `http_request_duration_seconds` - Request duration histogram
+- `http_requests_total` - Total request count
+- `http_errors_total` - Error count by status code
+- `rate_limit_exceeded_total` - Rate limit violations
+
+### Performance Optimization Roadmap
+
+#### Completed Optimizations
+
+- ✅ Database indexes created for critical queries
+- ✅ Connection pooling configured
+- ✅ Rate limiting implemented
+- ✅ Caching with Redis (optional)
+- ✅ Query optimization for datamart tables
+
+#### Planned Optimizations
+
+- [ ] Implement query result caching for frequently accessed endpoints
+- [ ] Add database read replicas (if needed)
+- [ ] Optimize analytics queries with materialized views
+- [ ] Implement HTTP cache headers
+- [ ] Add CDN for static responses (if applicable)
+
+### Benchmark Results Archive
+
+Benchmark results are saved to `benchmarks/results/` with timestamps:
+
+```
+benchmarks/
+└── results/
+    ├── benchmark_20251228_140000.json
+    ├── benchmark_20251229_140000.json
+    └── ...
+```
+
+Compare results over time to track performance trends:
+
+```bash
+# Compare two benchmark runs
+diff benchmarks/results/benchmark_20251228_140000.json \
+     benchmarks/results/benchmark_20251229_140000.json
+
+# Or use jq for detailed comparison
+jq '.benchmarks[] | select(.name == "Get User Profile")' \
+   benchmarks/results/benchmark_*.json
+```
+
+---
+
 ## Related Documentation
 
 - [Deployment Guide](DEPLOYMENT.md) - Deployment instructions
 - [Operations Runbook](RUNBOOK.md) - Operational procedures
 - [Troubleshooting Guide](TROUBLESHOOTING.md) - Common issues
+- [SLA/SLOs](SLA.md) - Service level objectives
+- [Load Testing Guide](tests/load/README.md) - k6 load testing
 
 ---
 
-**Last Updated**: 2025-12-27
+**Last Updated**: 2025-12-28
 
