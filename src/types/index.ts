@@ -286,3 +286,58 @@ export interface HashtagListParams {
   limit?: number;
   order?: 'asc' | 'desc';
 }
+
+/**
+ * User comparison entry
+ */
+export interface UserComparisonEntry {
+  user_id: number;
+  username: string | null;
+  history_whole_open: number;
+  history_whole_closed: number;
+  history_whole_commented: number;
+  avg_days_to_resolution: number | null;
+  resolution_rate: number | null;
+  user_response_time: number | null;
+}
+
+/**
+ * Country comparison entry
+ */
+export interface CountryComparisonEntry {
+  country_id: number;
+  country_name: string | null;
+  country_name_en: string | null;
+  country_name_es: string | null;
+  iso_alpha2: string | null;
+  history_whole_open: number;
+  history_whole_closed: number;
+  avg_days_to_resolution: number | null;
+  resolution_rate: number | null;
+  notes_health_score: number | null;
+  new_vs_resolved_ratio: number | null;
+  notes_backlog_size: number | null;
+  notes_created_last_30_days: number | null;
+  notes_resolved_last_30_days: number | null;
+}
+
+/**
+ * Comparison result for users
+ */
+export interface UserComparisonResult {
+  type: 'users';
+  entities: UserComparisonEntry[];
+}
+
+/**
+ * Comparison result for countries
+ */
+export interface CountryComparisonResult {
+  type: 'countries';
+  entities: CountryComparisonEntry[];
+}
+
+/**
+ * Union type for comparison results
+ */
+export type ComparisonResult = UserComparisonResult | CountryComparisonResult;
