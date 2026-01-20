@@ -130,10 +130,8 @@ These match the local test database configuration.
 Add this badge to your README.md to show CI/CD status:
 
 ```markdown
-![CI/CD](https://github.com/YOUR_USERNAME/OSM-Notes-API/workflows/CI/CD%20Pipeline/badge.svg)
+![CI/CD](https://github.com/OSM-Notes/OSM-Notes-API/workflows/CI/CD%20Pipeline/badge.svg)
 ```
-
-Replace `YOUR_USERNAME` with your GitHub username.
 
 ## Troubleshooting
 
