@@ -68,7 +68,9 @@ export async function getCountryRankings(
     const result = await pool.query(query, [limit]);
 
     // Build rankings array with rank numbers
-    const rankings: CountryRankingEntry[] = result.rows.map(
+    // Apply limit to ensure we don't exceed the requested limit
+    const limitedRows = result.rows.slice(0, limit);
+    const rankings: CountryRankingEntry[] = limitedRows.map(
       (row: Record<string, unknown>, index) => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const metricValue = row[metric];
