@@ -13,7 +13,7 @@
       "id": 1,
       "title": "Requests per Second",
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
       "targets": [
         {
           "expr": "rate(http_requests_total[1m])",
@@ -36,7 +36,7 @@
       "id": 2,
       "title": "Request Rate by Status Code",
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
       "targets": [
         {
           "expr": "rate(http_requests_total[1m])",
@@ -59,7 +59,7 @@
       "id": 3,
       "title": "Response Time - P50, P95, P99",
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8},
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
       "targets": [
         {
           "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket[5m]))",
@@ -100,7 +100,7 @@
       "id": 4,
       "title": "Error Rate",
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
       "targets": [
         {
           "expr": "rate(http_errors_total[1m])",
@@ -123,7 +123,7 @@
       "id": 5,
       "title": "Total Requests",
       "type": "stat",
-      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 16},
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 16 },
       "targets": [
         {
           "expr": "sum(increase(http_requests_total[1h]))",
@@ -142,7 +142,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
+          "color": { "mode": "palette-classic" },
           "unit": "short"
         }
       }
@@ -151,7 +151,7 @@
       "id": 6,
       "title": "Error Count (Last Hour)",
       "type": "stat",
-      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 16},
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 16 },
       "targets": [
         {
           "expr": "sum(increase(http_errors_total[1h]))",
@@ -170,13 +170,13 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "thresholds"},
+          "color": { "mode": "thresholds" },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"value": null, "color": "green"},
-              {"value": 10, "color": "yellow"},
-              {"value": 100, "color": "red"}
+              { "value": null, "color": "green" },
+              { "value": 10, "color": "yellow" },
+              { "value": 100, "color": "red" }
             ]
           },
           "unit": "short"
@@ -187,7 +187,7 @@
       "id": 7,
       "title": "Average Response Time",
       "type": "stat",
-      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 20},
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 20 },
       "targets": [
         {
           "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket[5m]))",
@@ -206,13 +206,13 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "thresholds"},
+          "color": { "mode": "thresholds" },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"value": null, "color": "green"},
-              {"value": 0.5, "color": "yellow"},
-              {"value": 1.0, "color": "red"}
+              { "value": null, "color": "green" },
+              { "value": 0.5, "color": "yellow" },
+              { "value": 1.0, "color": "red" }
             ]
           },
           "unit": "s"
@@ -223,7 +223,7 @@
       "id": 8,
       "title": "P95 Response Time",
       "type": "stat",
-      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 20},
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 20 },
       "targets": [
         {
           "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
@@ -242,13 +242,13 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "thresholds"},
+          "color": { "mode": "thresholds" },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"value": null, "color": "green"},
-              {"value": 1.0, "color": "yellow"},
-              {"value": 2.0, "color": "red"}
+              { "value": null, "color": "green" },
+              { "value": 1.0, "color": "yellow" },
+              { "value": 2.0, "color": "red" }
             ]
           },
           "unit": "s"

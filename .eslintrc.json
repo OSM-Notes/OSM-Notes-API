@@ -33,4 +33,3 @@
   },
   "ignorePatterns": ["dist", "node_modules", "coverage", "jest.config.js"]
 }
-

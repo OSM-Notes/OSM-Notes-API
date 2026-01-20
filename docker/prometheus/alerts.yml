@@ -10,8 +10,9 @@ groups:
           severity: warning
           service: api
         annotations:
-          summary: "High error rate detected"
-          description: "Error rate is {{ $value }} errors/sec (threshold: 10 errors/sec) for the last 5 minutes"
+          summary: 'High error rate detected'
+          description:
+            'Error rate is {{ $value }} errors/sec (threshold: 10 errors/sec) for the last 5 minutes'
 
       # Alert: Very High Error Rate (Critical)
       - alert: VeryHighErrorRate
@@ -21,8 +22,9 @@ groups:
           severity: critical
           service: api
         annotations:
-          summary: "Very high error rate detected"
-          description: "Error rate is {{ $value }} errors/sec (threshold: 50 errors/sec) for the last 2 minutes"
+          summary: 'Very high error rate detected'
+          description:
+            'Error rate is {{ $value }} errors/sec (threshold: 50 errors/sec) for the last 2 minutes'
 
       # Alert: High Latency (P95)
       - alert: HighLatencyP95
@@ -32,8 +34,8 @@ groups:
           severity: warning
           service: api
         annotations:
-          summary: "High latency detected (P95)"
-          description: "P95 latency is {{ $value }}s (threshold: 2s) for the last 5 minutes"
+          summary: 'High latency detected (P95)'
+          description: 'P95 latency is {{ $value }}s (threshold: 2s) for the last 5 minutes'
 
       # Alert: Very High Latency (P95) - Critical
       - alert: VeryHighLatencyP95
@@ -43,8 +45,8 @@ groups:
           severity: critical
           service: api
         annotations:
-          summary: "Very high latency detected (P95)"
-          description: "P95 latency is {{ $value }}s (threshold: 5s) for the last 2 minutes"
+          summary: 'Very high latency detected (P95)'
+          description: 'P95 latency is {{ $value }}s (threshold: 5s) for the last 2 minutes'
 
       # Alert: High Latency (P99)
       - alert: HighLatencyP99
@@ -54,8 +56,8 @@ groups:
           severity: warning
           service: api
         annotations:
-          summary: "High latency detected (P99)"
-          description: "P99 latency is {{ $value }}s (threshold: 5s) for the last 5 minutes"
+          summary: 'High latency detected (P99)'
+          description: 'P99 latency is {{ $value }}s (threshold: 5s) for the last 5 minutes'
 
       # Alert: Frequent Rate Limiting
       - alert: FrequentRateLimiting
@@ -65,8 +67,9 @@ groups:
           severity: warning
           service: api
         annotations:
-          summary: "Frequent rate limiting detected"
-          description: "Rate limit exceeded {{ $value }} times/sec (threshold: 5/sec) for the last 5 minutes"
+          summary: 'Frequent rate limiting detected'
+          description:
+            'Rate limit exceeded {{ $value }} times/sec (threshold: 5/sec) for the last 5 minutes'
 
       # Alert: Very Frequent Rate Limiting (Possible Attack)
       - alert: VeryFrequentRateLimiting
@@ -76,8 +79,10 @@ groups:
           severity: critical
           service: api
         annotations:
-          summary: "Very frequent rate limiting detected (possible attack)"
-          description: "Rate limit exceeded {{ $value }} times/sec (threshold: 20/sec) for the last minute. Possible DDoS or abuse attack."
+          summary: 'Very frequent rate limiting detected (possible attack)'
+          description:
+            'Rate limit exceeded {{ $value }} times/sec (threshold: 20/sec) for the last minute.
+            Possible DDoS or abuse attack.'
 
       # Alert: API Down
       - alert: APIDown
@@ -87,8 +92,8 @@ groups:
           severity: critical
           service: api
         annotations:
-          summary: "API is down"
-          description: "API has been down for more than 1 minute"
+          summary: 'API is down'
+          description: 'API has been down for more than 1 minute'
 
       # Alert: High Request Rate (Possible DDoS)
       - alert: HighRequestRate
@@ -98,5 +103,6 @@ groups:
           severity: warning
           service: api
         annotations:
-          summary: "High request rate detected"
-          description: "Request rate is {{ $value }} requests/sec (threshold: 1000/sec) for the last 2 minutes"
+          summary: 'High request rate detected'
+          description:
+            'Request rate is {{ $value }} requests/sec (threshold: 1000/sec) for the last 2 minutes'

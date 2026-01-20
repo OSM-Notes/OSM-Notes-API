@@ -6,6 +6,36 @@
   "tabWidth": 2,
   "useTabs": false,
   "arrowParens": "always",
-  "endOfLine": "lf"
+  "endOfLine": "lf",
+  "proseWrap": "always",
+  "overrides": [
+    {
+      "files": "*.md",
+      "options": {
+        "printWidth": 100,
+        "proseWrap": "always"
+      }
+    },
+    {
+      "files": "*.json",
+      "options": {
+        "tabWidth": 2,
+        "printWidth": 100
+      }
+    },
+    {
+      "files": "*.{yaml,yml}",
+      "options": {
+        "tabWidth": 2,
+        "printWidth": 100
+      }
+    },
+    {
+      "files": "*.{css,html}",
+      "options": {
+        "tabWidth": 2,
+        "printWidth": 100
+      }
+    }
+  ]
 }
-

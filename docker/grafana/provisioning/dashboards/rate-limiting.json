@@ -13,7 +13,7 @@
       "id": 1,
       "title": "Rate Limit Exceeded (per second)",
       "type": "timeseries",
-      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
       "targets": [
         {
           "expr": "rate(rate_limit_exceeded_total[1m])",
@@ -36,7 +36,7 @@
       "id": 2,
       "title": "Total Rate Limits Exceeded",
       "type": "stat",
-      "gridPos": {"h": 4, "w": 8, "x": 0, "y": 8},
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 8 },
       "targets": [
         {
           "expr": "sum(increase(rate_limit_exceeded_total[1h]))",
@@ -55,13 +55,13 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "thresholds"},
+          "color": { "mode": "thresholds" },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"value": null, "color": "green"},
-              {"value": 10, "color": "yellow"},
-              {"value": 100, "color": "red"}
+              { "value": null, "color": "green" },
+              { "value": 10, "color": "yellow" },
+              { "value": 100, "color": "red" }
             ]
           },
           "unit": "short"
@@ -72,7 +72,7 @@
       "id": 3,
       "title": "Rate Limit Exceeded by IP",
       "type": "table",
-      "gridPos": {"h": 8, "w": 12, "x": 8, "y": 8},
+      "gridPos": { "h": 8, "w": 12, "x": 8, "y": 8 },
       "targets": [
         {
           "expr": "topk(10, sum by (ip) (rate(rate_limit_exceeded_total[5m])))",
@@ -94,7 +94,7 @@
       "id": 4,
       "title": "Rate Limit Exceeded by User-Agent",
       "type": "table",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
       "targets": [
         {
           "expr": "topk(10, sum by (user_agent) (rate(rate_limit_exceeded_total[5m])))",

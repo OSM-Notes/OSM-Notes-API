@@ -2,8 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project
+adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added - Phase 1 MVP
 
 #### Core API Endpoints
+
 - Notes endpoints:
   - `GET /api/v1/notes/:note_id` - Get note by ID
   - `GET /api/v1/notes/:note_id/comments` - Get note comments
@@ -26,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `GET /health` - API and dependencies status
 
 #### Security & Middleware
+
 - User-Agent validation middleware (required format: `AppName/Version (Contact)`)
 - Rate limiting middleware (50 requests/15min for anonymous users)
 - Anti-abuse protection (AI detection, bot detection)
@@ -35,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Error handling middleware
 
 #### Infrastructure
+
 - PostgreSQL database integration with connection pooling
 - Redis integration for caching and rate limiting (optional)
 - Environment variable validation with Joi
@@ -44,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Health check with database and Redis status
 
 #### Testing
+
 - Unit tests for all services (noteService, userService, countryService, analyticsService)
 - Unit tests for middleware (validateUserAgent, rateLimit, antiAbuse)
 - Integration tests for all endpoints
@@ -53,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Test coverage reporting
 
 #### Documentation
+
 - OpenAPI/Swagger documentation with interactive UI (`/docs`)
 - Complete API reference documentation
 - Installation guide (`docs/INSTALLATION.md`)
@@ -62,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated README with quick start examples
 
 #### Code Quality
+
 - ESLint configuration with strict rules
 - Prettier configuration for code formatting
 - Pre-commit hooks with Husky (lint, type-check, format-check)
@@ -70,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All code follows established standards
 
 #### Project Setup
+
 - Initial project structure
 - TypeScript configuration with strict mode
 - ESLint and Prettier configuration
@@ -84,5 +91,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-**Note**: This changelog follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
+**Note**: This changelog follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format and
+uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).

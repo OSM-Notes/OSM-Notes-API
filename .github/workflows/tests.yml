@@ -38,6 +38,29 @@ jobs:
       - name: Check code formatting
         run: npm run format:check
 
+      - name: Check Prettier formatting for other files
+        run: |
+          if command -v prettier &> /dev/null || npm list -g prettier &> /dev/null; then
+            npx prettier --check "**/*.{md,json,yaml,yml,css,html}" --ignore-path .prettierignore || echo "Prettier formatting issues found (non-blocking)"
+          else
+            npm install -g prettier
+            prettier --check "**/*.{md,json,yaml,yml,css,html}" --ignore-path .prettierignore || echo "Prettier formatting issues found (non-blocking)"
+          fi
+
+      - name: Check Python formatting (if Python files exist)
+        continue-on-error: true
+        run: |
+          PYTHON_FILES=$(find . -name "*.py" -not -path "./node_modules/*" -not -path "./.git/*" | head -5)
+          if [ -n "$PYTHON_FILES" ]; then
+            if command -v black &> /dev/null; then
+              echo "$PYTHON_FILES" | xargs black --check --line-length 100 || echo "Python formatting issues found (non-blocking)"
+            elif command -v ruff &> /dev/null; then
+              echo "$PYTHON_FILES" | xargs ruff check || echo "Python linting issues found (non-blocking)"
+            else
+              echo "Black/Ruff not installed, skipping Python format check"
+            fi
+          fi
+
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -112,19 +135,13 @@ jobs:
           POSTGRES_USER: ${{ env.DB_USER }}
           POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
         ports:
           - 5432:5432
       redis:
         image: redis:7-alpine
         options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
         ports:
           - 6379:6379
     steps:
@@ -206,4 +223,3 @@ jobs:
           echo "Build: ${{ needs.build.result }}"
           echo "Unit Tests: ${{ needs.unit-tests.result }}"
           echo "Integration Tests: ${{ needs.integration-tests.result }}"
-
