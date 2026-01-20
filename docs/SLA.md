@@ -116,7 +116,7 @@ This document defines the Service Level Agreements (SLAs) and Service Level Obje
 - **Low Priority** (Documentation, Questions): 5 business days
 
 **Support Channels**:
-- GitHub Issues: https://github.com/osmlatam/OSM-Notes-API/issues
+- GitHub Issues: https://github.com/OSM-Notes/OSM-Notes-API/issues
 - Email: (if configured)
 
 ---
@@ -296,9 +296,9 @@ This document defines the Service Level Agreements (SLAs) and Service Level Obje
 ## Contact and Support
 
 **Service Owner**: OSM Notes Team  
-**Repository**: https://github.com/osmlatam/OSM-Notes-API  
-**Issues**: https://github.com/osmlatam/OSM-Notes-API/issues  
-**Documentation**: https://github.com/osmlatam/OSM-Notes-API/tree/main/docs
+**Repository**: https://github.com/OSM-Notes/OSM-Notes-API  
+**Issues**: https://github.com/OSM-Notes/OSM-Notes-API/issues  
+**Documentation**: https://github.com/OSM-Notes/OSM-Notes-API/tree/main/docs
 
 ---
 

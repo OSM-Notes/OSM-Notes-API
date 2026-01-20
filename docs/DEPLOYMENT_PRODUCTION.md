@@ -81,7 +81,7 @@ cd /opt/osm-notes-api
 
 ```bash
 # Clone repository
-git clone https://github.com/osmlatam/OSM-Notes-API.git .
+git clone https://github.com/OSM-Notes/OSM-Notes-API.git .
 
 # Or if repository already exists, pull latest
 git pull origin main

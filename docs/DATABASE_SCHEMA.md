@@ -393,7 +393,7 @@ psql -U $(whoami) -d osm_notes_api_test -c "
 - [Installation Guide](INSTALLATION.md) - Installation instructions
 - [Performance Guide](PERFORMANCE.md) - Index recommendations
 - [API Reference](API.md) - API endpoint documentation
-- [OSM-Notes-Ingestion](https://github.com/osmlatam/OSM-Notes-Ingestion) - Data ingestion repository
+- [OSM-Notes-Ingestion](https://github.com/OSM-Notes/OSM-Notes-Ingestion) - Data ingestion repository
 
 ---
 

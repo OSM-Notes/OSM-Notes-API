@@ -222,8 +222,8 @@ These Terms constitute the entire agreement between you and the OSM Notes Team r
 
 For questions about these Terms, please contact:
 
-- **GitHub Issues**: https://github.com/osmlatam/OSM-Notes-API/issues
-- **Repository**: https://github.com/osmlatam/OSM-Notes-API
+- **GitHub Issues**: https://github.com/OSM-Notes/OSM-Notes-API/issues
+- **Repository**: https://github.com/OSM-Notes/OSM-Notes-API
 
 ## 19. Acknowledgment
 

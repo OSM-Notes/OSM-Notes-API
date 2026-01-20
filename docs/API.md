@@ -760,7 +760,7 @@ https://notes-api.osm.lat/docs/json
 
 For questions, issues, or contributions:
 
-- **GitHub**: [OSM-Notes-API Repository](https://github.com/osmlatam/OSM-Notes-API)
+- **GitHub**: [OSM-Notes-API Repository](https://github.com/OSM-Notes/OSM-Notes-API)
 - **Documentation**: See `docs/` directory
 - **Issues**: GitHub Issues
 

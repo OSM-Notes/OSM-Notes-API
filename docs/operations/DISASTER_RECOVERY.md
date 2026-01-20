@@ -205,7 +205,7 @@ This document outlines the disaster recovery procedures for the OSM Notes API.
 
 **Retoration**:
 ```bash
-git clone https://github.com/osmlatam/OSM-Notes-API.git
+git clone https://github.com/OSM-Notes/OSM-Notes-API.git
 cd OSM-Notes-API
 git checkout <tag-or-commit>
 npm install

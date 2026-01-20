@@ -138,7 +138,7 @@ pg_restore -h $DB_HOST -U $DB_USER -d $DB_NAME \
 
 **Restoration**:
 ```bash
-git clone https://github.com/osmlatam/OSM-Notes-API.git
+git clone https://github.com/OSM-Notes/OSM-Notes-API.git
 cd OSM-Notes-API
 git checkout <tag-or-commit>
 ```

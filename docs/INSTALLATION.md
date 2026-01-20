@@ -29,7 +29,7 @@ The API requires access to the Analytics database:
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/osmlatam/OSM-Notes-API.git
+git clone https://github.com/OSM-Notes/OSM-Notes-API.git
 cd OSM-Notes-API
 ```
 

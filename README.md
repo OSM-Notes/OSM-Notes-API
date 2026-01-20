@@ -35,7 +35,7 @@ OSM Notes API provides programmatic access to OpenStreetMap notes analytics data
 
 ```bash
 # Clone repository
-git clone https://github.com/osmlatam/OSM-Notes-API.git
+git clone https://github.com/OSM-Notes/OSM-Notes-API.git
 cd OSM-Notes-API
 
 # Install dependencies
@@ -346,9 +346,9 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) for deta
 
 ## 🔗 Related Links
 
-- [OSM-Notes-Ingestion](https://github.com/osmlatam/OSM-Notes-Ingestion)
-- [OSM-Notes-Analytics](https://github.com/osmlatam/OSM-Notes-Analytics)
-- [OSM-Notes-Viewer](https://github.com/osmlatam/OSM-Notes-Viewer)
+- [OSM-Notes-Ingestion](https://github.com/OSM-Notes/OSM-Notes-Ingestion)
+- [OSM-Notes-Analytics](https://github.com/OSM-Notes/OSM-Notes-Analytics)
+- [OSM-Notes-Viewer](https://github.com/OSM-Notes/OSM-Notes-Viewer)
 - [OpenStreetMap](https://www.openstreetmap.org/)
 
 ## 📧 Contact

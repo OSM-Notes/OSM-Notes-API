@@ -12,7 +12,7 @@ This project adheres to a Code of Conduct. By participating, you are expected to
 
 If you find a bug:
 
-1. Check that it hasn't already been reported in [Issues](https://github.com/osmlatam/OSM-Notes-API/issues)
+1. Check that it hasn't already been reported in [Issues](https://github.com/OSM-Notes/OSM-Notes-API/issues)
 2. If not, create a new issue with:
    - Clear description of the problem
    - Steps to reproduce
@@ -111,7 +111,7 @@ Quick summary:
 
 ```bash
 # Clone and setup
-git clone https://github.com/osmlatam/OSM-Notes-API.git
+git clone https://github.com/OSM-Notes/OSM-Notes-API.git
 cd OSM-Notes-API
 npm install
 

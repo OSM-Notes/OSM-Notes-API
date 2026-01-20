@@ -124,7 +124,7 @@ check_prerequisites() {
   if [[ ! -d "${INGESTION_REPO}" ]]; then
     log_error "OSM-Notes-Ingestion repository not found: ${INGESTION_REPO}"
     log_error "Please clone the repository or set INGESTION_REPO environment variable"
-    log_error "Example: git clone https://github.com/osmlatam/OSM-Notes-Ingestion.git ${INGESTION_REPO}"
+    log_error "Example: git clone https://github.com/OSM-Notes/OSM-Notes-Ingestion.git ${INGESTION_REPO}"
     return 1
   fi
 

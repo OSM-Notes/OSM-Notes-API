@@ -8,7 +8,7 @@ Guide for developers working on OSM Notes API.
 
 ```bash
 # Clone repository
-git clone https://github.com/osmlatam/OSM-Notes-API.git
+git clone https://github.com/OSM-Notes/OSM-Notes-API.git
 cd OSM-Notes-API
 
 # Install dependencies

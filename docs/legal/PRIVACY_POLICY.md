@@ -159,7 +159,7 @@ You have the right to:
 - Request a copy of your data (if applicable)
 
 **How to Request**:
-- Open a GitHub issue: https://github.com/osmlatam/OSM-Notes-API/issues
+- Open a GitHub issue: https://github.com/OSM-Notes/OSM-Notes-API/issues
 - Provide your IP address and User-Agent for identification
 
 ### 7.2. Deletion
@@ -249,13 +249,13 @@ By using the Service, you consent to:
 
 For questions about this Privacy Policy or your data, please contact:
 
-- **GitHub Issues**: https://github.com/osmlatam/OSM-Notes-API/issues
-- **Repository**: https://github.com/osmlatam/OSM-Notes-API
+- **GitHub Issues**: https://github.com/OSM-Notes/OSM-Notes-API/issues
+- **Repository**: https://github.com/OSM-Notes/OSM-Notes-API
 
 ## 15. Data Controller
 
 **Data Controller**: OSM Notes Team  
-**Contact**: Via GitHub Issues at https://github.com/osmlatam/OSM-Notes-API/issues
+**Contact**: Via GitHub Issues at https://github.com/OSM-Notes/OSM-Notes-API/issues
 
 ---
 

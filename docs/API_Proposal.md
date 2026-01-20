@@ -941,7 +941,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 #### Opción 3: Repositorio GitHub
 
-**URL**: `https://github.com/OSMLatam/OSM-Notes-API/tree/main/docs`
+**URL**: `https://github.com/OSM-Notes/OSM-Notes-API/tree/main/docs`
 
 **Ventajas**:
 - ✅ Versionado con el código
@@ -956,7 +956,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 #### Opción 4: GitHub Pages (Recomendada para Inicio)
 
-**URL**: `https://osmlatam.github.io/OSM-Notes-API/`
+**URL**: `https://OSM-Notes.github.io/OSM-Notes-API/`
 
 **Ventajas**:
 - ✅ Gratis
