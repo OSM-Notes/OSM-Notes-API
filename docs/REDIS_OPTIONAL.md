@@ -1,136 +1,152 @@
-# Redis - Opcional pero Recomendado
+---
+title: "Redis - Optional but Recommended"
+description: "Redis is optional for OSM Notes API - the API works perfectly without Redis, but Redis provides caching and rate limiting benefits"
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "redis"
+  - "performance"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
 
-## ¿Se necesita Redis?
 
-**NO, Redis NO es necesario** - la API funciona perfectamente sin Redis.
+# Redis - Optional but Recommended
 
-Sin embargo, **Redis es recomendado para producción** porque mejora el rendimiento y permite rate limiting distribuido.
+## Is Redis needed?
 
-## ¿Qué pasa sin Redis?
+**NO, Redis is NOT required** - the API works perfectly without Redis.
 
-### ✅ La API funciona normalmente
+However, **Redis is recommended for production** because it improves performance and enables distributed rate limiting.
 
-Sin Redis configurado (`REDIS_HOST` vacío), la API funciona con:
+## What happens without Redis?
 
-- **Rate Limiting**: Usa almacenamiento en memoria
-  - ✅ Funciona correctamente
-  - ⚠️ Se pierde al reiniciar el servidor
-  - ⚠️ No es compartido entre múltiples instancias
+### ✅ API works normally
 
-- **Cache**: Deshabilitado
-  - ✅ La API funciona normalmente
-  - ⚠️ Todas las consultas van a la base de datos
-  - ⚠️ Mayor carga en PostgreSQL
+Without Redis configured (empty `REDIS_HOST`), the API works with:
 
-### Ejemplo de configuración sin Redis
+- **Rate Limiting**: Uses in-memory storage
+  - ✅ Works correctly
+  - ⚠️ Lost on server restart
+  - ⚠️ Not shared between multiple instances
+
+- **Cache**: Disabled
+  - ✅ API works normally
+  - ⚠️ All queries go to the database
+  - ⚠️ Higher load on PostgreSQL
+
+### Example configuration without Redis
 
 ```env
 # .env
-REDIS_HOST=  # Vacío = Redis deshabilitado
-# REDIS_PORT=6379  # No necesario
-# REDIS_PASSWORD=  # No necesario
+REDIS_HOST=  # Empty = Redis disabled
+# REDIS_PORT=6379  # Not needed
+# REDIS_PASSWORD=  # Not needed
 ```
 
-La API detectará automáticamente que Redis no está disponible y usará:
-- Rate limiting en memoria
-- Sin cache (todas las respuestas se generan desde la DB)
+The API will automatically detect that Redis is not available and will use:
+- In-memory rate limiting
+- No cache (all responses generated from DB)
 
-## ¿Qué pasa con Redis?
+## What happens with Redis?
 
-### ✅ Mejoras para producción
+### ✅ Production improvements
 
-Con Redis configurado, obtienes:
+With Redis configured, you get:
 
-- **Rate Limiting Distribuido**:
-  - ✅ Persistente entre reinicios
-  - ✅ Compartido entre múltiples instancias de la API
-  - ✅ Mejor para escalado horizontal
+- **Distributed Rate Limiting**:
+  - ✅ Persistent across restarts
+  - ✅ Shared between multiple API instances
+  - ✅ Better for horizontal scaling
 
-- **Cache de Respuestas**:
-  - ✅ Reduce carga en PostgreSQL
-  - ✅ Respuestas más rápidas
-  - ✅ Mejor experiencia de usuario
+- **Response Caching**:
+  - ✅ Reduces load on PostgreSQL
+  - ✅ Faster responses
+  - ✅ Better user experience
 
-### Ejemplo de configuración con Redis
+### Example configuration with Redis
 
 ```env
 # .env
-REDIS_HOST=localhost  # o IP del servidor Redis
+REDIS_HOST=localhost  # or Redis server IP
 REDIS_PORT=6379
-REDIS_PASSWORD=your_secure_password  # si es requerido
+REDIS_PASSWORD=your_secure_password  # if required
 REDIS_DB=0
 ```
 
-## Cómo funciona el código
+## How the code works
 
-El código está diseñado con **"graceful degradation"**:
+The code is designed with **"graceful degradation"**:
 
 ### Rate Limiting (`src/middleware/rateLimit.ts`)
 
 ```typescript
-// Si Redis no está disponible, usa memoria
+// If Redis is not available, use memory
 if (!redisClient) {
   logger.warn('Using in-memory rate limit store (Redis not available)');
-  return undefined; // express-rate-limit usa memoria por defecto
+  return undefined; // express-rate-limit uses memory by default
 }
 ```
 
 ### Cache (`src/middleware/cache.ts`)
 
 ```typescript
-// Si Redis no está disponible, continúa sin cachear
+// If Redis is not available, continue without caching
 if (!redisClient) {
   res.setHeader('X-Cache', 'DISABLED');
-  return next(); // Continúa normalmente
+  return next(); // Continue normally
 }
 ```
 
 ### Health Check (`src/routes/health.ts`)
 
-El health check muestra el estado de Redis:
+The health check shows Redis status:
 
 ```json
 {
-  "status": "healthy",  // o "degraded" si Redis está down
+  "status": "healthy",  // or "degraded" if Redis is down
   "redis": {
-    "status": "up",  // "down" o "not_configured"
+    "status": "up",  // "down" or "not_configured"
     "host": "localhost",
     "port": 6379
   }
 }
 ```
 
-- `status: "healthy"` - Todo funciona (DB + Redis si está configurado)
-- `status: "degraded"` - DB funciona pero Redis está down (API sigue funcionando)
+- `status: "healthy"` - Everything works (DB + Redis if configured)
+- `status: "degraded"` - DB works but Redis is down (API continues working)
 
-## Cuándo usar Redis
+## When to use Redis
 
-### ✅ Usa Redis si:
+### ✅ Use Redis if:
 
-- **Producción**: Mejor rendimiento y rate limiting distribuido
-- **Múltiples instancias**: Necesitas rate limiting compartido
-- **Alto tráfico**: Cache reduce carga en la base de datos
-- **Escalabilidad**: Planeas escalar horizontalmente
+- **Production**: Better performance and distributed rate limiting
+- **Multiple instances**: You need shared rate limiting
+- **High traffic**: Cache reduces database load
+- **Scalability**: You plan to scale horizontally
 
-### ❌ No necesitas Redis si:
+### ❌ You don't need Redis if:
 
-- **Desarrollo local**: Puedes usar solo memoria
-- **Testing**: No necesitas persistencia
-- **Bajo tráfico**: La DB puede manejar la carga
-- **Una sola instancia**: Rate limiting en memoria es suficiente
+- **Local development**: You can use memory only
+- **Testing**: You don't need persistence
+- **Low traffic**: The DB can handle the load
+- **Single instance**: In-memory rate limiting is sufficient
 
-## Instalación de Redis
+## Redis Installation
 
-### Opción 1: Docker Compose (Recomendado)
+### Option 1: Docker Compose (Recommended)
 
-Ya está incluido en `docker/docker-compose.yml`:
+Already included in `docker/docker-compose.yml`:
 
 ```bash
 cd docker
 docker compose up -d redis
 ```
 
-### Opción 2: Instalación local
+### Option 2: Local Installation
 
 **Ubuntu/Debian**:
 ```bash
@@ -146,27 +162,27 @@ brew install redis
 brew services start redis
 ```
 
-**Verificar**:
+**Verify**:
 ```bash
 redis-cli ping
-# Debe responder: PONG
+# Should respond: PONG
 ```
 
-## Configuración de Seguridad
+## Security Configuration
 
-### Producción
+### Production
 
-1. **Usa contraseña**:
+1. **Use password**:
    ```bash
    redis-cli CONFIG SET requirepass "your_secure_password"
    ```
 
-2. **Restringe acceso**:
-   - Solo permite conexiones desde la API
-   - Usa firewall (iptables/ufw)
-   - No expongas Redis a internet
+2. **Restrict access**:
+   - Only allow connections from the API
+   - Use firewall (iptables/ufw)
+   - Don't expose Redis to the internet
 
-3. **Configuración en `.env`**:
+3. **Configuration in `.env`**:
    ```env
    REDIS_HOST=localhost
    REDIS_PORT=6379
@@ -174,95 +190,95 @@ redis-cli ping
    REDIS_DB=0
    ```
 
-## Verificación
+## Verification
 
-### Verificar que Redis funciona
+### Verify Redis is working
 
 ```bash
-# Test conexión
+# Test connection
 redis-cli -h $REDIS_HOST -p $REDIS_PORT ping
 
-# Con contraseña
+# With password
 redis-cli -h $REDIS_HOST -p $REDIS_PORT -a $REDIS_PASSWORD ping
 ```
 
-### Verificar desde la API
+### Verify from API
 
 ```bash
 # Health check
 curl http://localhost:3000/health
 
-# Debe mostrar:
+# Should show:
 # "redis": { "status": "up", ... }
 ```
 
-### Verificar rate limiting con Redis
+### Verify rate limiting with Redis
 
 ```bash
-# Verificar keys de rate limiting
+# Check rate limiting keys
 redis-cli KEYS "rate-limit:*"
 
-# Ver valor específico
+# Check specific value
 redis-cli GET "rate-limit:192.168.1.1:MyApp/1.0"
 ```
 
-### Verificar cache
+### Verify cache
 
 ```bash
-# Ver keys de cache
+# Check cache keys
 redis-cli KEYS "cache:*"
 
-# Ver valor específico
+# Check specific value
 redis-cli GET "cache:GET:/api/v1/users/123:"
 ```
 
 ## Troubleshooting
 
-### Redis no está disponible
+### Redis not available
 
-**Síntomas**:
-- Logs muestran: `Using in-memory rate limit store`
+**Symptoms**:
+- Logs show: `Using in-memory rate limit store`
 - Health check: `"redis": { "status": "not_configured" }`
 - Error: `Connection refused`
 
-**Solución**:
-- Verifica que `REDIS_HOST` esté configurado en `.env`
-- Verifica que Redis esté corriendo: `sudo systemctl status redis-server`
-- Inicia Redis si no está corriendo: `sudo systemctl start redis-server`
-- Verifica conectividad de red: `redis-cli ping`
-- Si Redis está en la misma máquina, usa `REDIS_HOST=localhost`
-- Ver [TROUBLESHOOTING_REDIS.md](TROUBLESHOOTING_REDIS.md) para pasos detallados
+**Solution**:
+- Verify `REDIS_HOST` is configured in `.env`
+- Verify Redis is running: `sudo systemctl status redis-server`
+- Start Redis if not running: `sudo systemctl start redis-server`
+- Verify network connectivity: `redis-cli ping`
+- If Redis is on the same machine, use `REDIS_HOST=localhost`
+- See [TROUBLESHOOTING_REDIS.md](TROUBLESHOOTING_REDIS.md) for detailed steps
 
-### Redis está down pero API funciona
+### Redis is down but API works
 
-**Síntomas**:
+**Symptoms**:
 - Health check: `"status": "degraded"`
-- Logs muestran: `Redis connection failed`
+- Logs show: `Redis connection failed`
 
-**Solución**:
-- La API funciona normalmente (graceful degradation)
-- Redis es opcional, no es crítico
-- Arregla Redis cuando sea conveniente
+**Solution**:
+- API works normally (graceful degradation)
+- Redis is optional, not critical
+- Fix Redis when convenient
 
-### Rate limiting no funciona entre instancias
+### Rate limiting doesn't work between instances
 
-**Causa**: Redis no está configurado, usando memoria
+**Cause**: Redis not configured, using memory
 
-**Solución**: Configura Redis para rate limiting distribuido
+**Solution**: Configure Redis for distributed rate limiting
 
-## Resumen
+## Summary
 
-| Característica | Sin Redis | Con Redis |
-|---------------|-----------|-----------|
-| **API funciona** | ✅ Sí | ✅ Sí |
-| **Rate limiting** | ✅ Memoria | ✅ Distribuido |
-| **Cache** | ❌ No | ✅ Sí |
-| **Persistencia** | ❌ No | ✅ Sí |
-| **Múltiples instancias** | ⚠️ Limitado | ✅ Sí |
-| **Rendimiento** | ✅ Bueno | ✅ Mejor |
+| Feature | Without Redis | With Redis |
+|---------|---------------|------------|
+| **API works** | ✅ Yes | ✅ Yes |
+| **Rate limiting** | ✅ Memory | ✅ Distributed |
+| **Cache** | ❌ No | ✅ Yes |
+| **Persistence** | ❌ No | ✅ Yes |
+| **Multiple instances** | ⚠️ Limited | ✅ Yes |
+| **Performance** | ✅ Good | ✅ Better |
 
-**Conclusión**: Redis NO es necesario, pero es **altamente recomendado para producción**.
+**Conclusion**: Redis is NOT required, but is **highly recommended for production**.
 
 ---
 
-**Última actualización**: 2025-12-28
+**Last updated**: 2025-12-28

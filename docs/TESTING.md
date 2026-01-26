@@ -1,70 +1,85 @@
+---
+title: "Testing Guide"
+description: "Guide for testing OSM Notes API endpoints, including test methods, examples, and best practices"
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "testing"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Testing Guide
 
-Esta guía explica cómo probar los endpoints de la API OSM Notes.
+This guide explains how to test the OSM Notes API endpoints.
 
-## Métodos de Prueba
+## Testing Methods
 
-### 1. Tests Automatizados (Recomendado)
+### 1. Automated Tests (Recommended)
 
-Los tests automatizados ya están implementados y cubren:
-- Tests unitarios de servicios
-- Tests de integración de endpoints
-- Validación de middleware
+Automated tests are already implemented and cover:
+- Service unit tests
+- Endpoint integration tests
+- Middleware validation
 
-#### Ejecutar todos los tests:
+#### Run all tests:
 ```bash
 npm test
 ```
 
-#### Ejecutar solo tests unitarios:
+#### Run only unit tests:
 ```bash
 npm run test:unit
 ```
 
-#### Ejecutar solo tests de integración:
+#### Run only integration tests:
 ```bash
 npm run test:integration
 ```
 
-#### Ejecutar tests con cobertura:
+#### Run tests with coverage:
 ```bash
 npm run test:coverage
 ```
 
-#### Ejecutar tests en modo watch (desarrollo):
+#### Run tests in watch mode (development):
 ```bash
 npm run test:watch
 ```
 
-**Nota**: Los tests de integración requieren una base de datos PostgreSQL en ejecución. Configura las variables de entorno antes de ejecutar:
+**Note**: Integration tests require a running PostgreSQL database. Configure environment variables before running:
 
 ```bash
 export DB_HOST=localhost
 export DB_NAME=osm_notes_dwh
-export DB_USER=tu_usuario
-export DB_PASSWORD=tu_password
+export DB_USER=your_user
+export DB_PASSWORD=your_password
 export DB_PORT=5432
 export DB_SSL=false
 ```
 
-### 2. Pruebas Manuales con curl
+### 2. Manual Testing with curl
 
-#### Configuración Inicial
+#### Initial Setup
 
-Primero, asegúrate de tener el servidor corriendo:
+First, make sure the server is running:
 
 ```bash
-# Desarrollo (con hot reload)
+# Development (with hot reload)
 npm run dev
 
-# Producción
+# Production
 npm run build
 npm start
 ```
 
-El servidor estará disponible en `http://localhost:3000` (o el puerto configurado en `PORT`).
+The server will be available at `http://localhost:3000` (or the port configured in `PORT`).
 
-#### Ejemplos de Pruebas con curl
+#### Testing Examples with curl
 
 **1. Health Check:**
 ```bash
@@ -72,83 +87,83 @@ curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
      http://localhost:3000/health
 ```
 
-**2. Obtener una nota por ID:**
+**2. Get a note by ID:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
      http://localhost:3000/api/v1/notes/12345
 ```
 
-**3. Obtener comentarios de una nota:**
+**3. Get note comments:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
      http://localhost:3000/api/v1/notes/12345/comments
 ```
 
-**4. Buscar notas con filtros:**
+**4. Search notes with filters:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
      "http://localhost:3000/api/v1/notes?status=open&country=42&limit=10"
 ```
 
-**5. Obtener perfil de usuario:**
+**5. Get user profile:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
      http://localhost:3000/api/v1/users/12345
 ```
 
-**6. Obtener perfil de país:**
+**6. Get country profile:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
      http://localhost:3000/api/v1/countries/42
 ```
 
-**7. Obtener analytics global:**
+**7. Get global analytics:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
      http://localhost:3000/api/v1/analytics/global
 ```
 
-#### Pruebas de Validación
+#### Validation Tests
 
-**Probar sin User-Agent (debe fallar):**
+**Test without User-Agent (should fail):**
 ```bash
 curl http://localhost:3000/api/v1/notes/12345
-# Esperado: 400 Bad Request
+# Expected: 400 Bad Request
 ```
 
-**Probar con User-Agent inválido:**
+**Test with invalid User-Agent:**
 ```bash
 curl -H "User-Agent: InvalidFormat" \
      http://localhost:3000/api/v1/notes/12345
-# Esperado: 400 Bad Request
+# Expected: 400 Bad Request
 ```
 
-**Probar con ID inválido:**
+**Test with invalid ID:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
      http://localhost:3000/api/v1/notes/invalid
-# Esperado: 400 Bad Request
+# Expected: 400 Bad Request
 ```
 
-**Probar rate limiting (hacer muchas requests rápidas):**
+**Test rate limiting (make many rapid requests):**
 ```bash
 for i in {1..60}; do
   curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
        http://localhost:3000/api/v1/notes/12345
   echo ""
 done
-# Después de 50 requests, debería retornar 429 Too Many Requests
+# After 50 requests, should return 429 Too Many Requests
 ```
 
-### 3. Pruebas con httpie (Alternativa a curl)
+### 3. Testing with httpie (Alternative to curl)
 
-Si tienes `httpie` instalado, es más fácil de usar:
+If you have `httpie` installed, it's easier to use:
 
 ```bash
-# Instalar httpie
+# Install httpie
 pip install httpie
 
-# Ejemplos de uso
+# Usage examples
 http GET localhost:3000/health User-Agent:"TestApp/1.0 (test@example.com)"
 
 http GET localhost:3000/api/v1/notes/12345 User-Agent:"TestApp/1.0 (test@example.com)"
@@ -160,20 +175,20 @@ http GET localhost:3000/api/v1/notes \
   limit==10
 ```
 
-### 4. Pruebas con Postman
+### 4. Testing with Postman
 
-1. **Importar colección** (puedes crear una desde los ejemplos):
-   - Crea una nueva colección en Postman
-   - Agrega las siguientes requests:
+1. **Import collection** (you can create one from the examples):
+   - Create a new collection in Postman
+   - Add the following requests:
 
-2. **Configurar Variables de Entorno**:
+2. **Configure Environment Variables**:
    - `base_url`: `http://localhost:3000`
    - `user_agent`: `TestApp/1.0 (test@example.com)`
 
-3. **Headers Globales**:
+3. **Global Headers**:
    - `User-Agent`: `{{user_agent}}`
 
-4. **Ejemplos de Requests**:
+4. **Request Examples**:
 
    - **GET Health Check**
      - URL: `{{base_url}}/health`
@@ -207,9 +222,9 @@ http GET localhost:3000/api/v1/notes \
      - URL: `{{base_url}}/api/v1/analytics/global`
      - Method: GET
 
-### 5. Pruebas con Scripts de Node.js
+### 5. Testing with Node.js Scripts
 
-Puedes crear scripts de prueba personalizados:
+You can create custom test scripts:
 
 ```javascript
 // test-endpoints.js
@@ -275,72 +290,72 @@ async function testEndpoints() {
 testEndpoints();
 ```
 
-Ejecutar:
+Run:
 ```bash
 node test-endpoints.js
 ```
 
-### 6. Pruebas con Docker Compose
+### 6. Testing with Docker Compose
 
-Si tienes Docker Compose configurado:
+If you have Docker Compose configured:
 
 ```bash
-# Levantar servicios
+# Start services
 cd docker
 docker compose -f docker compose.dev.yml up -d
 
-# Esperar a que los servicios estén listos
+# Wait for services to be ready
 sleep 10
 
-# Probar endpoints
+# Test endpoints
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
      http://localhost:3000/health
 
-# Detener servicios
+# Stop services
 docker compose -f docker compose.dev.yml down
 ```
 
-### 7. Verificar Respuestas JSON
+### 7. Verify JSON Responses
 
-Para formatear las respuestas JSON en la terminal:
+To format JSON responses in the terminal:
 
 ```bash
-# Con curl y jq
+# With curl and jq
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
      http://localhost:3000/api/v1/notes/12345 | jq
 
-# Con curl y python
+# With curl and python
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
      http://localhost:3000/api/v1/notes/12345 | python -m json.tool
 ```
 
-## Checklist de Pruebas
+## Testing Checklist
 
-### Funcionalidad Básica
-- [ ] Health check retorna 200
-- [ ] Endpoints retornan JSON válido
-- [ ] Respuestas tienen estructura correcta
+### Basic Functionality
+- [ ] Health check returns 200
+- [ ] Endpoints return valid JSON
+- [ ] Responses have correct structure
 
-### Validación
-- [ ] Requests sin User-Agent son rechazados (400)
-- [ ] User-Agent inválido es rechazado (400)
-- [ ] IDs inválidos son rechazados (400)
-- [ ] Parámetros inválidos son rechazados (400)
+### Validation
+- [ ] Requests without User-Agent are rejected (400)
+- [ ] Invalid User-Agent is rejected (400)
+- [ ] Invalid IDs are rejected (400)
+- [ ] Invalid parameters are rejected (400)
 
 ### Rate Limiting
-- [ ] Rate limiting funciona correctamente
-- [ ] Headers de rate limit están presentes
-- [ ] 429 retornado cuando se excede el límite
+- [ ] Rate limiting works correctly
+- [ ] Rate limit headers are present
+- [ ] 429 returned when limit is exceeded
 
-### Errores
-- [ ] 404 retornado para recursos no encontrados
-- [ ] 500 manejado correctamente
-- [ ] Mensajes de error son claros y útiles
+### Errors
+- [ ] 404 returned for resources not found
+- [ ] 500 handled correctly
+- [ ] Error messages are clear and useful
 
-### Endpoints Específicos
+### Specific Endpoints
 - [ ] GET /api/v1/notes/:note_id
 - [ ] GET /api/v1/notes/:note_id/comments
-- [ ] GET /api/v1/notes (búsqueda)
+- [ ] GET /api/v1/notes (search)
 - [ ] GET /api/v1/users/:user_id
 - [ ] GET /api/v1/countries/:country_id
 - [ ] GET /api/v1/analytics/global
@@ -348,28 +363,28 @@ curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
 ## Troubleshooting
 
 ### Error: "Cannot connect to database"
-- Verifica que PostgreSQL esté corriendo
-- Verifica las variables de entorno de base de datos
-- Verifica que la base de datos exista
+- Verify PostgreSQL is running
+- Verify database environment variables
+- Verify the database exists
 
 ### Error: "User-Agent required"
-- Asegúrate de incluir el header User-Agent en todas las requests
-- Formato: `AppName/Version (Contact)`
+- Make sure to include User-Agent header in all requests
+- Format: `AppName/Version (Contact)`
 
 ### Error: "Rate limit exceeded"
-- Espera 15 minutos o reinicia Redis
-- Usa un User-Agent diferente
-- Usa una IP diferente
+- Wait 15 minutes or restart Redis
+- Use a different User-Agent
+- Use a different IP
 
 ### Error: "404 Not Found"
-- Verifica que el ID exista en la base de datos
-- Verifica que la tabla correspondiente tenga datos
+- Verify the ID exists in the database
+- Verify the corresponding table has data
 
-## Recursos Adicionales
+## Additional Resources
 
-- [Documentación de la API](USAGE.md)
-- [Guía de Instalación](INSTALLATION.md)
-- [Arquitectura](ARCHITECTURE.md)
+- [API Documentation](USAGE.md)
+- [Installation Guide](INSTALLATION.md)
+- [Architecture](ARCHITECTURE.md)
 
 
 

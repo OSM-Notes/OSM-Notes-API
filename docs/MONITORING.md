@@ -1,12 +1,28 @@
-# Monitoreo y Observabilidad - OSM Notes API
+---
+title: "Monitoring and Observability - OSM Notes API"
+description: "Configuration and usage guide for monitoring system based on Prometheus and Grafana for OSM Notes API"
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "monitoring"
+audience:
+  - "system-admins"
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
 
-Este documento describe la configuración y uso del sistema de monitoreo basado en Prometheus y Grafana.
 
-## Arquitectura de Monitoreo
+# Monitoring and Observability - OSM Notes API
+
+This document describes the configuration and usage of the monitoring system based on Prometheus and Grafana.
+
+## Monitoring Architecture
 
 ```
 ┌─────────────┐
-│   API       │─── Métricas ───┐
+│   API       │─── Metrics ───┐
 │  (Node.js)  │                 │
 └─────────────┘                 │
                                  ▼
@@ -23,174 +39,174 @@ Este documento describe la configuración y uso del sistema de monitoreo basado 
                           └──────────────┘
 ```
 
-## Componentes
+## Components
 
 ### Prometheus
 
-Prometheus recolecta métricas de la API mediante scraping del endpoint `/metrics`.
+Prometheus collects metrics from the API by scraping the `/metrics` endpoint.
 
-**Configuración**: `docker/prometheus/prometheus.yml`
+**Configuration**: `docker/prometheus/prometheus.yml`
 
-**Puerto**: 9090
+**Port**: 9090
 
-**Métricas recolectadas**:
-- `http_request_duration_seconds` - Duración de requests HTTP (histograma)
-- `http_requests_total` - Total de requests HTTP (contador)
-- `http_errors_total` - Total de errores HTTP (contador)
-- `rate_limit_exceeded_total` - Total de rate limits excedidos (contador)
-- Métricas del sistema Node.js (CPU, memoria, etc.)
+**Collected Metrics**:
+- `http_request_duration_seconds` - HTTP request duration (histogram)
+- `http_requests_total` - Total HTTP requests (counter)
+- `http_errors_total` - Total HTTP errors (counter)
+- `rate_limit_exceeded_total` - Total rate limits exceeded (counter)
+- Node.js system metrics (CPU, memory, etc.)
 
 ### Grafana
 
-Grafana visualiza las métricas recolectadas por Prometheus mediante dashboards.
+Grafana visualizes metrics collected by Prometheus through dashboards.
 
-**Configuración**: `docker/grafana/provisioning/`
+**Configuration**: `docker/grafana/provisioning/`
 
-**Puerto**: 3001
+**Port**: 3001
 
-**Credenciales por defecto**:
-- Usuario: `admin`
-- Contraseña: `admin` (configurable vía `GRAFANA_PASSWORD`)
+**Default Credentials**:
+- Username: `admin`
+- Password: `admin` (configurable via `GRAFANA_PASSWORD`)
 
-**Dashboards incluidos**:
-1. **API Overview** - Vista general de la API
-   - Requests por segundo
-   - Latencia (P50, P95, P99)
-   - Errores por tipo
-   - Métricas de respuesta
+**Included Dashboards**:
+1. **API Overview** - API overview
+   - Requests per second
+   - Latency (P50, P95, P99)
+   - Errors by type
+   - Response metrics
 
-2. **Rate Limiting** - Monitoreo de rate limiting
-   - Rate limits excedidos por segundo
-   - Top IPs y User-Agents que exceden límites
-   - Total de rate limits excedidos
+2. **Rate Limiting** - Rate limiting monitoring
+   - Rate limits exceeded per second
+   - Top IPs and User-Agents exceeding limits
+   - Total rate limits exceeded
 
-3. **User-Agents** - Análisis de User-Agents
-   - Requests por método
-   - Top rutas por request rate
-   - Distribución de status codes
+3. **User-Agents** - User-Agent analysis
+   - Requests by method
+   - Top routes by request rate
+   - Status code distribution
 
-## Iniciar Monitoreo
+## Starting Monitoring
 
-### Con Docker Compose
+### With Docker Compose
 
 ```bash
-# Iniciar servicios de monitoreo (Prometheus + Grafana)
+# Start monitoring services (Prometheus + Grafana)
 docker compose --profile monitoring up -d prometheus grafana
 
-# Ver logs
+# View logs
 docker compose --profile monitoring logs -f prometheus grafana
 ```
 
-### Acceso
+### Access
 
 - **Prometheus**: http://localhost:9090
 - **Grafana**: http://localhost:3001
-  - Usuario: `admin`
-  - Contraseña: `admin` (o el valor de `GRAFANA_PASSWORD`)
+  - Username: `admin`
+  - Password: `admin` (or the value of `GRAFANA_PASSWORD`)
 
 ## Dashboards
 
 ### API Overview
 
-Dashboard principal con métricas generales de la API:
+Main dashboard with general API metrics:
 
-- **Requests per Second**: Tasa de requests por segundo
-- **Request Rate by Status Code**: Distribución de requests por código de estado
-- **Response Time - P50, P95, P99**: Percentiles de tiempo de respuesta
-- **Error Rate**: Tasa de errores por segundo
-- **Total Requests**: Total de requests en la última hora
-- **Error Count**: Total de errores en la última hora
-- **Average Response Time**: Tiempo promedio de respuesta
-- **P95 Response Time**: Percentil 95 de tiempo de respuesta
+- **Requests per Second**: Requests per second rate
+- **Request Rate by Status Code**: Request distribution by status code
+- **Response Time - P50, P95, P99**: Response time percentiles
+- **Error Rate**: Errors per second rate
+- **Total Requests**: Total requests in the last hour
+- **Error Count**: Total errors in the last hour
+- **Average Response Time**: Average response time
+- **P95 Response Time**: 95th percentile response time
 
 ### Rate Limiting
 
-Dashboard específico para monitorear rate limiting:
+Specific dashboard for monitoring rate limiting:
 
-- **Rate Limit Exceeded (per second)**: Gráfico de rate limits excedidos
-- **Total Rate Limits Exceeded**: Contador total
-- **Rate Limit Exceeded by IP**: Tabla de top IPs
-- **Rate Limit Exceeded by User-Agent**: Tabla de top User-Agents
+- **Rate Limit Exceeded (per second)**: Rate limits exceeded chart
+- **Total Rate Limits Exceeded**: Total counter
+- **Rate Limit Exceeded by IP**: Top IPs table
+- **Rate Limit Exceeded by User-Agent**: Top User-Agents table
 
 ### User-Agents
 
-Dashboard de análisis de User-Agents:
+User-Agent analysis dashboard:
 
-- **Requests by Status Code**: Gráfico de pastel
-- **Top 10 Routes by Request Rate**: Gráfico de barras
-- **Request Rate by Method**: Gráfico temporal
+- **Requests by Status Code**: Pie chart
+- **Top 10 Routes by Request Rate**: Bar chart
+- **Request Rate by Method**: Time series chart
 
-## Alertas
+## Alerts
 
-Las alertas están configuradas en `docker/prometheus/alerts.yml` y se evalúan automáticamente por Prometheus.
+Alerts are configured in `docker/prometheus/alerts.yml` and automatically evaluated by Prometheus.
 
-### Alertas Configuradas
+### Configured Alerts
 
 1. **HighErrorRate** (Warning)
-   - Condición: Error rate > 10 errors/sec por 5 minutos
-   - Severidad: Warning
+   - Condition: Error rate > 10 errors/sec for 5 minutes
+   - Severity: Warning
 
 2. **VeryHighErrorRate** (Critical)
-   - Condición: Error rate > 50 errors/sec por 2 minutos
-   - Severidad: Critical
+   - Condition: Error rate > 50 errors/sec for 2 minutes
+   - Severity: Critical
 
 3. **HighLatencyP95** (Warning)
-   - Condición: P95 latency > 2s por 5 minutos
-   - Severidad: Warning
+   - Condition: P95 latency > 2s for 5 minutes
+   - Severity: Warning
 
 4. **VeryHighLatencyP95** (Critical)
-   - Condición: P95 latency > 5s por 2 minutos
-   - Severidad: Critical
+   - Condition: P95 latency > 5s for 2 minutes
+   - Severity: Critical
 
 5. **HighLatencyP99** (Warning)
-   - Condición: P99 latency > 5s por 5 minutos
-   - Severidad: Warning
+   - Condition: P99 latency > 5s for 5 minutes
+   - Severity: Warning
 
 6. **FrequentRateLimiting** (Warning)
-   - Condición: Rate limit exceeded > 5/sec por 5 minutos
-   - Severidad: Warning
+   - Condition: Rate limit exceeded > 5/sec for 5 minutes
+   - Severity: Warning
 
 7. **VeryFrequentRateLimiting** (Critical)
-   - Condición: Rate limit exceeded > 20/sec por 1 minuto
-   - Severidad: Critical (posible ataque)
+   - Condition: Rate limit exceeded > 20/sec for 1 minute
+   - Severity: Critical (possible attack)
 
 8. **APIDown** (Critical)
-   - Condición: API no responde por más de 1 minuto
-   - Severidad: Critical
+   - Condition: API does not respond for more than 1 minute
+   - Severity: Critical
 
 9. **HighRequestRate** (Warning)
-   - Condición: Request rate > 1000 requests/sec por 2 minutos
-   - Severidad: Warning (posible DDoS)
+   - Condition: Request rate > 1000 requests/sec for 2 minutes
+   - Severity: Warning (possible DDoS)
 
-### Ver Alertas
+### Viewing Alerts
 
-Las alertas se pueden ver en:
+Alerts can be viewed at:
 - **Prometheus UI**: http://localhost:9090/alerts
-- **Grafana**: Configurar Alertmanager para notificaciones
+- **Grafana**: Configure Alertmanager for notifications
 
-## Métricas Personalizadas
+## Custom Metrics
 
 ### Rate Limiting
 
-La métrica `rate_limit_exceeded_total` se incrementa cada vez que se excede un rate limit. Incluye labels:
-- `ip`: IP address que excedió el límite
-- `user_agent`: User-Agent que excedió el límite
+The `rate_limit_exceeded_total` metric increments each time a rate limit is exceeded. Includes labels:
+- `ip`: IP address that exceeded the limit
+- `user_agent`: User-Agent that exceeded the limit
 
 ### HTTP Requests
 
-Las métricas HTTP incluyen labels:
-- `method`: Método HTTP (GET, POST, etc.)
-- `route`: Ruta normalizada (ej: `/api/v1/users/:id`)
-- `status_code`: Código de estado HTTP
+HTTP metrics include labels:
+- `method`: HTTP method (GET, POST, etc.)
+- `route`: Normalized route (e.g., `/api/v1/users/:id`)
+- `status_code`: HTTP status code
 
-## Consultas Prometheus Útiles
+## Useful Prometheus Queries
 
-### Requests por segundo
+### Requests per second
 ```promql
 rate(http_requests_total[1m])
 ```
 
-### Latencia P95
+### P95 Latency
 ```promql
 histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
 ```
@@ -200,60 +216,60 @@ histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
 rate(http_errors_total[5m])
 ```
 
-### Rate limits excedidos por IP
+### Rate limits exceeded by IP
 ```promql
 sum by (ip) (rate(rate_limit_exceeded_total[5m]))
 ```
 
-### Top rutas por request rate
+### Top routes by request rate
 ```promql
 topk(10, sum by (route) (rate(http_requests_total[5m])))
 ```
 
 ## Troubleshooting
 
-### Prometheus no recolecta métricas
+### Prometheus not collecting metrics
 
-1. Verificar que la API esté corriendo y exponiendo `/metrics`:
+1. Verify that the API is running and exposing `/metrics`:
    ```bash
    curl http://localhost:3000/metrics
    ```
 
-2. Verificar configuración de Prometheus:
+2. Verify Prometheus configuration:
    ```bash
    docker compose exec prometheus promtool check config /etc/prometheus/prometheus.yml
    ```
 
-3. Verificar logs de Prometheus:
+3. Verify Prometheus logs:
    ```bash
    docker compose logs prometheus
    ```
 
-### Grafana no muestra datos
+### Grafana not showing data
 
-1. Verificar que Prometheus esté corriendo y accesible desde Grafana
-2. Verificar configuración del datasource en Grafana
-3. Verificar que las métricas existan en Prometheus:
+1. Verify that Prometheus is running and accessible from Grafana
+2. Verify datasource configuration in Grafana
+3. Verify that metrics exist in Prometheus:
    ```bash
    curl http://localhost:9090/api/v1/query?query=http_requests_total
    ```
 
-### Alertas no se disparan
+### Alerts not firing
 
-1. Verificar que el archivo de alertas esté cargado:
+1. Verify that the alerts file is loaded:
    ```bash
    curl http://localhost:9090/api/v1/alerts
    ```
 
-2. Verificar sintaxis del archivo de alertas:
+2. Verify alerts file syntax:
    ```bash
    docker compose exec prometheus promtool check rules /etc/prometheus/alerts.yml
    ```
 
-## Próximos Pasos
+## Next Steps
 
-- [ ] Configurar Alertmanager para notificaciones (email, Slack, etc.)
-- [ ] Agregar métricas de base de datos (PostgreSQL exporter)
-- [ ] Agregar métricas de Redis
-- [ ] Crear dashboards adicionales según necesidades
-- [ ] Configurar alertas en Grafana para notificaciones visuales
+- [ ] Configure Alertmanager for notifications (email, Slack, etc.)
+- [ ] Add database metrics (PostgreSQL exporter)
+- [ ] Add Redis metrics
+- [ ] Create additional dashboards as needed
+- [ ] Configure Grafana alerts for visual notifications

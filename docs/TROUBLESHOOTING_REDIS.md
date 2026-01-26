@@ -1,217 +1,233 @@
+---
+title: "Troubleshooting Redis Connection Issues"
+description: "Troubleshooting guide for Redis connection errors, including connection refused errors and configuration steps"
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "troubleshooting"
+audience:
+  - "users"
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Troubleshooting Redis Connection Issues
 
 ## Error: "Connection refused"
 
-Si obtienes `Could not connect to Redis at 192.168.0.7:6379: Connection refused`, sigue estos pasos:
+If you get `Could not connect to Redis at 192.168.0.7:6379: Connection refused`, follow these steps:
 
-## Paso 1: Verificar si Redis está instalado
+## Step 1: Verify Redis is installed
 
 ```bash
-# Verificar si Redis está instalado
+# Check if Redis is installed
 which redis-server
 which redis-cli
 
-# Si no está instalado, instalar:
+# If not installed, install:
 sudo apt-get update
 sudo apt-get install redis-server
 ```
 
-## Paso 2: Verificar si Redis está corriendo
+## Step 2: Verify Redis is running
 
 ```bash
-# Verificar estado del servicio
+# Check service status
 sudo systemctl status redis-server
 
-# O si usa otro nombre:
+# Or if it uses a different name:
 sudo systemctl status redis
 
-# Ver procesos de Redis
+# Check Redis processes
 ps aux | grep redis
 ```
 
-## Paso 3: Iniciar Redis si no está corriendo
+## Step 3: Start Redis if not running
 
 ```bash
-# Iniciar Redis
+# Start Redis
 sudo systemctl start redis-server
 
-# Habilitar para que inicie automáticamente
+# Enable automatic startup
 sudo systemctl enable redis-server
 
-# Verificar que está corriendo
+# Verify it's running
 sudo systemctl status redis-server
 ```
 
-## Paso 4: Verificar configuración de Redis
+## Step 4: Verify Redis configuration
 
-Redis por defecto solo escucha en `localhost` (127.0.0.1). Para conectarse desde otra máquina o IP, necesitas configurarlo:
+Redis by default only listens on `localhost` (127.0.0.1). To connect from another machine or IP, you need to configure it:
 
 ```bash
-# Editar configuración de Redis
+# Edit Redis configuration
 sudo vi /etc/redis/redis.conf
 
-# O en algunos sistemas:
+# Or on some systems:
 sudo vi /etc/redis.conf
 ```
 
-**Buscar y modificar**:
+**Find and modify**:
 
 ```conf
-# Línea original (solo localhost):
+# Original line (localhost only):
 bind 127.0.0.1
 
-# Cambiar a (escuchar en todas las interfaces):
+# Change to (listen on all interfaces):
 bind 0.0.0.0
 
-# O específicamente en tu IP:
+# Or specifically on your IP:
 bind 192.168.0.7
 ```
 
-**También verificar**:
+**Also verify**:
 
 ```conf
-# Asegurar que no está en modo protegido (o configurar contraseña)
+# Ensure it's not in protected mode (or configure password)
 protected-mode no
 
-# O si quieres seguridad, usar contraseña:
+# Or if you want security, use password:
 requirepass your_secure_password_here
 ```
 
-**Reiniciar Redis después de cambios**:
+**Restart Redis after changes**:
 
 ```bash
 sudo systemctl restart redis-server
 ```
 
-## Paso 5: Verificar firewall
+## Step 5: Verify firewall
 
 ```bash
-# Verificar si el puerto 6379 está abierto
+# Check if port 6379 is open
 sudo ufw status
 
-# Si está bloqueado, abrir el puerto:
+# If blocked, open the port:
 sudo ufw allow 6379/tcp
 
-# O específicamente desde tu red:
+# Or specifically from your network:
 sudo ufw allow from 192.168.0.0/24 to any port 6379
 ```
 
-## Paso 6: Probar conexión local primero
+## Step 6: Test local connection first
 
 ```bash
-# Probar conexión local (debe funcionar)
+# Test local connection (should work)
 redis-cli ping
-# Esperado: PONG
+# Expected: PONG
 
-# Probar con contraseña si está configurada
+# Test with password if configured
 redis-cli -a your_password ping
 ```
 
-## Paso 7: Probar conexión remota
+## Step 7: Test remote connection
 
 ```bash
-# Desde la misma máquina pero usando la IP
+# From the same machine but using the IP
 redis-cli -h 192.168.0.7 -p 6379 ping
 
-# Con contraseña
+# With password
 redis-cli -h 192.168.0.7 -p 6379 -a your_password ping
 
-# O usando variables de entorno
+# Or using environment variables
 export REDIS_HOST=192.168.0.7
 export REDIS_PORT=6379
 export REDIS_PASSWORD=your_password
 redis-cli -h $REDIS_HOST -p $REDIS_PORT -a $REDIS_PASSWORD ping
 ```
 
-## Paso 8: Verificar qué está escuchando Redis
+## Step 8: Verify what Redis is listening on
 
 ```bash
-# Ver en qué IPs y puertos está escuchando Redis
+# See what IPs and ports Redis is listening on
 sudo netstat -tlnp | grep redis
-# O
+# Or
 sudo ss -tlnp | grep redis
 
-# Debe mostrar algo como:
+# Should show something like:
 # tcp  0  0  0.0.0.0:6379  0.0.0.0:*  LISTEN  pid/redis-server
 ```
 
-## Solución Rápida: Usar localhost si Redis está en la misma máquina
+## Quick Solution: Use localhost if Redis is on the same machine
 
-Si Redis está corriendo en la misma máquina que la API, usa `localhost` en lugar de la IP:
+If Redis is running on the same machine as the API, use `localhost` instead of the IP:
 
 ```env
 # .env
-REDIS_HOST=localhost  # En lugar de 192.168.0.7
+REDIS_HOST=localhost  # Instead of 192.168.0.7
 REDIS_PORT=6379
 REDIS_PASSWORD=your_password
 ```
 
-## Solución Alternativa: Deshabilitar Redis (si no lo necesitas)
+## Alternative Solution: Disable Redis (if you don't need it)
 
-**Redis es opcional**. Si no lo necesitas ahora, simplemente déjalo deshabilitado:
+**Redis is optional**. If you don't need it now, simply leave it disabled:
 
 ```env
 # .env
-REDIS_HOST=  # Vacío = Redis deshabilitado
-# La API funcionará con rate limiting en memoria
+REDIS_HOST=  # Empty = Redis disabled
+# API will work with in-memory rate limiting
 ```
 
-## Verificación Final
+## Final Verification
 
 ```bash
-# 1. Verificar que Redis está corriendo
+# 1. Verify Redis is running
 sudo systemctl status redis-server
 
-# 2. Verificar que escucha en el puerto correcto
+# 2. Verify it's listening on the correct port
 sudo netstat -tlnp | grep 6379
 
-# 3. Probar conexión local
+# 3. Test local connection
 redis-cli ping
 
-# 4. Probar conexión remota (si aplica)
+# 4. Test remote connection (if applicable)
 redis-cli -h 192.168.0.7 -p 6379 ping
 
-# 5. Probar con contraseña (debe responder PONG)
+# 5. Test with password (should respond PONG)
 redis-cli -h $REDIS_HOST -p $REDIS_PORT -a $REDIS_PASSWORD ping
-# Esperado: PONG (el warning sobre contraseña es solo informativo)
+# Expected: PONG (the warning about password is just informational)
 
-# 6. Verificar desde la API
+# 6. Verify from API
 curl http://localhost:3000/health | jq .redis
-# Debe mostrar: "status": "up"
+# Should show: "status": "up"
 ```
 
-## ✅ Conexión Exitosa
+## ✅ Successful Connection
 
-Si `redis-cli ping` responde `PONG`, Redis está funcionando correctamente. El warning sobre usar contraseña en la línea de comandos es solo informativo (por seguridad, la contraseña queda en el historial) pero no afecta la funcionalidad.
+If `redis-cli ping` responds `PONG`, Redis is working correctly. The warning about using password in the command line is just informational (for security, the password remains in history) but doesn't affect functionality.
 
-## Comandos Útiles
+## Useful Commands
 
 ```bash
-# Ver logs de Redis
+# View Redis logs
 sudo journalctl -u redis-server -f
 
-# Ver configuración actual
+# View current configuration
 redis-cli CONFIG GET bind
 redis-cli CONFIG GET protected-mode
 redis-cli CONFIG GET requirepass
 
-# Reiniciar Redis
+# Restart Redis
 sudo systemctl restart redis-server
 
-# Detener Redis
+# Stop Redis
 sudo systemctl stop redis-server
 ```
 
-## Checklist de Diagnóstico
+## Diagnostic Checklist
 
-- [ ] Redis está instalado (`which redis-server`)
-- [ ] Redis está corriendo (`sudo systemctl status redis-server`)
-- [ ] Redis escucha en la IP correcta (`sudo netstat -tlnp | grep redis`)
-- [ ] Firewall permite conexiones al puerto 6379 (`sudo ufw status`)
-- [ ] Conexión local funciona (`redis-cli ping`)
-- [ ] Configuración de Redis permite conexiones remotas (`bind 0.0.0.0` o IP específica)
-- [ ] Contraseña configurada correctamente (si aplica)
+- [ ] Redis is installed (`which redis-server`)
+- [ ] Redis is running (`sudo systemctl status redis-server`)
+- [ ] Redis listens on the correct IP (`sudo netstat -tlnp | grep redis`)
+- [ ] Firewall allows connections to port 6379 (`sudo ufw status`)
+- [ ] Local connection works (`redis-cli ping`)
+- [ ] Redis configuration allows remote connections (`bind 0.0.0.0` or specific IP)
+- [ ] Password configured correctly (if applicable)
 
 ---
 
-**Nota**: Si después de todos estos pasos Redis sigue sin funcionar, puedes simplemente dejar `REDIS_HOST` vacío en `.env` y la API funcionará normalmente con rate limiting en memoria.
+**Note**: If after all these steps Redis still doesn't work, you can simply leave `REDIS_HOST` empty in `.env` and the API will work normally with in-memory rate limiting.
