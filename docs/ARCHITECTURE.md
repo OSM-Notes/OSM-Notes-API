@@ -39,9 +39,24 @@ graph TB
 
 ### External Systems
 
-- **PostgreSQL Analytics Database** (`osm_notes_dwh`): Contains datamarts and analytics data
-- **PostgreSQL Ingestion Database** (`osm_notes`): Contains raw notes data (accessed via FDW)
+- **PostgreSQL Analytics Database** (`osm_notes_dwh`): Contains datamarts and analytics data (from OSM-Notes-Analytics)
+- **PostgreSQL Ingestion Database** (`osm_notes`): Contains raw notes data (from OSM-Notes-Ingestion, accessed via FDW)
 - **Redis**: Cache and rate limiting storage
+
+### OSM Notes Ecosystem
+
+This API is part of the **OSM-Notes ecosystem**, consisting of 8 interconnected projects:
+
+- **OSM-Notes-Ingestion** (base project): Provides base database (`osm_notes`)
+- **OSM-Notes-Analytics**: Provides data warehouse (`osm_notes_dwh`) - **REQUIRED** for this API
+- **OSM-Notes-API** (this project): REST API for programmatic access
+- **OSM-Notes-Data**: JSON files exported from Analytics (served via GitHub Pages)
+- **OSM-Notes-Viewer**: Web application consuming Data (complementary to this API)
+- **OSM-Notes-WMS**: Web Map Service using Ingestion database
+- **OSM-Notes-Monitoring**: Monitors all ecosystem components including this API
+- **OSM-Notes-Common**: Shared libraries (not used by this API - Node.js project)
+
+See the main [README.md](../../README.md) for complete ecosystem overview.
 
 ## Container Diagram (Level 2)
 
