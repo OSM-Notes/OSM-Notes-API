@@ -191,6 +191,92 @@ See [docs/USAGE.md](docs/USAGE.md) for complete usage guide.
 
 **Total time: ~2.5 hours** for complete operations overview.
 
+## Entry Points
+
+**Main entry points** for using and operating the API:
+
+### Application Entry Points
+
+1. **Start the API Server**
+   ```bash
+   npm start              # Production mode (requires build first)
+   npm run dev            # Development mode with hot reload
+   ```
+
+2. **Docker Entry Points**
+   ```bash
+   # Start all services (API + PostgreSQL + Redis)
+   docker compose -f docker/docker-compose.yml up -d
+   
+   # Start with monitoring (Prometheus + Grafana)
+   docker compose -f docker/docker-compose.yml --profile monitoring up -d
+   ```
+
+### API Endpoints (HTTP Entry Points)
+
+**Base URL**: `http://localhost:3000` (default)
+
+- **Health Check**: `GET /health` - Service health status
+- **API Documentation**: `GET /docs` - Swagger UI interactive documentation
+- **OpenAPI Spec**: `GET /docs/json` - OpenAPI JSON specification
+
+**Main API Endpoints**:
+- `GET /api/v1/users/:id` - Get user profile
+- `GET /api/v1/countries/:id` - Get country profile
+- `GET /api/v1/notes` - Search notes
+- `GET /api/v1/notes/:id` - Get specific note
+- `GET /api/v1/analytics/global` - Global analytics
+
+See [docs/API.md](docs/API.md) for complete API reference.
+
+### Development Entry Points
+
+1. **Build and Type Check**
+   ```bash
+   npm run build          # Compile TypeScript
+   npm run type-check     # Verify types without building
+   ```
+
+2. **Testing**
+   ```bash
+   npm test               # Run all tests
+   npm run test:unit      # Unit tests only
+   npm run test:integration  # Integration tests only
+   ```
+
+3. **Code Quality**
+   ```bash
+   npm run lint           # Check code style
+   npm run format         # Format code
+   ```
+
+### Operations Entry Points
+
+1. **Health Monitoring**
+   ```bash
+   curl http://localhost:3000/health
+   ```
+
+2. **View Logs**
+   ```bash
+   # Docker
+   docker compose -f docker/docker-compose.yml logs -f api
+   
+   # PM2
+   pm2 logs osm-notes-api
+   ```
+
+3. **Restart Service**
+   ```bash
+   # Docker
+   docker compose -f docker/docker-compose.yml restart api
+   
+   # PM2
+   pm2 restart osm-notes-api
+   ```
+
+See [docs/RUNBOOK.md](docs/RUNBOOK.md) for complete operations procedures.
+
 ## 📚 Documentation
 
 ### Getting Started
