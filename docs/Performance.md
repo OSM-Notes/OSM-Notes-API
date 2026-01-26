@@ -843,7 +843,7 @@ For more comprehensive load testing, use k6:
 
 ```bash
 # Install k6 (if not installed)
-# See tests/load/README.md for installation instructions
+# See ../tests/load/README.md for installation instructions
 
 # Run load tests
 k6 run tests/load/users.js
@@ -852,7 +852,7 @@ k6 run tests/load/analytics.js
 k6 run tests/load/all-endpoints.js
 ```
 
-See `tests/load/README.md` for detailed k6 usage instructions.
+See `../tests/load/README.md` for detailed k6 usage instructions.
 
 ### Baseline Performance Metrics
 
@@ -1060,7 +1060,7 @@ jq '.benchmarks[] | select(.name == "Get User Profile")' \
 - [Operations Runbook](Runbook.md) - Operational procedures
 - [Troubleshooting Guide](Troubleshooting.md) - Common issues
 - [SLA/SLOs](Sla.md) - Service level objectives
-- [Load Testing Guide](tests/load/README.md) - k6 load testing
+- [Load Testing Guide](../tests/load/README.md) - k6 load testing
 
 ---
 

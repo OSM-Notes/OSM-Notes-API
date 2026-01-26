@@ -41,6 +41,8 @@ OSM Notes API provides programmatic access to OpenStreetMap notes analytics data
 
 ## Requirements
 
+For complete installation instructions, see **[Installation and Dependencies Guide](docs/Installation_Dependencies.md)**.
+
 ### Application Requirements
 
 - **Node.js** >= 18.0.0

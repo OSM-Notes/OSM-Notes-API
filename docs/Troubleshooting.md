@@ -714,5 +714,5 @@ If you've tried the solutions above and still have issues:
 - [Installation Guide](Installation.md) - Setup instructions
 - [Deployment Guide](Deployment.md) - Production deployment
 - [CI/CD Guide](CI_CD.md) - Continuous integration/deployment
-- [Security Policy](../security/Security_Policy.md) - Security information
+- [Security Policy](./security/Security_Policy.md) - Security information
 
