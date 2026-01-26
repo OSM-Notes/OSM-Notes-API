@@ -1,3 +1,18 @@
+---
+title: "Database Schema Requirements"
+description: "The API requires two schemas:"
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "database"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Database Schema Requirements
 
 This document describes the database schema required for the OSM Notes API to function.

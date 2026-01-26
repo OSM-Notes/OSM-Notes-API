@@ -1,3 +1,19 @@
+---
+title: "Security Testing with OWASP ZAP"
+description: "This guide explains how to run security tests using OWASP ZAP (Zed Attack Proxy) for the OSM Notes API."
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "testing"
+  - "security"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Security Testing with OWASP ZAP
 
 This guide explains how to run security tests using OWASP ZAP (Zed Attack Proxy) for the OSM Notes API.

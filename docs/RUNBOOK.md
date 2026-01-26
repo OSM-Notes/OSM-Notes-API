@@ -1,3 +1,19 @@
+---
+title: "Operations Runbook"
+description: "This runbook provides step-by-step procedures for operating and maintaining the OSM Notes API in production."
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "documentation"
+audience:
+  - "system-admins"
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Operations Runbook
 
 This runbook provides step-by-step procedures for operating and maintaining the OSM Notes API in production.

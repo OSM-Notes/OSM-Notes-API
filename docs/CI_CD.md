@@ -1,3 +1,18 @@
+---
+title: "CI/CD Documentation"
+description: "The CI/CD pipeline consists of the following jobs:"
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "documentation"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # CI/CD Documentation
 
 ## Overview

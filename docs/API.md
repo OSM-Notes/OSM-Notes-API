@@ -1,3 +1,18 @@
+---
+title: "API Reference"
+description: "Complete reference documentation for OSM Notes API."
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "api"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # API Reference
 
 Complete reference documentation for OSM Notes API.

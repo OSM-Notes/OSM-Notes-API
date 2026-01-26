@@ -1,3 +1,18 @@
+---
+title: "Installation Manual"
+description: "Complete guide to install and configure OSM Notes API."
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "installation"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Installation Manual
 
 Complete guide to install and configure OSM Notes API.

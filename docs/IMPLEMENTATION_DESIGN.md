@@ -1,3 +1,19 @@
+---
+title: "Implementation Design - OSM Notes API"
+description: "Technical design document for REST API implementation. The API is complementary to the static JSON system, not a replacement."
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "architecture"
+  - "design"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Diseño de Implementación - OSM Notes API
 
 **Documento de Diseño Técnico**  

@@ -1,3 +1,18 @@
+---
+title: "Architecture Documentation"
+description: "This document describes the architecture of OSM Notes API using the C4 Model."
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "architecture"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Architecture Documentation
 
 This document describes the architecture of OSM Notes API using the C4 Model.

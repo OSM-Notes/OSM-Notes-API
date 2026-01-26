@@ -1,3 +1,18 @@
+---
+title: "Service Level Agreement (SLA) and Service Level Objectives (SLOs)"
+description: "Service Level Agreements and Service Level Objectives definitions for OSM Notes API REST service"
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "sla"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Service Level Agreement (SLA) and Service Level Objectives (SLOs)
 
 This document defines the Service Level Agreements (SLAs) and Service Level Objectives (SLOs) for the OSM Notes API.

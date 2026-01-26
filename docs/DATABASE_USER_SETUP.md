@@ -1,3 +1,19 @@
+---
+title: "Database User Setup - Read-Only User for API"
+description: "The OSM Notes API  to the database. It performs  (no INSERT, UPDATE, DELETE, CREATE, ALTER, DROP)."
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "database"
+  - "installation"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Database User Setup - Read-Only User for API
 
 This guide explains how to create a read-only database user for the OSM Notes API.

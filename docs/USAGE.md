@@ -1,3 +1,18 @@
+---
+title: "Usage Manual"
+description: "Guide for using OSM Notes API."
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "documentation"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Usage Manual
 
 Guide for using OSM Notes API.

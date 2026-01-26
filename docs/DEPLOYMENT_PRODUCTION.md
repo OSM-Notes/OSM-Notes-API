@@ -1,3 +1,20 @@
+---
+title: "Production Deployment Guide - Server 192.168.0.7"
+description: "Complete guide for deploying OSM Notes API to production server 192.168.0.7 using Docker Compose (recommended method)"
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "deployment"
+  - "installation"
+audience:
+  - "system-admins"
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Production Deployment Guide - Server 192.168.0.7
 
 Complete guide for deploying OSM Notes API to production server 192.168.0.7.

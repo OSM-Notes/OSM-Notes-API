@@ -1,3 +1,18 @@
+---
+title: "Development Guide"
+description: "Guide for developers working on OSM Notes API."
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "documentation"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Development Guide
 
 Guide for developers working on OSM Notes API.

@@ -1,3 +1,19 @@
+---
+title: "REST API Proposal for OSM Notes Analytics and Ingestion"
+description: "Analysis and proposal document for REST API providing programmatic access to OSM Notes analytics and ingestion data"
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "api"
+  - "proposal"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Propuesta de API REST para OSM Notes Analytics e Ingestion
 
 **Documento de Análisis y Propuesta**  

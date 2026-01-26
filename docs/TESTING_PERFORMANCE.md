@@ -1,3 +1,19 @@
+---
+title: "Testing Performance Guide"
+description: "This guide explains how to run tests efficiently without overwhelming your system."
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "performance"
+  - "testing"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Testing Performance Guide
 
 This guide explains how to run tests efficiently without overwhelming your system.

@@ -1,3 +1,18 @@
+---
+title: "API Versioning Strategy"
+description: "This document outlines the API versioning strategy for OSM Notes API."
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "api"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # API Versioning Strategy
 
 This document outlines the API versioning strategy for OSM Notes API.

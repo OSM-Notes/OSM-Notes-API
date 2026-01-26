@@ -1,3 +1,19 @@
+---
+title: "Troubleshooting Guide"
+description: "This guide helps you diagnose and resolve common issues with the OSM Notes API."
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "troubleshooting"
+audience:
+  - "users"
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Troubleshooting Guide
 
 This guide helps you diagnose and resolve common issues with the OSM Notes API.

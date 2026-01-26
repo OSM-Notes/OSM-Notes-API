@@ -1,3 +1,19 @@
+---
+title: "Deployment Guide"
+description: "This guide covers deployment of OSM Notes API to production environments."
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "installation"
+audience:
+  - "system-admins"
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Deployment Guide
 
 This guide covers deployment of OSM Notes API to production environments.

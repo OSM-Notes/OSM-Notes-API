@@ -1,3 +1,18 @@
+---
+title: "Performance Optimization Guide"
+description: "This document provides performance analysis, optimization recommendations, and index suggestions for the OSM Notes API."
+version: "1.0.0"
+last_updated: "2026-01-25"
+author: "AngocA"
+tags:
+  - "performance"
+audience:
+  - "developers"
+project: "OSM-Notes-API"
+status: "active"
+---
+
+
 # Performance Optimization Guide
 
 This document provides performance analysis, optimization recommendations, and index suggestions for the OSM Notes API.
