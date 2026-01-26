@@ -57,47 +57,73 @@ La propuesta de API REST busca crear una capa de acceso programático que unifiq
 
 El ecosistema actual consta de 8 proyectos relacionados:
 
-```
-/home/angoca/github/
-├── OSM-Notes-Ingestion/     # Descarga y sincronización de notas OSM (proyecto base)
-├── OSM-Notes-Analytics/      # ETL, Data Warehouse, Datamarts
-├── OSM-Notes-API/            # API REST (este proyecto)
-├── OSM-Notes-Viewer/         # Visualización web (consume JSON estáticos)
-├── OSM-Notes-WMS/            # Capa WMS para mapas
-├── OSM-Notes-Monitoring/     # Monitoreo centralizado
-├── OSM-Notes-Common/         # Librerías compartidas (submodule)
-└── OSM-Notes-Data/           # Datos exportados
+```mermaid
+graph TD
+    ROOT[/home/angoca/github/]
+    
+    INGESTION[OSM-Notes-Ingestion<br/>Downloads and syncs OSM notes<br/>base project]
+    ANALYTICS[OSM-Notes-Analytics<br/>ETL, Data Warehouse, Datamarts]
+    API[OSM-Notes-API<br/>REST API<br/>this project]
+    VIEWER[OSM-Notes-Viewer<br/>Web visualization<br/>consumes static JSON]
+    WMS[OSM-Notes-WMS<br/>WMS layer for maps]
+    MONITORING[OSM-Notes-Monitoring<br/>Centralized monitoring]
+    COMMON[OSM-Notes-Common<br/>Shared libraries<br/>submodule]
+    DATA[OSM-Notes-Data<br/>Exported data]
+    
+    ROOT --> INGESTION
+    ROOT --> ANALYTICS
+    ROOT --> API
+    ROOT --> VIEWER
+    ROOT --> WMS
+    ROOT --> MONITORING
+    ROOT --> COMMON
+    ROOT --> DATA
+    
+    style ROOT fill:#90EE90
+    style INGESTION fill:#90EE90
+    style ANALYTICS fill:#FFFFE0
+    style API fill:#FFB6C1
+    style VIEWER fill:#DDA0DD
+    style WMS fill:#FFE4B5
+    style MONITORING fill:#F0E68C
+    style COMMON fill:#D3D3D3
+    style DATA fill:#E0F6FF
 ```
 
 ### Flujo de Datos Actual y Propuesto
 
-```
-┌─────────────────────────────────────┐
-│  OSM-Notes-Ingestion                 │
-│  - Descarga notas OSM                │
-│  - Sincronización cada 15 min        │
-│  - Tablas base: notes, note_comments │
-└──────────────┬────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────┐
-│  OSM-Notes-Analytics                │
-│  - ETL → Star Schema DWH            │
-│  - Datamarts (70+ métricas)        │
-│  - Exportación a JSON               │
-└──────────────┬────────────────────────┘
-               │
-               ├──► OSM-Notes-Data ──► OSM-Notes-Viewer
-               │    (JSON GitHub Pages) (consume JSON estáticos)
-               │    ✅ Rápido
-               │    ✅ Sin carga BD
-               │    ✅ Sin punto de ataque
-               │    ✅ Datos históricos
-               │
-               └──► OSM-Notes-API ──► Integraciones, Apps, Bots
-                    (API REST)        ✅ Consultas dinámicas
-                                      ✅ Filtros complejos
-                                      ✅ Acceso programático
+```mermaid
+flowchart TD
+    subgraph Ingestion["OSM-Notes-Ingestion"]
+        INGESTION[OSM-Notes-Ingestion<br/>- Downloads OSM notes<br/>- Syncs every 15 min<br/>- Base tables: notes, note_comments]
+    end
+    
+    subgraph Analytics["OSM-Notes-Analytics"]
+        ANALYTICS[OSM-Notes-Analytics<br/>- ETL → Star Schema DWH<br/>- Datamarts 70+ metrics<br/>- JSON Export]
+    end
+    
+    subgraph Static["Static Data Path"]
+        DATA[OSM-Notes-Data<br/>JSON GitHub Pages]
+        VIEWER[OSM-Notes-Viewer<br/>Consumes static JSON]
+    end
+    
+    subgraph Dynamic["Dynamic Data Path"]
+        API[OSM-Notes-API<br/>REST API]
+        INTEGRATIONS[Integrations, Apps, Bots]
+    end
+    
+    INGESTION -->|Base Tables| ANALYTICS
+    ANALYTICS -->|JSON Export| DATA
+    DATA -->|JSON Files| VIEWER
+    ANALYTICS -->|Data Warehouse| API
+    API -->|REST API| INTEGRATIONS
+    
+    style INGESTION fill:#90EE90
+    style ANALYTICS fill:#FFFFE0
+    style DATA fill:#E0F6FF
+    style VIEWER fill:#DDA0DD
+    style API fill:#FFB6C1
+    style INTEGRATIONS fill:#DDA0DD
 ```
 
 ### Gap Identificado
@@ -217,36 +243,32 @@ POST https://terranote.example.com/webhooks/new-note
 
 ### Dependencias entre Proyectos
 
-```
-┌─────────────────────────────────────────┐
-│  OSM-Notes-Ingestion                    │
-│  (Base de datos: schema public)         │
-│  - notes                                 │
-│  - note_comments                        │
-│  - users                                │
-│  - countries                            │
-└──────────────┬──────────────────────────┘
-               │ Dependencia de datos
-               ▼
-┌─────────────────────────────────────────┐
-│  OSM-Notes-Analytics                    │
-│  (Base de datos: schema dwh)            │
-│  - dwh.facts                            │
-│  - dwh.dimension_*                      │
-│  - dwh.datamartUsers                    │
-│  - dwh.datamartCountries                │
-└──────────────┬──────────────────────────┘
-               │
-               ├──► Exporta JSON ──► OSM-Notes-Viewer
-               │    (se mantiene)   (sigue usando JSON)
-               │                     ✅ Sin cambios
-               │
-               └──► API REST ──► Integraciones externas
-                    (nuevo)      - Apps móviles
-                                 - Bots (Slack, Discord)
-                                 - Herramientas de análisis
-                                 - Dashboards dinámicos
-                                 - Consultas personalizadas
+```mermaid
+flowchart TD
+    subgraph Ingestion["OSM-Notes-Ingestion"]
+        INGESTION[OSM-Notes-Ingestion<br/>Database: schema public<br/>- notes<br/>- note_comments<br/>- users<br/>- countries]
+    end
+    
+    subgraph Analytics["OSM-Notes-Analytics"]
+        ANALYTICS[OSM-Notes-Analytics<br/>Database: schema dwh<br/>- dwh.facts<br/>- dwh.dimension_*<br/>- dwh.datamartUsers<br/>- dwh.datamartCountries]
+    end
+    
+    subgraph Static["Static JSON Path"]
+        VIEWER[OSM-Notes-Viewer<br/>continues using JSON<br/>✅ No changes]
+    end
+    
+    subgraph Dynamic["Dynamic API Path"]
+        INTEGRATIONS[External Integrations<br/>- Mobile apps<br/>- Bots Slack, Discord<br/>- Analysis tools<br/>- Dynamic dashboards<br/>- Custom queries]
+    end
+    
+    INGESTION -->|Data dependency| ANALYTICS
+    ANALYTICS -->|Exports JSON<br/>maintained| VIEWER
+    ANALYTICS -->|REST API<br/>new| INTEGRATIONS
+    
+    style INGESTION fill:#90EE90
+    style ANALYTICS fill:#FFFFE0
+    style VIEWER fill:#DDA0DD
+    style INTEGRATIONS fill:#FFB6C1
 ```
 
 ### Coexistencia de Sistemas
@@ -269,50 +291,112 @@ POST https://terranote.example.com/webhooks/new-note
 
 #### Opción 1: Base de Datos Única (Misma Instancia)
 
-```sql
-Database: osm_notes
-├── Schema: public          # OSM-Notes-Ingestion
-│   ├── notes
-│   ├── note_comments
-│   ├── note_comments_text
-│   ├── users
-│   └── countries
-│
-└── Schema: dwh            # OSM-Notes-Analytics
-    ├── facts               # Tabla de hechos particionada
-    ├── dimension_users     # Dimensión usuarios
-    ├── dimension_countries # Dimensión países
-    ├── dimension_*         # Otras dimensiones
-    ├── datamartUsers       # Datamart usuarios (78+ métricas)
-    ├── datamartCountries   # Datamart países (77+ métricas)
-    └── datamartGlobal      # Datamart global
+```mermaid
+graph TD
+    DB[Database: osm_notes]
+    
+    subgraph Public["Schema: public<br/>OSM-Notes-Ingestion"]
+        NOTES[notes]
+        COMMENTS[note_comments]
+        COMMENTS_TEXT[note_comments_text]
+        USERS[users]
+        COUNTRIES[countries]
+    end
+    
+    subgraph DWH["Schema: dwh<br/>OSM-Notes-Analytics"]
+        FACTS[facts<br/>Partitioned fact table]
+        DIM_USERS[dimension_users<br/>User dimension]
+        DIM_COUNTRIES[dimension_countries<br/>Country dimension]
+        DIM_OTHERS[dimension_*<br/>Other dimensions]
+        DM_USERS[datamartUsers<br/>User datamart 78+ metrics]
+        DM_COUNTRIES[datamartCountries<br/>Country datamart 77+ metrics]
+        DM_GLOBAL[datamartGlobal<br/>Global datamart]
+    end
+    
+    DB --> Public
+    DB --> DWH
+    
+    Public --> NOTES
+    Public --> COMMENTS
+    Public --> COMMENTS_TEXT
+    Public --> USERS
+    Public --> COUNTRIES
+    
+    DWH --> FACTS
+    DWH --> DIM_USERS
+    DWH --> DIM_COUNTRIES
+    DWH --> DIM_OTHERS
+    DWH --> DM_USERS
+    DWH --> DM_COUNTRIES
+    DWH --> DM_GLOBAL
+    
+    style DB fill:#90EE90
+    style Public fill:#E0F6FF
+    style DWH fill:#FFFFE0
 ```
 
-**Ventaja**: Una sola conexión de base de datos para la API.
+**Advantage**: Single database connection for the API.
 
-#### Opción 2: Bases de Datos Separadas (Con Foreign Data Wrappers)
+#### Option 2: Separate Databases (With Foreign Data Wrappers)
 
-```sql
-Database: osm_notes (Ingestion)
-└── Schema: public
-    ├── notes
-    ├── note_comments
-    ├── note_comments_text
-    ├── users
-    └── countries
-
-Database: osm_notes_dwh (Analytics)
-├── Schema: dwh
-│   ├── facts
-│   ├── dimension_*
-│   └── datamart_*
-│
-└── Schema: public (Foreign Tables via FDW)
-    ├── notes (foreign table → osm_notes.public.notes)
-    ├── note_comments (foreign table → osm_notes.public.note_comments)
-    ├── note_comments_text (foreign table → osm_notes.public.note_comments_text)
-    ├── users (foreign table → osm_notes.public.users)
-    └── countries (foreign table → osm_notes.public.countries)
+```mermaid
+graph TD
+    subgraph DB1["Database: osm_notes<br/>Ingestion"]
+        subgraph Public1["Schema: public"]
+            NOTES1[notes]
+            COMMENTS1[note_comments]
+            COMMENTS_TEXT1[note_comments_text]
+            USERS1[users]
+            COUNTRIES1[countries]
+        end
+    end
+    
+    subgraph DB2["Database: osm_notes_dwh<br/>Analytics"]
+        subgraph DWH1["Schema: dwh"]
+            FACTS1[facts]
+            DIM_OTHERS1[dimension_*]
+            DM_OTHERS1[datamart_*]
+        end
+        
+        subgraph Public2["Schema: public<br/>Foreign Tables via FDW"]
+            NOTES_FDW[notes<br/>foreign table → osm_notes.public.notes]
+            COMMENTS_FDW[note_comments<br/>foreign table → osm_notes.public.note_comments]
+            COMMENTS_TEXT_FDW[note_comments_text<br/>foreign table → osm_notes.public.note_comments_text]
+            USERS_FDW[users<br/>foreign table → osm_notes.public.users]
+            COUNTRIES_FDW[countries<br/>foreign table → osm_notes.public.countries]
+        end
+    end
+    
+    DB1 --> Public1
+    Public1 --> NOTES1
+    Public1 --> COMMENTS1
+    Public1 --> COMMENTS_TEXT1
+    Public1 --> USERS1
+    Public1 --> COUNTRIES1
+    
+    DB2 --> DWH1
+    DB2 --> Public2
+    DWH1 --> FACTS1
+    DWH1 --> DIM_OTHERS1
+    DWH1 --> DM_OTHERS1
+    
+    Public2 -.->|FDW| NOTES_FDW
+    Public2 -.->|FDW| COMMENTS_FDW
+    Public2 -.->|FDW| COMMENTS_TEXT_FDW
+    Public2 -.->|FDW| USERS_FDW
+    Public2 -.->|FDW| COUNTRIES_FDW
+    
+    NOTES_FDW -.->|references| NOTES1
+    COMMENTS_FDW -.->|references| COMMENTS1
+    COMMENTS_TEXT_FDW -.->|references| COMMENTS_TEXT1
+    USERS_FDW -.->|references| USERS1
+    COUNTRIES_FDW -.->|references| COUNTRIES1
+    
+    style DB1 fill:#90EE90
+    style DB2 fill:#FFFFE0
+    style Public1 fill:#E0F6FF
+    style DWH1 fill:#FFFFE0
+    style Public2 fill:#FFE4B5
 ```
 
 **Configuración en Analytics** (`etc/properties.sh`):
