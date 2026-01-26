@@ -7,6 +7,21 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2026-01-26] - Recent Updates and Improvements
+
+### Added
+
+- **CI/CD Testing Infrastructure**: Added local CI testing scripts and improved test workflows
+- **New API Endpoints**: Added trends, comparison, rankings, and advanced search endpoints
+- **Enhanced Search**: Implemented advanced search service with logical operators and text search
+  capabilities
+- **Metrics and Monitoring**: Added Prometheus metrics middleware and endpoint for observability
+
+### Changed
+
+- **Documentation**: Comprehensive documentation updates including standardized links, metadata
+  sections, and Mermaid diagrams
+
 ## [0.1.0] - 2025-12-26
 
 ### Added - Phase 1 MVP
