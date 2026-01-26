@@ -55,17 +55,18 @@ La propuesta de API REST busca crear una capa de acceso programático que unifiq
 
 ### Estado Actual del Ecosistema
 
-El ecosistema actual consta de 7 proyectos relacionados:
+El ecosistema actual consta de 8 proyectos relacionados:
 
 ```
 /home/angoca/github/
-├── OSM-Notes-Ingestion/     # Descarga y sincronización de notas OSM
+├── OSM-Notes-Ingestion/     # Descarga y sincronización de notas OSM (proyecto base)
 ├── OSM-Notes-Analytics/      # ETL, Data Warehouse, Datamarts
+├── OSM-Notes-API/            # API REST (este proyecto)
 ├── OSM-Notes-Viewer/         # Visualización web (consume JSON estáticos)
-├── OSM-Notes-API/            # ⭐ NUEVO: API REST (este proyecto)
+├── OSM-Notes-WMS/            # Capa WMS para mapas
+├── OSM-Notes-Monitoring/     # Monitoreo centralizado
 ├── OSM-Notes-Common/         # Librerías compartidas (submodule)
-├── OSM-Notes-Data/           # Datos exportados
-└── OSM-Notes-WMS/            # Capa WMS para mapas
+└── OSM-Notes-Data/           # Datos exportados
 ```
 
 ### Flujo de Datos Actual y Propuesto
