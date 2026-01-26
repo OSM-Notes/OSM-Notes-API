@@ -22,14 +22,23 @@ OSM Notes API provides programmatic access to OpenStreetMap notes analytics data
 - ✅ **API is additional**: For use cases requiring dynamic queries or integrations
 - ✅ **Both coexist**: Each system is used according to the specific use case
 
+## Requirements
+
+### Application Requirements
+
+- **Node.js** >= 18.0.0
+- **npm** >= 9.0.0
+- **PostgreSQL** 15+ (with access to `osm_notes_dwh` database)
+- **Redis** 7+ (optional but recommended for caching and rate limiting)
+
+### Internal Repository Requirements
+
+- **OSM-Notes-Analytics** ⚠️ **REQUIRED**
+  - This API reads from the Analytics data warehouse (`osm_notes_dwh` database)
+  - Required schemas: `dwh` (data warehouse with datamarts)
+  - **Install Analytics FIRST** before installing API
+
 ## 🚀 Quick Start
-
-### Prerequisites
-
-- Node.js >= 18.0.0
-- npm >= 9.0.0
-- PostgreSQL 15+ (with access to `osm_notes_dwh`)
-- Redis 7+ (optional but recommended)
 
 ### Installation
 
@@ -118,6 +127,69 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 - OpenAPI JSON: `http://localhost:3000/docs/json`
 
 See [docs/USAGE.md](docs/USAGE.md) for complete usage guide.
+
+## Recommended Reading Path
+
+**New to this project?** Follow this reading path to understand the API (~1-2 hours):
+
+### For API Consumers
+
+1. **Start Here** (15 min)
+   - Read this README.md (you're here!)
+   - Understand the project purpose and main features
+   - Review the Quick Start guide above
+
+2. **API Usage** (30 min)
+   - Read [docs/USAGE.md](docs/USAGE.md) - Complete usage manual with examples
+   - Review [docs/API.md](docs/API.md) - Complete API reference documentation
+   - Try the Quick Usage Examples above
+
+3. **API Documentation** (15 min)
+   - Visit Swagger UI: `http://localhost:3000/docs` (when running locally)
+   - Review OpenAPI specification: [docs/api/](docs/api/)
+   - Understand authentication and rate limiting
+
+**Total time: ~1 hour** for basic API usage.
+
+### For Developers
+
+1. **Foundation** (45 min)
+   - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) - System architecture (30 min)
+   - [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) - Development guidelines (15 min)
+
+2. **Setup and Configuration** (30 min)
+   - [docs/INSTALLATION.md](docs/INSTALLATION.md) - Installation guide (15 min)
+   - [docs/DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md) - Database requirements (15 min)
+
+3. **Testing and Quality** (30 min)
+   - [docs/TESTING.md](docs/TESTING.md) - Testing documentation (20 min)
+   - [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines (10 min)
+
+4. **Deep Dive** (as needed)
+   - [docs/PERFORMANCE.md](docs/PERFORMANCE.md) - Performance optimization
+   - [docs/MONITORING.md](docs/MONITORING.md) - Monitoring setup
+   - [docs/adr/](docs/adr/) - Architecture Decision Records
+
+**Total time: ~2 hours** for complete developer overview.
+
+### For System Administrators
+
+1. **Deployment** (1 hour)
+   - [docs/INSTALLATION.md](docs/INSTALLATION.md) - Installation guide (20 min)
+   - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) - Production deployment (20 min)
+   - [docs/DEPLOYMENT_PRODUCTION.md](docs/DEPLOYMENT_PRODUCTION.md) - Specific production guide (20 min)
+
+2. **Operations** (45 min)
+   - [docs/RUNBOOK.md](docs/RUNBOOK.md) - Operations runbook (20 min)
+   - [docs/MONITORING.md](docs/MONITORING.md) - Monitoring setup (15 min)
+   - [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) - Common issues (10 min)
+
+3. **Compliance and Operations** (30 min)
+   - [docs/operations/DISASTER_RECOVERY.md](docs/operations/DISASTER_RECOVERY.md) - Disaster recovery
+   - [docs/operations/BACKUP_STRATEGY.md](docs/operations/BACKUP_STRATEGY.md) - Backup procedures
+   - [docs/SLA.md](docs/SLA.md) - Service Level Agreements
+
+**Total time: ~2.5 hours** for complete operations overview.
 
 ## 📚 Documentation
 
