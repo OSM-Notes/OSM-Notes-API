@@ -517,6 +517,18 @@ See [docs/PERFORMANCE.md](docs/Performance.md) for performance optimization guid
 
 Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and pull request process.
 
+## GDPR Compliance
+
+**Important:** This API processes and serves data that may contain personal information from OpenStreetMap, including usernames and geographic locations. We are committed to GDPR compliance.
+
+This API has its own [Privacy Policy](docs/legal/Privacy_Policy.md) that covers API-specific GDPR compliance. Additionally, GDPR compliance mechanisms are fully implemented in the base project **OSM-Notes-Ingestion**. For comprehensive GDPR documentation, including detailed procedures and SQL scripts for handling data subject requests, please refer to:
+
+- **GDPR Privacy Policy:** [OSM-Notes-Ingestion/docs/GDPR_Privacy_Policy.md](https://github.com/OSM-Notes/OSM-Notes-Ingestion/blob/main/docs/GDPR_Privacy_Policy.md)
+- **GDPR Procedures:** [OSM-Notes-Ingestion/docs/GDPR_Procedures.md](https://github.com/OSM-Notes/OSM-Notes-Ingestion/blob/main/docs/GDPR_Procedures.md) - Detailed procedures for handling data subject requests
+- **GDPR SQL Scripts:** [OSM-Notes-Ingestion/sql/gdpr/README.md](https://github.com/OSM-Notes/OSM-Notes-Ingestion/blob/main/sql/gdpr/README.md) - SQL scripts to handle GDPR requests
+
+This API reads data from OSM-Notes-Analytics (which originates from OSM-Notes-Ingestion) and is subject to the same GDPR compliance measures.
+
 ## 📝 License
 
 This project is licensed under the GNU General Public License v3.0 - see [LICENSE](LICENSE) for details.
