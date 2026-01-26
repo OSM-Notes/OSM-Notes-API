@@ -433,38 +433,28 @@ FDW_INGESTION_PASSWORD=""  # Usar .pgpass o variable de entorno
 
 #### Arquitectura Propuesta
 
-```
-┌─────────────────────────────────────┐
-│  Clientes                            │
-│  (Web, Mobile, Bots, Integraciones)  │
-└──────────────┬──────────────────────┘
-               │ HTTP/REST
-               ▼
-┌─────────────────────────────────────┐
-│  Nginx / Reverse Proxy              │
-│  - SSL/TLS termination              │
-│  - Rate limiting (opcional)          │
-│  - Caching HTTP                      │
-└──────────────┬──────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────┐
-│  API Server (Node.js + Express)     │
-│  - Endpoints REST                    │
-│  - Validación de requests            │
-│  - Rate limiting                     │
-│  - Caching (Redis)                   │
-│  - Logging estructurado             │
-│  - Métricas Prometheus              │
-└──────────────┬──────────────────────┘
-               │
-               ├──► PostgreSQL (osm_notes)
-               │    - Schema: public
-               │    - Schema: dwh
-               │
-               └──► Redis (opcional)
-                    - Cache de respuestas
-                    - Rate limiting state
+```mermaid
+flowchart TD
+    CLIENTS[Clientes<br/>Web, Mobile, Bots, Integraciones]
+    
+    NGINX[Nginx / Reverse Proxy<br/>- SSL/TLS termination<br/>- Rate limiting opcional<br/>- Caching HTTP]
+    
+    API_SERVER[API Server<br/>Node.js + Express<br/>- Endpoints REST<br/>- Validación de requests<br/>- Rate limiting<br/>- Caching Redis<br/>- Logging estructurado<br/>- Métricas Prometheus]
+    
+    POSTGRES[(PostgreSQL<br/>osm_notes<br/>- Schema: public<br/>- Schema: dwh)]
+    
+    REDIS[(Redis opcional<br/>- Cache de respuestas<br/>- Rate limiting state)]
+    
+    CLIENTS -->|HTTP/REST| NGINX
+    NGINX --> API_SERVER
+    API_SERVER --> POSTGRES
+    API_SERVER --> REDIS
+    
+    style CLIENTS fill:#DDA0DD
+    style NGINX fill:#FFE4B5
+    style API_SERVER fill:#90EE90
+    style POSTGRES fill:#E0F6FF
+    style REDIS fill:#FFB6C1
 ```
 
 #### Stack Tecnológico
