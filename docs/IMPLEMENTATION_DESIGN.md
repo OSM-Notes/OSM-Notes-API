@@ -87,17 +87,17 @@ El ecosistema actual consta de 8 proyectos relacionados:
 │  - Exportación a JSON               │
 └──────────────┬────────────────────────┘
                │
-               ├──► JSON estáticos ──► OSM-Notes-Viewer
-               │    (se mantiene)      (sigue usando JSON)
+               ├──► OSM-Notes-Data ──► OSM-Notes-Viewer
+               │    (JSON GitHub Pages) (consume JSON estáticos)
                │    ✅ Rápido
                │    ✅ Sin carga BD
                │    ✅ Sin punto de ataque
                │    ✅ Datos históricos
                │
-               └──► API REST ──► Integraciones, Apps, Bots
-                    (nuevo)      ✅ Consultas dinámicas
-                                 ✅ Filtros complejos
-                                 ✅ Acceso programático
+               └──► OSM-Notes-API ──► Integraciones, Apps, Bots
+                    (API REST)        ✅ Consultas dinámicas
+                                      ✅ Filtros complejos
+                                      ✅ Acceso programático
 ```
 
 ### Gap Identificado
@@ -106,17 +106,18 @@ El ecosistema actual consta de 8 proyectos relacionados:
 
 **Limitaciones Actuales**:
 - Acceso solo mediante SQL directo (requiere acceso a BD)
-- Archivos JSON estáticos (excelentes para Viewer, pero limitados para consultas dinámicas)
+- Archivos JSON estáticos en OSM-Notes-Data (excelentes para Viewer, pero limitados para consultas dinámicas)
 - Sin integración programática con otras aplicaciones
 - Difícil crear herramientas personalizadas que requieren filtros complejos
 
-**Importante**: Los archivos JSON estáticos se **MANTIENEN** porque:
-- ✅ Están en la nube (sin costo de hosting)
+**Importante**: El sistema JSON estático (OSM-Notes-Data) se **MANTIENEN** porque:
+- ✅ Están en GitHub Pages (sin costo de hosting)
 - ✅ Son rápidos de consultar (CDN)
 - ✅ No generan punto de ataque (archivos estáticos)
 - ✅ No impactan la base de datos
 - ✅ Perfectos para datos históricos que no cambian frecuentemente
 - ✅ Mantienen el servidor con baja carga
+- ✅ Viewer los consume eficientemente desde GitHub Pages
 
 **Oportunidad**: La API REST complementa el sistema JSON para casos de uso específicos:
 - Acceso programático estándar (integraciones, bots, apps móviles)
@@ -202,7 +203,7 @@ POST https://terranote.example.com/webhooks/new-note
 - ✅ **Performance excelente**: CDN sirve archivos muy rápido
 - ✅ **Datos históricos**: Perfectos para datos que no cambian frecuentemente
 - ✅ **Bajo mantenimiento**: Solo regeneración periódica
-- ✅ **Ideal para Viewer**: El Viewer web funciona perfectamente con JSON
+- ✅ **Ideal para Viewer**: El Viewer web funciona perfectamente con JSON desde OSM-Notes-Data (GitHub Pages) desde OSM-Notes-Data (GitHub Pages)
 
 **Sistema API (nuevo, complementario)**:
 - ✅ **Consultas dinámicas**: Filtros complejos en tiempo real
@@ -211,7 +212,7 @@ POST https://terranote.example.com/webhooks/new-note
 - ✅ **Casos de uso específicos**: Que JSON no puede cubrir
 
 **Decisión de uso**:
-- **Usar JSON**: Viewer web, datos históricos, perfiles estáticos
+- **Usar JSON (OSM-Notes-Data)**: Viewer web, datos históricos, perfiles estáticos
 - **Usar API**: Integraciones, consultas dinámicas, apps móviles, bots
 
 ### Dependencias entre Proyectos
