@@ -92,7 +92,7 @@ docker compose -f docker/docker-compose.yml up -d
 docker compose -f docker/docker-compose.yml logs -f api
 ```
 
-See [docs/INSTALLATION.md](docs/INSTALLATION.md) for detailed instructions.
+See [docs/INSTALLATION.md](docs/Installation.md) for detailed instructions.
 
 ### Quick Usage Examples
 
@@ -143,7 +143,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 - Swagger UI: `http://localhost:3000/docs`
 - OpenAPI JSON: `http://localhost:3000/docs/json`
 
-See [docs/USAGE.md](docs/USAGE.md) for complete usage guide.
+See [docs/USAGE.md](docs/Usage.md) for complete usage guide.
 
 ## Recommended Reading Path
 
@@ -157,7 +157,7 @@ See [docs/USAGE.md](docs/USAGE.md) for complete usage guide.
    - Review the Quick Start guide above
 
 2. **API Usage** (30 min)
-   - Read [docs/USAGE.md](docs/USAGE.md) - Complete usage manual with examples
+   - Read [docs/USAGE.md](docs/Usage.md) - Complete usage manual with examples
    - Review [docs/API.md](docs/API.md) - Complete API reference documentation
    - Try the Quick Usage Examples above
 
@@ -171,20 +171,20 @@ See [docs/USAGE.md](docs/USAGE.md) for complete usage guide.
 ### For Developers
 
 1. **Foundation** (45 min)
-   - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) - System architecture (30 min)
-   - [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) - Development guidelines (15 min)
+   - [docs/ARCHITECTURE.md](docs/Architecture.md) - System architecture (30 min)
+   - [docs/DEVELOPMENT.md](docs/Development.md) - Development guidelines (15 min)
 
 2. **Setup and Configuration** (30 min)
-   - [docs/INSTALLATION.md](docs/INSTALLATION.md) - Installation guide (15 min)
-   - [docs/DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md) - Database requirements (15 min)
+   - [docs/INSTALLATION.md](docs/Installation.md) - Installation guide (15 min)
+   - [docs/DATABASE_SCHEMA.md](docs/Database_Schema.md) - Database requirements (15 min)
 
 3. **Testing and Quality** (30 min)
-   - [docs/TESTING.md](docs/TESTING.md) - Testing documentation (20 min)
+   - [docs/TESTING.md](docs/Testing.md) - Testing documentation (20 min)
    - [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines (10 min)
 
 4. **Deep Dive** (as needed)
-   - [docs/PERFORMANCE.md](docs/PERFORMANCE.md) - Performance optimization
-   - [docs/MONITORING.md](docs/MONITORING.md) - Monitoring setup
+   - [docs/PERFORMANCE.md](docs/Performance.md) - Performance optimization
+   - [docs/MONITORING.md](docs/Monitoring.md) - Monitoring setup
    - [docs/adr/](docs/adr/) - Architecture Decision Records
 
 **Total time: ~2 hours** for complete developer overview.
@@ -192,19 +192,19 @@ See [docs/USAGE.md](docs/USAGE.md) for complete usage guide.
 ### For System Administrators
 
 1. **Deployment** (1 hour)
-   - [docs/INSTALLATION.md](docs/INSTALLATION.md) - Installation guide (20 min)
-   - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) - Production deployment (20 min)
-   - [docs/DEPLOYMENT_PRODUCTION.md](docs/DEPLOYMENT_PRODUCTION.md) - Specific production guide (20 min)
+   - [docs/INSTALLATION.md](docs/Installation.md) - Installation guide (20 min)
+   - [docs/DEPLOYMENT.md](docs/Deployment.md) - Production deployment (20 min)
+   - [docs/DEPLOYMENT_PRODUCTION.md](docs/Deployment_Production.md) - Specific production guide (20 min)
 
 2. **Operations** (45 min)
-   - [docs/RUNBOOK.md](docs/RUNBOOK.md) - Operations runbook (20 min)
-   - [docs/MONITORING.md](docs/MONITORING.md) - Monitoring setup (15 min)
-   - [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) - Common issues (10 min)
+   - [docs/RUNBOOK.md](docs/Runbook.md) - Operations runbook (20 min)
+   - [docs/MONITORING.md](docs/Monitoring.md) - Monitoring setup (15 min)
+   - [docs/TROUBLESHOOTING.md](docs/Troubleshooting.md) - Common issues (10 min)
 
 3. **Compliance and Operations** (30 min)
-   - [docs/operations/DISASTER_RECOVERY.md](docs/operations/DISASTER_RECOVERY.md) - Disaster recovery
-   - [docs/operations/BACKUP_STRATEGY.md](docs/operations/BACKUP_STRATEGY.md) - Backup procedures
-   - [docs/SLA.md](docs/SLA.md) - Service Level Agreements
+   - [docs/operations/DISASTER_RECOVERY.md](docs/operations/Disaster_Recovery.md) - Disaster recovery
+   - [docs/operations/BACKUP_STRATEGY.md](docs/operations/Backup_Strategy.md) - Backup procedures
+   - [docs/SLA.md](docs/Sla.md) - Service Level Agreements
 
 **Total time: ~2.5 hours** for complete operations overview.
 
@@ -292,49 +292,49 @@ See [docs/API.md](docs/API.md) for complete API reference.
    pm2 restart osm-notes-api
    ```
 
-See [docs/RUNBOOK.md](docs/RUNBOOK.md) for complete operations procedures.
+See [docs/RUNBOOK.md](docs/Runbook.md) for complete operations procedures.
 
 ## 📚 Documentation
 
 ### Getting Started
-- [Installation](docs/INSTALLATION.md) - Complete installation guide
-- [Usage](docs/USAGE.md) - API usage manual with examples
+- [Installation](docs/Installation.md) - Complete installation guide
+- [Usage](docs/Usage.md) - API usage manual with examples
 - [API Reference](docs/API.md) - Complete API reference documentation
 - [API Reference (OpenAPI)](docs/api/) - OpenAPI/Swagger documentation
 
 ### Operations & Deployment
-- [Deployment Guide](docs/DEPLOYMENT.md) - Production deployment instructions
-- [Production Deployment (192.168.0.7)](docs/DEPLOYMENT_PRODUCTION.md) - Specific guide for production server
-- [Operations Runbook](docs/RUNBOOK.md) - Operational procedures and runbook
-- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
+- [Deployment Guide](docs/Deployment.md) - Production deployment instructions
+- [Production Deployment (192.168.0.7)](docs/Deployment_Production.md) - Specific guide for production server
+- [Operations Runbook](docs/Runbook.md) - Operational procedures and runbook
+- [Troubleshooting](docs/Troubleshooting.md) - Common issues and solutions
 - [CI/CD Guide](docs/CI_CD.md) - Continuous Integration and Deployment
 
 ### Performance & Monitoring
-- [Performance Guide](docs/PERFORMANCE.md) - Performance optimization and benchmarking
-- [SLA/SLOs](docs/SLA.md) - Service Level Agreements and Objectives
-- [Monitoring Guide](docs/MONITORING.md) - Prometheus and Grafana setup
+- [Performance Guide](docs/Performance.md) - Performance optimization and benchmarking
+- [SLA/SLOs](docs/Sla.md) - Service Level Agreements and Objectives
+- [Monitoring Guide](docs/Monitoring.md) - Prometheus and Grafana setup
 
 ### Operations & Compliance
-- [Disaster Recovery](docs/operations/DISASTER_RECOVERY.md) - Disaster recovery procedures
-- [Backup Strategy](docs/operations/BACKUP_STRATEGY.md) - Backup and restore procedures
-- [Capacity Planning](docs/operations/CAPACITY_PLANNING.md) - Capacity planning guide
-- [Terms of Service](docs/legal/TERMS_OF_SERVICE.md) - API terms of service
-- [Privacy Policy](docs/legal/PRIVACY_POLICY.md) - Privacy policy (GDPR compliant)
+- [Disaster Recovery](docs/operations/Disaster_Recovery.md) - Disaster recovery procedures
+- [Backup Strategy](docs/operations/Backup_Strategy.md) - Backup and restore procedures
+- [Capacity Planning](docs/operations/Capacity_Planning.md) - Capacity planning guide
+- [Terms of Service](docs/legal/Terms_Of_Service.md) - API terms of service
+- [Privacy Policy](docs/legal/Privacy_Policy.md) - Privacy policy (GDPR compliant)
 
 ### Development
-- [Database Schema](docs/DATABASE_SCHEMA.md) - Database schema and data requirements
-- [Database User Setup](docs/DATABASE_USER_SETUP.md) - Create read-only database user
-- [Redis Setup (Optional)](docs/REDIS_OPTIONAL.md) - Redis configuration (optional but recommended)
-- [Redis Troubleshooting](docs/TROUBLESHOOTING_REDIS.md) - Fix Redis connection issues
-- [Testing Guide](docs/TESTING.md) - Testing documentation
-- [Security Testing](docs/TESTING_SECURITY.md) - OWASP ZAP security testing guide
-- [Development Guide](docs/DEVELOPMENT.md) - Development guidelines
+- [Database Schema](docs/Database_Schema.md) - Database schema and data requirements
+- [Database User Setup](docs/Database_User_Setup.md) - Create read-only database user
+- [Redis Setup (Optional)](docs/Redis_Optional.md) - Redis configuration (optional but recommended)
+- [Redis Troubleshooting](docs/Troubleshooting_Redis.md) - Fix Redis connection issues
+- [Testing Guide](docs/Testing.md) - Testing documentation
+- [Security Testing](docs/Testing_Security.md) - OWASP ZAP security testing guide
+- [Development Guide](docs/Development.md) - Development guidelines
 - [Contributing](CONTRIBUTING.md) - Contributor guide
 - [Architecture Decision Records](docs/adr/) - ADRs documenting technical decisions
 
 ### Reference
 - [Changelog](CHANGELOG.md) - Change history
-- [API Versioning](docs/API_VERSIONING.md) - API versioning strategy
+- [API Versioning](docs/API_Versioning.md) - API versioning strategy
 
 ## 🏗️ Project Structure
 
@@ -419,7 +419,7 @@ k6 run tests/load/all-endpoints.js
 - **Input validation**: All inputs validated with Joi schemas
 - **Optional OAuth**: Available for advanced features (Phase 5)
 
-See [docs/USAGE.md](docs/USAGE.md) and [docs/security/](docs/security/) for more security details.
+See [docs/USAGE.md](docs/Usage.md) and [docs/security/](docs/security/) for more security details.
 
 ## 📈 Monitoring & Observability
 
@@ -437,7 +437,7 @@ See [docs/USAGE.md](docs/USAGE.md) and [docs/security/](docs/security/) for more
   - Frequent rate limiting
   - Service downtime
 
-See [docs/MONITORING.md](docs/MONITORING.md) for monitoring setup.
+See [docs/MONITORING.md](docs/Monitoring.md) for monitoring setup.
 
 ## ⚡ Performance
 
@@ -450,7 +450,7 @@ See [docs/MONITORING.md](docs/MONITORING.md) for monitoring setup.
   - Query analysis via `scripts/analyze_queries.sql`
 - **Benchmarks**: Performance benchmarks script available (`scripts/run_benchmarks.sh`)
 
-See [docs/PERFORMANCE.md](docs/PERFORMANCE.md) for performance optimization guide.
+See [docs/PERFORMANCE.md](docs/Performance.md) for performance optimization guide.
 
 ## 📊 Project Status
 
@@ -524,10 +524,10 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) for deta
 For shared documentation of the complete ecosystem, see:
 
 - **[OSM Notes Ecosystem](https://github.com/OSM-Notes/OSM-Notes)** - Ecosystem landing page
-- **[Global Glossary](https://github.com/OSM-Notes/OSM-Notes-Common/blob/main/docs/GLOSSARY.md)** - Terms and definitions
-- **[Complete Installation Guide](https://github.com/OSM-Notes/OSM-Notes-Common/blob/main/docs/INSTALLATION.md)** - Step-by-step installation of all projects
-- **[End-to-End Data Flow](https://github.com/OSM-Notes/OSM-Notes-Common/blob/main/docs/DATA_FLOW.md)** - Complete data flow
-- **[Decision Guide](https://github.com/OSM-Notes/OSM-Notes-Common/blob/main/docs/DECISION_GUIDE.md)** - Which project do I need?
+- **[Global Glossary](https://github.com/OSM-Notes/OSM-Notes-Common/blob/main/docs/Glossary.md)** - Terms and definitions
+- **[Complete Installation Guide](https://github.com/OSM-Notes/OSM-Notes-Common/blob/main/docs/Installation.md)** - Step-by-step installation of all projects
+- **[End-to-End Data Flow](https://github.com/OSM-Notes/OSM-Notes-Common/blob/main/docs/Data_Flow.md)** - Complete data flow
+- **[Decision Guide](https://github.com/OSM-Notes/OSM-Notes-Common/blob/main/docs/Decision_Guide.md)** - Which project do I need?
 
 ---
 

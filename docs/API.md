@@ -763,11 +763,11 @@ https://notes-api.osm.lat/docs/json
 
 ## Additional Resources
 
-- [Usage Guide](USAGE.md) - Detailed usage examples and best practices
-- [Installation Guide](INSTALLATION.md) - Setup and installation instructions
-- [Testing Guide](TESTING.md) - Testing documentation
+- [Usage Guide](Usage.md) - Detailed usage examples and best practices
+- [Installation Guide](Installation.md) - Setup and installation instructions
+- [Testing Guide](Testing.md) - Testing documentation
 - [CI/CD Guide](CI_CD.md) - Continuous Integration and Deployment
-- [API Versioning](API_VERSIONING.md) - Versioning strategy
+- [API Versioning](API_Versioning.md) - Versioning strategy
 
 ---
 

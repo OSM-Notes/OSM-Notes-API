@@ -1056,10 +1056,10 @@ jq '.benchmarks[] | select(.name == "Get User Profile")' \
 
 ## Related Documentation
 
-- [Deployment Guide](DEPLOYMENT.md) - Deployment instructions
-- [Operations Runbook](RUNBOOK.md) - Operational procedures
-- [Troubleshooting Guide](TROUBLESHOOTING.md) - Common issues
-- [SLA/SLOs](SLA.md) - Service level objectives
+- [Deployment Guide](Deployment.md) - Deployment instructions
+- [Operations Runbook](Runbook.md) - Operational procedures
+- [Troubleshooting Guide](Troubleshooting.md) - Common issues
+- [SLA/SLOs](Sla.md) - Service level objectives
 - [Load Testing Guide](tests/load/README.md) - k6 load testing
 
 ---

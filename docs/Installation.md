@@ -292,7 +292,7 @@ chmod +x scripts/*
 
 Once installed:
 
-1. Read [docs/USAGE.md](USAGE.md) to learn how to use the API
+1. Read [docs/USAGE.md](Usage.md) to learn how to use the API
 2. Review [docs/api/](api/) for complete endpoint documentation
 3. Check [CONTRIBUTING.md](../CONTRIBUTING.md) if you want to contribute
 

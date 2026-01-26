@@ -821,9 +821,9 @@ curl http://localhost:3000/metrics
 
 ## Related Documentation
 
-- [Deployment Guide](DEPLOYMENT.md) - Detailed deployment instructions
-- [Troubleshooting Guide](TROUBLESHOOTING.md) - Common issues and solutions
-- [Installation Guide](INSTALLATION.md) - Installation instructions
+- [Deployment Guide](Deployment.md) - Detailed deployment instructions
+- [Troubleshooting Guide](Troubleshooting.md) - Common issues and solutions
+- [Installation Guide](Installation.md) - Installation instructions
 - [API Reference](API.md) - Complete API documentation
 - [CI/CD Guide](CI_CD.md) - Continuous integration/deployment
 

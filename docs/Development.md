@@ -256,7 +256,7 @@ We follow [Semantic Versioning](https://semver.org/):
 
 ## API Versioning Strategy
 
-See [docs/API_VERSIONING.md](API_VERSIONING.md) for detailed API versioning strategy.
+See [docs/API_VERSIONING.md](API_Versioning.md) for detailed API versioning strategy.
 
 **Summary**:
 - API versioned via URL path: `/api/v1`, `/api/v2`, etc.

@@ -71,7 +71,7 @@ This API is part of the **OSM-Notes ecosystem**, consisting of 8 interconnected 
 - **OSM-Notes-Monitoring**: Monitors all ecosystem components including this API
 - **OSM-Notes-Common**: Shared libraries (not used by this API - Node.js project)
 
-See the main [README.md](../../README.md) for complete ecosystem overview.
+See the main [README.md](../README.md) for complete ecosystem overview.
 
 ## Container Diagram (Level 2)
 

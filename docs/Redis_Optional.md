@@ -247,7 +247,7 @@ redis-cli GET "cache:GET:/api/v1/users/123:"
 - Start Redis if not running: `sudo systemctl start redis-server`
 - Verify network connectivity: `redis-cli ping`
 - If Redis is on the same machine, use `REDIS_HOST=localhost`
-- See [TROUBLESHOOTING_REDIS.md](TROUBLESHOOTING_REDIS.md) for detailed steps
+- See [TROUBLESHOOTING_REDIS.md](Troubleshooting_Redis.md) for detailed steps
 
 ### Redis is down but API works
 

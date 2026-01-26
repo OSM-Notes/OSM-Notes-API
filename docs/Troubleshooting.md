@@ -354,7 +354,7 @@ echo $REDIS_PORT
    - Check firewall: `sudo ufw allow 6379/tcp`
    - Verify Redis is running: `sudo systemctl status redis-server`
    - Start Redis if not running: `sudo systemctl start redis-server`
-   - See [TROUBLESHOOTING_REDIS.md](TROUBLESHOOTING_REDIS.md) for detailed steps
+   - See [TROUBLESHOOTING_REDIS.md](Troubleshooting_Redis.md) for detailed steps
 
 **Note**: Redis is optional. If not configured (`REDIS_HOST` empty), the API uses in-memory rate limiting (not persistent across restarts).
 
@@ -654,8 +654,8 @@ If you've tried the solutions above and still have issues:
 
 1. **Check Documentation**:
    - [API Reference](API.md)
-   - [Usage Guide](USAGE.md)
-   - [Installation Guide](INSTALLATION.md)
+   - [Usage Guide](Usage.md)
+   - [Installation Guide](Installation.md)
 
 2. **Collect Information**:
    - Error message and status code
@@ -710,9 +710,9 @@ If you've tried the solutions above and still have issues:
 ## Related Documentation
 
 - [API Reference](API.md) - Complete API documentation
-- [Usage Guide](USAGE.md) - How to use the API
-- [Installation Guide](INSTALLATION.md) - Setup instructions
-- [Deployment Guide](DEPLOYMENT.md) - Production deployment
+- [Usage Guide](Usage.md) - How to use the API
+- [Installation Guide](Installation.md) - Setup instructions
+- [Deployment Guide](Deployment.md) - Production deployment
 - [CI/CD Guide](CI_CD.md) - Continuous integration/deployment
-- [Security Policy](../security/SECURITY_POLICY.md) - Security information
+- [Security Policy](../security/Security_Policy.md) - Security information
 

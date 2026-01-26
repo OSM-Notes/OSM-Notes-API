@@ -105,7 +105,7 @@ A good PR includes:
 
 ## Development Environment Setup
 
-See [docs/INSTALLATION.md](docs/INSTALLATION.md) for detailed instructions.
+See [docs/INSTALLATION.md](docs/Installation.md) for detailed instructions.
 
 Quick summary:
 

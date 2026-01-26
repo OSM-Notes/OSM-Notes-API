@@ -382,9 +382,9 @@ curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
 
 ## Additional Resources
 
-- [API Documentation](USAGE.md)
-- [Installation Guide](INSTALLATION.md)
-- [Architecture](ARCHITECTURE.md)
+- [API Documentation](Usage.md)
+- [Installation Guide](Installation.md)
+- [Architecture](Architecture.md)
 
 
 

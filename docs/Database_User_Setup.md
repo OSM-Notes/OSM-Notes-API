@@ -255,10 +255,10 @@ If connection fails:
 
 ## Related Documentation
 
-- [Installation Guide](INSTALLATION.md) - Complete installation instructions
-- [Database Schema](DATABASE_SCHEMA.md) - Database schema documentation
-- [Deployment Guide](DEPLOYMENT.md) - Production deployment
-- [Security Guide](security/SECRETS.md) - Secrets management
+- [Installation Guide](Installation.md) - Complete installation instructions
+- [Database Schema](Database_Schema.md) - Database schema documentation
+- [Deployment Guide](Deployment.md) - Production deployment
+- [Security Guide](security/Secrets.md) - Secrets management
 
 ---
 

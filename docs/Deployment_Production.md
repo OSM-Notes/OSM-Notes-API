@@ -163,7 +163,7 @@ psql -h $DB_HOST -U postgres -d osm_notes_dwh \
 
 **User created**: `osm_notes_api_user` with read-only permissions (SELECT only).
 
-See [docs/DATABASE_USER_SETUP.md](DATABASE_USER_SETUP.md) for detailed instructions.
+See [docs/DATABASE_USER_SETUP.md](Database_User_Setup.md) for detailed instructions.
 
 ### 3. Verify Database Connection
 
@@ -392,7 +392,7 @@ docker compose -f docker/docker-compose.yml --profile monitoring up -d
 # Default credentials: admin / admin (change on first login)
 ```
 
-See [docs/MONITORING.md](MONITORING.md) for detailed monitoring setup.
+See [docs/MONITORING.md](Monitoring.md) for detailed monitoring setup.
 
 ## Post-Deployment Verification
 
@@ -608,9 +608,9 @@ For deployment issues:
 1. Check logs: `docker compose -f docker/docker-compose.yml logs api`
 2. Verify health: `curl http://localhost:3000/health`
 3. Review documentation:
-   - [DEPLOYMENT.md](DEPLOYMENT.md) - General deployment guide
-   - [RUNBOOK.md](RUNBOOK.md) - Operations runbook
-   - [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Common issues
+   - [DEPLOYMENT.md](Deployment.md) - General deployment guide
+   - [RUNBOOK.md](Runbook.md) - Operations runbook
+   - [TROUBLESHOOTING.md](Troubleshooting.md) - Common issues
 4. Open GitHub issue with deployment details
 
 ---

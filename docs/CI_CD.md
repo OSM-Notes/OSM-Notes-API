@@ -209,7 +209,7 @@ Potential improvements to the CI/CD pipeline:
 
 ## Related Documentation
 
-- [Testing Guide](TESTING.md)
-- [Installation Guide](INSTALLATION.md)
-- [Development Guide](DEVELOPMENT.md)
+- [Testing Guide](Testing.md)
+- [Installation Guide](Installation.md)
+- [Development Guide](Development.md)
 

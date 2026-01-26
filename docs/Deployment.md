@@ -18,7 +18,7 @@ status: "active"
 
 This guide covers deployment of OSM Notes API to production environments.
 
-**For specific deployment to server 192.168.0.7, see [DEPLOYMENT_PRODUCTION.md](DEPLOYMENT_PRODUCTION.md).**
+**For specific deployment to server 192.168.0.7, see [DEPLOYMENT_PRODUCTION.md](Deployment_Production.md).**
 
 ## Prerequisites
 
@@ -340,6 +340,6 @@ For deployment issues:
 
 1. Check logs: `docker logs osm-notes-api` or `pm2 logs`
 2. Verify health endpoint: `curl http://localhost:3000/health`
-3. Review documentation: [INSTALLATION.md](INSTALLATION.md)
+3. Review documentation: [INSTALLATION.md](Installation.md)
 4. Open GitHub issue with deployment details
 
