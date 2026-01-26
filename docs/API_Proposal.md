@@ -154,29 +154,25 @@ La API estándar de OSM 0.6 ofrece:
 ### Gap Identificado
 
 **Lo que falta**:
-```
-┌─────────────────────────────────────┐
-│  OSM-Notes-Ingestion                 │
-│  (Datos base)                        │
-└──────────────┬────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────┐
-│  OSM-Notes-Analytics                │
-│  (ETL + DWH)                        │
-└──────────────┬────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────┐
-│  ❌ API REST (FALTA)                │
-│  (Acceso programático)              │
-└──────────────┬────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────┐
-│  OSM-Notes-Viewer                  │
-│  (Consumidor actual: JSON)         │
-└──────────────────────────────────────┘
+
+```mermaid
+flowchart TD
+    INGESTION[OSM-Notes-Ingestion<br/>Datos base]
+    
+    ANALYTICS[OSM-Notes-Analytics<br/>ETL + DWH]
+    
+    MISSING[❌ API REST FALTA<br/>Acceso programático]
+    
+    VIEWER[OSM-Notes-Viewer<br/>Consumidor actual: JSON]
+    
+    INGESTION -->|Base Tables| ANALYTICS
+    ANALYTICS -->|Data Warehouse| MISSING
+    MISSING -->|REST API| VIEWER
+    
+    style INGESTION fill:#90EE90
+    style ANALYTICS fill:#FFFFE0
+    style MISSING fill:#FFB6C1
+    style VIEWER fill:#DDA0DD
 ```
 
 ---
@@ -235,43 +231,142 @@ La API estándar de OSM 0.6 ofrece:
 
 ### Estructura de Endpoints
 
+```mermaid
+graph TD
+    ROOT[/api/v1/]
+    
+    subgraph Users["/users"]
+        U1[GET /users<br/>Lista de usuarios paginada]
+        U2[GET /users/user_id<br/>Perfil completo de usuario]
+        U3[GET /users/user_id/notes<br/>Notas del usuario]
+        U4[GET /users/user_id/stats<br/>Estadísticas del usuario]
+        U5[GET /users/rankings<br/>Rankings de usuarios]
+    end
+    
+    subgraph Countries["/countries"]
+        C1[GET /countries<br/>Lista de países paginada]
+        C2[GET /countries/country_id<br/>Perfil completo de país]
+        C3[GET /countries/country_id/notes<br/>Notas del país]
+        C4[GET /countries/country_id/users<br/>Usuarios activos]
+        C5[GET /countries/rankings<br/>Rankings de países]
+    end
+    
+    subgraph Notes["/notes"]
+        N1[GET /notes<br/>Búsqueda de notas]
+        N2[GET /notes/note_id<br/>Detalle de nota]
+        N3[GET /notes/note_id/comments<br/>Comentarios de nota]
+        N4[GET /notes/note_id/history<br/>Historial de nota]
+    end
+    
+    subgraph Analytics["/analytics"]
+        A1[GET /analytics/global<br/>Estadísticas globales]
+        A2[GET /analytics/trends<br/>Tendencias temporales]
+        A3[GET /analytics/comparison<br/>Comparaciones]
+        A4[GET /analytics/health<br/>Health scores]
+    end
+    
+    subgraph Search["/search"]
+        S1[GET /search/users<br/>Búsqueda avanzada de usuarios]
+        S2[GET /search/countries<br/>Búsqueda avanzada de países]
+        S3[GET /search/notes<br/>Búsqueda avanzada de notas]
+    end
+    
+    subgraph Hashtags["/hashtags"]
+        H1[GET /hashtags<br/>Lista de hashtags]
+        H2[GET /hashtags/hashtag<br/>Estadísticas de hashtag]
+    end
+    
+    ROOT --> Users
+    ROOT --> Countries
+    ROOT --> Notes
+    ROOT --> Analytics
+    ROOT --> Search
+    ROOT --> Hashtags
+    
+    Users --> U1
+    Users --> U2
+    Users --> U3
+    Users --> U4
+    Users --> U5
+    
+    Countries --> C1
+    Countries --> C2
+    Countries --> C3
+    Countries --> C4
+    Countries --> C5
+    
+    Notes --> N1
+    Notes --> N2
+    Notes --> N3
+    Notes --> N4
+    
+    Analytics --> A1
+    Analytics --> A2
+    Analytics --> A3
+    Analytics --> A4
+    
+    Search --> S1
+    Search --> S2
+    Search --> S3
+    
+    Hashtags --> H1
+    Hashtags --> H2
+    
+    style ROOT fill:#90EE90
+    style Users fill:#E0F6FF
+    style Countries fill:#FFFFE0
+    style Notes fill:#FFE4B5
+    style Analytics fill:#DDA0DD
+    style Search fill:#FFB6C1
+    style Hashtags fill:#F0E68C
 ```
-/api/v1/
-├── /users
-│   ├── GET /users                    # Lista de usuarios (paginada)
-│   ├── GET /users/{user_id}          # Perfil completo de usuario
-│   ├── GET /users/{user_id}/notes    # Notas del usuario
-│   ├── GET /users/{user_id}/stats    # Estadísticas del usuario
-│   └── GET /users/rankings           # Rankings de usuarios
-│
-├── /countries
-│   ├── GET /countries                 # Lista de países (paginada)
-│   ├── GET /countries/{country_id}   # Perfil completo de país
-│   ├── GET /countries/{country_id}/notes  # Notas del país
-│   ├── GET /countries/{country_id}/users  # Usuarios activos
-│   └── GET /countries/rankings       # Rankings de países
-│
-├── /notes
-│   ├── GET /notes                    # Búsqueda de notas
-│   ├── GET /notes/{note_id}          # Detalle de nota
-│   ├── GET /notes/{note_id}/comments # Comentarios de nota
-│   └── GET /notes/{note_id}/history # Historial de nota
-│
-├── /analytics
-│   ├── GET /analytics/global         # Estadísticas globales
-│   ├── GET /analytics/trends         # Tendencias temporales
-│   ├── GET /analytics/comparison     # Comparaciones
-│   └── GET /analytics/health         # Health scores
-│
-├── /search
-│   ├── GET /search/users             # Búsqueda avanzada de usuarios
-│   ├── GET /search/countries         # Búsqueda avanzada de países
-│   └── GET /search/notes             # Búsqueda avanzada de notas
-│
-└── /hashtags
-    ├── GET /hashtags                  # Lista de hashtags
-    ├── GET /hashtags/{hashtag}        # Estadísticas de hashtag
-    └── GET /hashtags/{hashtag}/notes  # Notas con hashtag
+        H3[GET /hashtags/hashtag/notes<br/>Notas con hashtag]
+    end
+    
+    ROOT --> Users
+    ROOT --> Countries
+    ROOT --> Notes
+    ROOT --> Analytics
+    ROOT --> Search
+    ROOT --> Hashtags
+    
+    Users --> U1
+    Users --> U2
+    Users --> U3
+    Users --> U4
+    Users --> U5
+    
+    Countries --> C1
+    Countries --> C2
+    Countries --> C3
+    Countries --> C4
+    Countries --> C5
+    
+    Notes --> N1
+    Notes --> N2
+    Notes --> N3
+    Notes --> N4
+    
+    Analytics --> A1
+    Analytics --> A2
+    Analytics --> A3
+    Analytics --> A4
+    
+    Search --> S1
+    Search --> S2
+    Search --> S3
+    
+    Hashtags --> H1
+    Hashtags --> H2
+    Hashtags --> H3
+    
+    style ROOT fill:#90EE90
+    style Users fill:#E0F6FF
+    style Countries fill:#FFFFE0
+    style Notes fill:#FFE4B5
+    style Analytics fill:#DDA0DD
+    style Search fill:#FFB6C1
+    style Hashtags fill:#F0E68C
 ```
 
 ### Ejemplos de Endpoints Clave
@@ -614,38 +709,24 @@ const notes = await fetch('/api/v1/hashtags/#MapColombia2025/notes?status=open')
 
 ### Arquitectura Propuesta
 
-```
-┌─────────────────────────────────────┐
-│  Clientes                            │
-│  (Web, Mobile, Bots, etc.)          │
-└──────────────┬──────────────────────┘
-               │ HTTP/REST
-               ▼
-┌─────────────────────────────────────┐
-│  API Gateway / Load Balancer        │
-│  (Nginx, Traefik, etc.)             │
-└──────────────┬──────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────┐
-│  API Server                          │
-│  (Node.js, Python, Go, etc.)        │
-│  - Endpoints REST                    │
-│  - Validación de requests            │
-│  - Rate limiting                     │
-│  - Caching                           │
-└──────────────┬──────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────┐
-│  PostgreSQL Database                 │
-│  - dwh.datamartUsers                 │
-│  - dwh.datamartCountries             │
-│  - dwh.datamartGlobal                │
-│  - dwh.facts                         │
-│  - public.notes                      │
-│  - public.note_comments              │
-└──────────────────────────────────────┘
+```mermaid
+flowchart TD
+    CLIENTS[Clientes<br/>Web, Mobile, Bots, etc.]
+    
+    GATEWAY[API Gateway / Load Balancer<br/>Nginx, Traefik, etc.]
+    
+    SERVER[API Server<br/>Node.js, Python, Go, etc.<br/>- Endpoints REST<br/>- Validación de requests<br/>- Rate limiting<br/>- Caching]
+    
+    DB[(PostgreSQL Database<br/>- dwh.datamartUsers<br/>- dwh.datamartCountries<br/>- dwh.datamartGlobal<br/>- dwh.facts<br/>- public.notes<br/>- public.note_comments)]
+    
+    CLIENTS -->|HTTP/REST| GATEWAY
+    GATEWAY --> SERVER
+    SERVER --> DB
+    
+    style CLIENTS fill:#DDA0DD
+    style GATEWAY fill:#FFE4B5
+    style SERVER fill:#90EE90
+    style DB fill:#E0F6FF
 ```
 
 ### Flujo de Datos
