@@ -11,6 +11,7 @@ import { Pool } from 'pg';
 describe('Trends API Integration Tests', () => {
   let app: Express;
   let pool: Pool;
+  const VALID_USER_AGENT = 'TestApp/1.0 (test@example.com)';
 
   beforeAll(async () => {
     // Set required environment variables before importing app
@@ -34,7 +35,7 @@ describe('Trends API Integration Tests', () => {
     it('should return 400 if type is missing', async () => {
       const response = await request(app)
         .get('/api/v1/analytics/trends')
-        .set('User-Agent', 'test-agent');
+        .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
@@ -43,7 +44,7 @@ describe('Trends API Integration Tests', () => {
     it('should return 400 if user_id is missing for user trends', async () => {
       const response = await request(app)
         .get('/api/v1/analytics/trends?type=users')
-        .set('User-Agent', 'test-agent');
+        .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
@@ -52,7 +53,7 @@ describe('Trends API Integration Tests', () => {
     it('should return 400 if user_id is invalid', async () => {
       const response = await request(app)
         .get('/api/v1/analytics/trends?type=users&user_id=invalid')
-        .set('User-Agent', 'test-agent');
+        .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
@@ -61,7 +62,7 @@ describe('Trends API Integration Tests', () => {
     it('should return 404 if user not found', async () => {
       const response = await request(app)
         .get('/api/v1/analytics/trends?type=users&user_id=999999')
-        .set('User-Agent', 'test-agent');
+        .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('error');
@@ -85,7 +86,7 @@ describe('Trends API Integration Tests', () => {
 
       const response = await request(app)
         .get('/api/v1/analytics/trends?type=users&user_id=123456')
-        .set('User-Agent', 'test-agent');
+        .set('User-Agent', VALID_USER_AGENT);
 
       if (response.status === 200) {
         const body = response.body as {
@@ -118,7 +119,7 @@ describe('Trends API Integration Tests', () => {
     it('should return 400 if country_id is missing for country trends', async () => {
       const response = await request(app)
         .get('/api/v1/analytics/trends?type=countries')
-        .set('User-Agent', 'test-agent');
+        .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
@@ -127,7 +128,7 @@ describe('Trends API Integration Tests', () => {
     it('should return 400 if country_id is invalid', async () => {
       const response = await request(app)
         .get('/api/v1/analytics/trends?type=countries&country_id=invalid')
-        .set('User-Agent', 'test-agent');
+        .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
@@ -136,7 +137,7 @@ describe('Trends API Integration Tests', () => {
     it('should return 404 if country not found', async () => {
       const response = await request(app)
         .get('/api/v1/analytics/trends?type=countries&country_id=999999')
-        .set('User-Agent', 'test-agent');
+        .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('error');
@@ -160,7 +161,7 @@ describe('Trends API Integration Tests', () => {
 
       const response = await request(app)
         .get('/api/v1/analytics/trends?type=countries&country_id=999')
-        .set('User-Agent', 'test-agent');
+        .set('User-Agent', VALID_USER_AGENT);
 
       if (response.status === 200) {
         const body = response.body as {
@@ -198,7 +199,7 @@ describe('Trends API Integration Tests', () => {
 
       const response = await request(app)
         .get('/api/v1/analytics/trends?type=global')
-        .set('User-Agent', 'test-agent');
+        .set('User-Agent', VALID_USER_AGENT);
 
       if (response.status === 200) {
         const body = response.body as {
@@ -222,7 +223,7 @@ describe('Trends API Integration Tests', () => {
 
       const response = await request(app)
         .get('/api/v1/analytics/trends?type=global')
-        .set('User-Agent', 'test-agent');
+        .set('User-Agent', VALID_USER_AGENT);
 
       expect([404, 500]).toContain(response.status);
     });
@@ -232,7 +233,7 @@ describe('Trends API Integration Tests', () => {
     it('should return 400 for invalid type', async () => {
       const response = await request(app)
         .get('/api/v1/analytics/trends?type=invalid')
-        .set('User-Agent', 'test-agent');
+        .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');

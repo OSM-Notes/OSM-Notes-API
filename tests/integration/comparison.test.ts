@@ -36,9 +36,9 @@ describe('Comparison API Integration Tests', () => {
         .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(400);
-      const body = response.body as { error: string };
+      const body = response.body as { error: string; message: string };
       expect(body).toHaveProperty('error');
-      expect(body.error).toContain('type');
+      expect(body.message).toContain('type');
     });
 
     it('should return 400 if ids parameter is missing', async () => {
@@ -47,9 +47,9 @@ describe('Comparison API Integration Tests', () => {
         .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(400);
-      const body = response.body as { error: string };
+      const body = response.body as { error: string; message: string };
       expect(body).toHaveProperty('error');
-      expect(body.error).toContain('ids');
+      expect(body.message).toContain('ids');
     });
 
     it('should return 400 for invalid type parameter', async () => {
@@ -86,9 +86,9 @@ describe('Comparison API Integration Tests', () => {
         .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(400);
-      const body = response.body as { error: string };
+      const body = response.body as { error: string; message: string };
       expect(body).toHaveProperty('error');
-      expect(body.error).toContain('Maximum 10');
+      expect(body.message).toContain('Maximum 10');
     });
 
     it('should compare users successfully', async () => {
