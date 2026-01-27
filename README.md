@@ -258,10 +258,12 @@ See [docs/API.md](docs/API.md) for complete API reference.
 
 2. **Testing**
    ```bash
-   npm test               # Run all tests
+   npm test               # Run all tests (master test command)
    npm run test:unit      # Unit tests only
    npm run test:integration  # Integration tests only
    ```
+   
+   **Master Test Command**: `npm test` - Executes all tests using Jest
 
 3. **Code Quality**
    ```bash
