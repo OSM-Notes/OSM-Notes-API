@@ -249,7 +249,45 @@ psql -h localhost -U analytics_user -d osm_notes_dwh -c "SELECT COUNT(*) FROM dw
 psql -h localhost -U analytics_user -d osm_notes_dwh -c "SELECT COUNT(*) FROM dwh.datamartCountries;"
 ```
 
-### 3. Run Tests
+### 3. Verify PostgreSQL Extensions
+
+The API benefits from PostgreSQL extensions for optimal performance:
+
+```bash
+# Check required/recommended extensions
+psql -h localhost -U analytics_user -d osm_notes_dwh -c "\dx"
+
+# Required extensions (should be installed by Analytics/Ingestion):
+# - postgis: For spatial queries
+# - btree_gist: For spatial indexing
+
+# Recommended extension (for optimal text search performance):
+# - pg_trgm: For fast text search with ILIKE queries
+```
+
+**Install pg_trgm extension** (recommended for text search):
+
+```sql
+-- Connect to database
+psql -h localhost -U analytics_user -d osm_notes_dwh
+
+-- Install pg_trgm extension
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+-- Verify installation
+SELECT * FROM pg_extension WHERE extname = 'pg_trgm';
+```
+
+**Note**: The `create_indexes.sql` script automatically detects if `pg_trgm` is available:
+- ✅ If available: Creates optimized GIN index for text search (much faster)
+- ⚠️ If not available: Creates B-tree index (functional but slower)
+
+After installing `pg_trgm`, recreate indexes:
+```bash
+psql -h localhost -U analytics_user -d osm_notes_dwh -f scripts/create_indexes.sql
+```
+
+### 4. Run Tests
 
 ```bash
 # Run all tests (requires test database)
@@ -270,7 +308,7 @@ npm run test:coverage
 - **User**: `osm_notes_test_user`
 - **Password**: `osm_notes_test_pass`
 
-### 4. Start Development Server
+### 5. Start Development Server
 
 ```bash
 # Start development server with hot reload
@@ -279,7 +317,7 @@ npm run dev
 # The API will be available at http://localhost:3000
 ```
 
-### 5. Test API Endpoints
+### 6. Test API Endpoints
 
 ```bash
 # Health check

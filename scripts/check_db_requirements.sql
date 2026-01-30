@@ -88,11 +88,33 @@ BEGIN
 END $$;
 
 \echo ''
+-- Check PostgreSQL extensions
+\echo '5. Checking PostgreSQL extensions...'
+SELECT 
+  CASE WHEN EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'postgis') 
+    THEN '✓ postgis extension installed'
+    ELSE '✗ postgis extension missing (required for spatial queries)'
+  END as postgis_extension,
+  CASE WHEN EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_trgm') 
+    THEN '✓ pg_trgm extension installed (optimal for text search)'
+    ELSE '⚠ pg_trgm extension missing (optional but recommended for text search performance)'
+  END as pg_trgm_extension;
+
+\echo ''
+\echo 'Note: pg_trgm extension improves text search performance significantly.'
+\echo '      To install: CREATE EXTENSION IF NOT EXISTS pg_trgm;'
+\echo ''
+
+\echo ''
 \echo '================================================================================'
 \echo 'Summary'
 \echo '================================================================================'
 \echo ''
 \echo 'If all tables exist and have data, you can proceed with query analysis.'
 \echo 'If tables are missing, please ensure the database is properly set up.'
+\echo ''
+\echo 'Extensions:'
+\echo '  - postgis: Required for spatial queries'
+\echo '  - pg_trgm: Recommended for optimal text search performance'
 \echo ''
 

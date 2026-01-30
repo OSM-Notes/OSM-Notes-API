@@ -283,6 +283,7 @@ For efficient bounding box (bbox) queries:
 ```sql
 -- Create spatial index using PostGIS (if available)
 CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;  -- Recommended for text search performance
 
 -- Add geometry column if not exists
 ALTER TABLE public.notes ADD COLUMN IF NOT EXISTS geom geometry(Point, 4326);
