@@ -275,14 +275,22 @@ export async function getTrends(req: Request, res: Response, next: NextFunction)
       user_id?: number;
       country_id?: number;
     } = {
-      type: type as 'users' | 'countries' | 'global',
+      type: type,
     };
 
     if (type === 'users') {
       if (!user_id) {
         throw new ApiError(400, 'Missing "user_id" parameter for user trends.');
       }
-      const userId = parseInt(String(user_id), 10);
+      const userIdStr =
+        Array.isArray(user_id) && typeof user_id[0] === 'string'
+          ? user_id[0]
+          : typeof user_id === 'string'
+            ? user_id
+            : typeof user_id === 'number'
+              ? String(user_id)
+              : '';
+      const userId = parseInt(userIdStr, 10);
       if (isNaN(userId)) {
         throw new ApiError(400, 'Invalid "user_id" parameter. Must be a valid number.');
       }
@@ -293,7 +301,15 @@ export async function getTrends(req: Request, res: Response, next: NextFunction)
       if (!country_id) {
         throw new ApiError(400, 'Missing "country_id" parameter for country trends.');
       }
-      const countryId = parseInt(String(country_id), 10);
+      const countryIdStr =
+        Array.isArray(country_id) && typeof country_id[0] === 'string'
+          ? country_id[0]
+          : typeof country_id === 'string'
+            ? country_id
+            : typeof country_id === 'number'
+              ? String(country_id)
+              : '';
+      const countryId = parseInt(countryIdStr, 10);
       if (isNaN(countryId)) {
         throw new ApiError(400, 'Invalid "country_id" parameter. Must be a valid number.');
       }

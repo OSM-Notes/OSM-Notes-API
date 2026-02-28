@@ -116,7 +116,18 @@ export function validateSearchFilters(req: Request, _res: Response, next: NextFu
   const validatedQuery: Record<string, string> = {};
   for (const [key, val] of Object.entries(value)) {
     if (val !== undefined) {
-      validatedQuery[key] = String(val);
+      // Ensure val is a primitive before converting to string
+      const valStr =
+        typeof val === 'string'
+          ? val
+          : typeof val === 'number'
+            ? String(val)
+            : typeof val === 'boolean'
+              ? String(val)
+              : '';
+      if (valStr !== '') {
+        validatedQuery[key] = valStr;
+      }
     }
   }
   req.query = validatedQuery as typeof req.query;
@@ -144,7 +155,18 @@ export function validateUserRankings(req: Request, _res: Response, next: NextFun
   const validatedQuery: Record<string, string> = {};
   for (const [key, val] of Object.entries(value)) {
     if (val !== undefined) {
-      validatedQuery[key] = String(val);
+      // Ensure val is a primitive before converting to string
+      const valStr =
+        typeof val === 'string'
+          ? val
+          : typeof val === 'number'
+            ? String(val)
+            : typeof val === 'boolean'
+              ? String(val)
+              : '';
+      if (valStr !== '') {
+        validatedQuery[key] = valStr;
+      }
     }
   }
   req.query = validatedQuery as typeof req.query;
@@ -172,7 +194,18 @@ export function validateCountryRankings(req: Request, _res: Response, next: Next
   const validatedQuery: Record<string, string> = {};
   for (const [key, val] of Object.entries(value)) {
     if (val !== undefined) {
-      validatedQuery[key] = String(val);
+      // Ensure val is a primitive before converting to string
+      const valStr =
+        typeof val === 'string'
+          ? val
+          : typeof val === 'number'
+            ? String(val)
+            : typeof val === 'boolean'
+              ? String(val)
+              : '';
+      if (valStr !== '') {
+        validatedQuery[key] = valStr;
+      }
     }
   }
   req.query = validatedQuery as typeof req.query;

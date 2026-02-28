@@ -30,7 +30,7 @@ describe('Database Integration Tests', () => {
   let databaseAvailable = false;
 
   // Helper function to conditionally run tests
-  const testIfDbAvailable = () => (databaseAvailable ? it : it.skip);
+  const testIfDbAvailable = (): typeof it => (databaseAvailable ? it : it.skip);
 
   beforeAll(async () => {
     // Reset any existing pool to ensure fresh connection with correct credentials
@@ -48,7 +48,7 @@ describe('Database Integration Tests', () => {
     try {
       await testConnection();
       databaseAvailable = true;
-    } catch (error) {
+    } catch {
       databaseAvailable = false;
       console.warn('⚠️  PostgreSQL database not available. Skipping database integration tests.');
       console.warn(

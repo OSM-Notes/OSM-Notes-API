@@ -92,8 +92,19 @@ export async function getUserRankings(
   try {
     // Parameters are already validated by validateUserRankings middleware
     const metric = req.query.metric as string;
-    const country = req.query.country ? parseInt(String(req.query.country), 10) : undefined;
-    const limit = parseInt(String(req.query.limit || '10'), 10);
+    const getQueryString = (value: unknown): string | undefined => {
+      if (!value) return undefined;
+      if (typeof value === 'string') return value;
+      if (typeof value === 'number') return String(value);
+      if (Array.isArray(value) && typeof value[0] === 'string') return value[0];
+      if (Array.isArray(value) && typeof value[0] === 'number') return String(value[0]);
+      return undefined;
+    };
+    const country = req.query.country
+      ? parseInt(getQueryString(req.query.country) || '0', 10)
+      : undefined;
+    const limitStr = req.query.limit ? getQueryString(req.query.limit) : '10';
+    const limit = parseInt(limitStr || '10', 10);
     const order = (req.query.order as 'asc' | 'desc') || 'desc';
 
     const params: UserRankingsParams = {

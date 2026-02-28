@@ -85,7 +85,16 @@ export async function getCountryRankings(
   try {
     // Parameters are already validated by validateCountryRankings middleware
     const metric = req.query.metric as string;
-    const limit = parseInt(String(req.query.limit || '10'), 10);
+    const limitStr = req.query.limit
+      ? Array.isArray(req.query.limit) && typeof req.query.limit[0] === 'string'
+        ? req.query.limit[0]
+        : typeof req.query.limit === 'string'
+          ? req.query.limit
+          : typeof req.query.limit === 'number'
+            ? String(req.query.limit)
+            : '10'
+      : '10';
+    const limit = parseInt(limitStr, 10);
     const order = (req.query.order as 'asc' | 'desc') || 'desc';
 
     const params: CountryRankingsParams = {

@@ -256,22 +256,36 @@ export async function searchNotes(req: Request, res: Response, next: NextFunctio
       // Validation passed, continue
     });
 
+    // Helper function to safely extract query string values
+    const getQueryString = (value: unknown): string | undefined => {
+      if (!value) return undefined;
+      if (typeof value === 'string') return value;
+      if (typeof value === 'number') return String(value);
+      if (Array.isArray(value) && typeof value[0] === 'string') return value[0];
+      if (Array.isArray(value) && typeof value[0] === 'number') return String(value[0]);
+      return undefined;
+    };
+
     // Check if advanced search is requested (text or operator parameter)
     const useAdvancedSearch = req.query.text || req.query.operator;
 
     if (useAdvancedSearch) {
       // Use advanced search service
       const filters: AdvancedSearchFilters = {
-        country: req.query.country ? parseInt(String(req.query.country), 10) : undefined,
+        country: req.query.country
+          ? parseInt(getQueryString(req.query.country) || '0', 10)
+          : undefined,
         status: req.query.status as 'open' | 'closed' | 'reopened' | undefined,
-        date_from: req.query.date_from ? String(req.query.date_from) : undefined,
-        date_to: req.query.date_to ? String(req.query.date_to) : undefined,
-        user_id: req.query.user_id ? parseInt(String(req.query.user_id), 10) : undefined,
-        bbox: req.query.bbox ? String(req.query.bbox) : undefined,
-        text: req.query.text ? String(req.query.text) : undefined,
+        date_from: getQueryString(req.query.date_from),
+        date_to: getQueryString(req.query.date_to),
+        user_id: req.query.user_id
+          ? parseInt(getQueryString(req.query.user_id) || '0', 10)
+          : undefined,
+        bbox: getQueryString(req.query.bbox),
+        text: getQueryString(req.query.text),
         operator: (req.query.operator as 'AND' | 'OR') || 'AND',
-        page: req.query.page ? parseInt(String(req.query.page), 10) : 1,
-        limit: req.query.limit ? parseInt(String(req.query.limit), 10) : 20,
+        page: req.query.page ? parseInt(getQueryString(req.query.page) || '1', 10) : 1,
+        limit: req.query.limit ? parseInt(getQueryString(req.query.limit) || '20', 10) : 20,
       };
 
       logger.debug('Advanced searching notes', { filters });
@@ -289,16 +303,20 @@ export async function searchNotes(req: Request, res: Response, next: NextFunctio
 
     // Use standard search service
     const filters: SearchFilters = {
-      country: req.query.country ? parseInt(String(req.query.country), 10) : undefined,
+      country: req.query.country
+        ? parseInt(getQueryString(req.query.country) || '0', 10)
+        : undefined,
       status: req.query.status as 'open' | 'closed' | 'reopened' | undefined,
-      hashtag: req.query.hashtag ? String(req.query.hashtag) : undefined,
-      date_from: req.query.date_from ? String(req.query.date_from) : undefined,
-      date_to: req.query.date_to ? String(req.query.date_to) : undefined,
-      user_id: req.query.user_id ? parseInt(String(req.query.user_id), 10) : undefined,
-      application: req.query.application ? String(req.query.application) : undefined,
-      bbox: req.query.bbox ? String(req.query.bbox) : undefined,
-      page: req.query.page ? parseInt(String(req.query.page), 10) : 1,
-      limit: req.query.limit ? parseInt(String(req.query.limit), 10) : 20,
+      hashtag: getQueryString(req.query.hashtag),
+      date_from: getQueryString(req.query.date_from),
+      date_to: getQueryString(req.query.date_to),
+      user_id: req.query.user_id
+        ? parseInt(getQueryString(req.query.user_id) || '0', 10)
+        : undefined,
+      application: getQueryString(req.query.application),
+      bbox: getQueryString(req.query.bbox),
+      page: req.query.page ? parseInt(getQueryString(req.query.page) || '1', 10) : 1,
+      limit: req.query.limit ? parseInt(getQueryString(req.query.limit) || '20', 10) : 20,
     };
 
     logger.debug('Searching notes', { filters });

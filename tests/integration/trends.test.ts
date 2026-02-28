@@ -85,7 +85,7 @@ describe('Trends API Integration Tests', () => {
             activity_by_year = EXCLUDED.activity_by_year,
             working_hours_of_week_opening = EXCLUDED.working_hours_of_week_opening
         `);
-      } catch (error) {
+      } catch {
         // If dwh schema doesn't exist or we don't have permissions, skip this test
         // The endpoint will return 500 anyway
       }
@@ -168,7 +168,7 @@ describe('Trends API Integration Tests', () => {
             activity_by_year = EXCLUDED.activity_by_year,
             working_hours_of_week_opening = EXCLUDED.working_hours_of_week_opening
         `);
-      } catch (error) {
+      } catch {
         // If dwh schema doesn't exist or we don't have permissions, skip this test
         // The endpoint will return 500 anyway
       }
@@ -213,7 +213,7 @@ describe('Trends API Integration Tests', () => {
           )
           ON CONFLICT DO NOTHING
         `);
-      } catch (error) {
+      } catch {
         // If dwh schema doesn't exist or we don't have permissions, skip this test
         // The endpoint will return 500 anyway
       }

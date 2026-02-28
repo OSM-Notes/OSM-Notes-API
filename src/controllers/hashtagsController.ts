@@ -75,10 +75,23 @@ import { setPaginationHeaders } from '../utils/pagination';
  */
 export async function getHashtags(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    const getQueryString = (value: unknown): string | undefined => {
+      if (!value) return undefined;
+      if (typeof value === 'string') return value;
+      if (typeof value === 'number') return String(value);
+      if (Array.isArray(value) && typeof value[0] === 'string') return value[0];
+      if (Array.isArray(value) && typeof value[0] === 'number') return String(value[0]);
+      return undefined;
+    };
+
+    const pageStr = getQueryString(req.query.page);
+    const limitStr = getQueryString(req.query.limit);
+    const orderStr = getQueryString(req.query.order);
+
     const params: HashtagListParams = {
-      page: req.query.page ? parseInt(String(req.query.page), 10) : undefined,
-      limit: req.query.limit ? parseInt(String(req.query.limit), 10) : undefined,
-      order: req.query.order as 'asc' | 'desc' | undefined,
+      page: pageStr ? parseInt(pageStr, 10) : undefined,
+      limit: limitStr ? parseInt(limitStr, 10) : undefined,
+      order: orderStr as 'asc' | 'desc' | undefined,
     };
 
     // Validate order parameter
@@ -92,9 +105,9 @@ export async function getHashtags(req: Request, res: Response, next: NextFunctio
 
     // Set pagination headers
     const queryParams: Record<string, string | number | undefined> = {};
-    if (req.query.page) queryParams.page = String(req.query.page);
-    if (req.query.limit) queryParams.limit = String(req.query.limit);
-    if (req.query.order) queryParams.order = String(req.query.order);
+    if (pageStr) queryParams.page = pageStr;
+    if (limitStr) queryParams.limit = limitStr;
+    if (orderStr) queryParams.order = orderStr;
 
     setPaginationHeaders(res, result.pagination, '/api/v1/hashtags', queryParams);
 

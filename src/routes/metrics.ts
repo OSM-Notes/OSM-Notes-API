@@ -43,7 +43,7 @@ router.get(
       const metrics = await getMetrics();
       res.set('Content-Type', 'text/plain; version=0.0.4; charset=utf-8');
       res.send(metrics);
-    } catch (error) {
+    } catch {
       res.status(500).send('Error generating metrics');
     }
   })

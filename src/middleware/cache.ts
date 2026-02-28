@@ -52,9 +52,16 @@ export interface CacheOptions {
 export function generateCacheKey(req: Request): string {
   const method = req.method.toUpperCase();
   const path = req.path || req.originalUrl.split('?')[0];
+  const getQueryString = (value: unknown): string => {
+    if (typeof value === 'string') return value;
+    if (Array.isArray(value)) {
+      return value.map((v) => (typeof v === 'string' ? v : String(v))).join(',');
+    }
+    return String(value);
+  };
   const queryParams = Object.keys(req.query)
     .sort()
-    .map((key) => `${key}=${String(req.query[key])}`)
+    .map((key) => `${key}=${getQueryString(req.query[key])}`)
     .join('&');
 
   return `cache:${method}:${path}:${queryParams}`;
