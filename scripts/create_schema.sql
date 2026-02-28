@@ -16,6 +16,16 @@
 \echo ''
 
 -- ============================================================================
+-- INSTALL EXTENSIONS
+-- ============================================================================
+
+\echo 'Installing required PostgreSQL extensions...'
+
+-- pg_trgm extension (required for optimized text search)
+-- Enables GIN index on note_comments_text.text for faster ILIKE in advancedSearchService
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+-- ============================================================================
 -- SCHEMA: public
 -- ============================================================================
 
