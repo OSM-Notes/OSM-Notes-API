@@ -54,13 +54,23 @@ export function createRedisStoreAdapter(
   }
 
   return new RedisStore({
-    sendCommand: async (...args: string[]): Promise<string | number | (string | number)[]> => {
+    sendCommand: async (
+      ...args: (string | { command?: string[] })[]
+    ): Promise<string | number | (string | number)[]> => {
       if (!redisClient.isOpen) {
         await redisClient.connect();
       }
 
-      const command = args[0]?.toUpperCase() || '';
-      const commandArgs = args.slice(1);
+      // Support both (command, ...rest) and ({ command: [...] }) call styles
+      const first = args[0];
+      const commandArray =
+        typeof first === 'object' &&
+        first !== null &&
+        Array.isArray((first as { command?: string[] }).command)
+          ? (first as { command: string[] }).command
+          : (args as string[]);
+      const command = (commandArray[0] ?? '').toString().toUpperCase();
+      const commandArgs = commandArray.slice(1).map((a) => (a ?? '').toString());
 
       // Map commands to redis v4 methods
       switch (command) {
@@ -114,13 +124,13 @@ export function createRedisStoreAdapter(
             }
             const ttlSeconds = await redisClient.ttl(key);
             const timeToExpireMs = ttlSeconds >= 0 ? ttlSeconds * 1000 : windowMs;
-            return [current, timeToExpireMs];
+            return [Number(current), Number(timeToExpireMs)];
           }
           // Get script: EVALSHA sha 1 key -> return [totalHits, timeToExpire]
           const totalHits = parseInt((await redisClient.get(key)) || '0', 10) || 0;
           const ttlSeconds = await redisClient.ttl(key);
           const timeToExpireMs = ttlSeconds >= 0 ? ttlSeconds * 1000 : 0;
-          return [totalHits, timeToExpireMs];
+          return [Number(totalHits), Number(timeToExpireMs)];
         }
         case 'TTL': {
           const result = await redisClient.ttl(commandArgs[0] || '');
