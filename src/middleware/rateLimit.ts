@@ -54,7 +54,7 @@ export function createRedisStoreAdapter(
   }
 
   return new RedisStore({
-    sendCommand: async (...args: string[]): Promise<string | number> => {
+    sendCommand: async (...args: string[]): Promise<string | number | (string | number)[]> => {
       if (!redisClient.isOpen) {
         await redisClient.connect();
       }
@@ -102,20 +102,25 @@ export function createRedisStoreAdapter(
           throw new Error(`Unsupported SCRIPT subcommand: ${commandArgs[0]}`);
         }
         case 'EVALSHA': {
-          // EVALSHA executes a Lua script by its SHA1 hash
-          // rate-limit-redis uses this for atomic operations
-          // For testing, we simulate the script behavior using basic Redis commands
+          // EVALSHA: rate-limit-redis expects [totalHits, timeToExpireMs] (same as Lua script return)
           const key = commandArgs[2] || '';
-          const windowMs = parseInt(commandArgs[3] || '0', 10);
+          const isIncrementScript = commandArgs.length >= 5; // increment: EVALSHA sha 1 key reset windowMs
 
-          // Simulate the rate limit script: increment and set expiry
-          const current = await redisClient.incr(key);
-          if (current === 1) {
-            // First time, set expiry
-            await redisClient.expire(key, Math.ceil(windowMs / 1000));
+          if (isIncrementScript) {
+            const windowMs = parseInt(commandArgs[4] || '0', 10);
+            const current = await redisClient.incr(key);
+            if (current === 1) {
+              await redisClient.expire(key, Math.ceil(windowMs / 1000));
+            }
+            const ttlSeconds = await redisClient.ttl(key);
+            const timeToExpireMs = ttlSeconds >= 0 ? ttlSeconds * 1000 : windowMs;
+            return [current, timeToExpireMs];
           }
-          // Return the current count (rate-limit-redis expects a number)
-          return current;
+          // Get script: EVALSHA sha 1 key -> return [totalHits, timeToExpire]
+          const totalHits = parseInt((await redisClient.get(key)) || '0', 10) || 0;
+          const ttlSeconds = await redisClient.ttl(key);
+          const timeToExpireMs = ttlSeconds >= 0 ? ttlSeconds * 1000 : 0;
+          return [totalHits, timeToExpireMs];
         }
         case 'TTL': {
           const result = await redisClient.ttl(commandArgs[0] || '');
