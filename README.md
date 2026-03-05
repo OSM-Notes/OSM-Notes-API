@@ -114,35 +114,35 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/notes/12345
+     http://localhost:3000/notes-api/v1/notes/12345
 ```
 
 **Search Notes**:
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/notes?status=open&country=42&limit=10"
+     "http://localhost:3000/notes-api/v1/notes?status=open&country=42&limit=10"
 ```
 
 **Get User Profile**:
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/users/12345
+     http://localhost:3000/notes-api/v1/users/12345
 ```
 
 **Get Country Profile**:
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/countries/42
+     http://localhost:3000/notes-api/v1/countries/42
 ```
 
 **Get Global Analytics**:
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/analytics/global
+     http://localhost:3000/notes-api/v1/analytics/global
 ```
 
 **Interactive API Documentation**:
@@ -244,12 +244,18 @@ See [docs/USAGE.md](docs/Usage.md) for complete usage guide.
 - **API Documentation**: `GET /docs` - Swagger UI interactive documentation
 - **OpenAPI Spec**: `GET /docs/json` - OpenAPI JSON specification
 
-**Main API Endpoints**:
-- `GET /api/v1/users/:id` - Get user profile
-- `GET /api/v1/countries/:id` - Get country profile
-- `GET /api/v1/notes` - Search notes
-- `GET /api/v1/notes/:id` - Get specific note
-- `GET /api/v1/analytics/global` - Global analytics
+**This project's API** (`/notes-api/v1/`):
+- `GET /notes-api/v1/users/:id` - Get user profile
+- `GET /notes-api/v1/countries/:id` - Get country profile
+- `GET /notes-api/v1/notes` - Search notes
+- `GET /notes-api/v1/notes/:id` - Get specific note
+- `GET /notes-api/v1/analytics/global` - Global analytics
+
+**OSM API 0.6 compatibility** (`/api/0.6/notes`, read-only): same paths and query params as [api.openstreetmap.org](https://wiki.openstreetmap.org/wiki/API_v0.6#Map_Notes_API) for notes. Use this if your app already talks to the OSM notes API and you want to switch base URL with minimal code changes. Responses are GeoJSON (OSM format).
+
+- `GET /api/0.6/notes?bbox=left,bottom,right,top&limit=100&closed=7` - Notes in bounding box
+- `GET /api/0.6/notes/search?q=...&user=...&bbox=...` - Search notes
+- `GET /api/0.6/notes/:id` or `GET /api/0.6/notes/:id.json` - Single note with comments
 
 See [docs/API.md](docs/API.md) for complete API reference.
 

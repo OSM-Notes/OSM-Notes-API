@@ -78,8 +78,8 @@ const rateLimitExceededTotal = new promClient.Counter({
  * @returns Normalized path
  */
 function normalizeRoute(path: string): string {
-  // Replace numeric IDs with :id placeholder
-  return path.replace(/\/\d+/g, '/:id').replace(/\/api\/v\d+/g, '/api/:version');
+  // Replace version segment then numeric IDs with placeholders
+  return path.replace(/\/notes-api\/v\d+/g, '/notes-api/:version').replace(/\/\d+/g, '/:id');
 }
 
 /**

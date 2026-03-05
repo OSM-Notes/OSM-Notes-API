@@ -10,7 +10,7 @@ import { logger } from '../utils/logger';
 
 /**
  * @swagger
- * /api/v1/search/users:
+ * /notes-api/v1/search/users:
  *   get:
  *     summary: Search users by username or user_id
  *     tags: [Search]
@@ -80,7 +80,7 @@ export async function searchUsers(req: Request, res: Response, next: NextFunctio
 
 /**
  * @swagger
- * /api/v1/search/countries:
+ * /notes-api/v1/search/countries:
  *   get:
  *     summary: Search countries by name, ISO code, or country_id
  *     tags: [Search]

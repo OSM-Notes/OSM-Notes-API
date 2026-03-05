@@ -46,7 +46,7 @@ export default function () {
   if (endpointType < 0.3) {
     // 30% - User endpoints
     const userId = TEST_USER_IDS[Math.floor(Math.random() * TEST_USER_IDS.length)];
-    const res = http.get(`${BASE_URL}/api/v1/users/${userId}`, { headers });
+    const res = http.get(`${BASE_URL}/notes-api/v1/users/${userId}`, { headers });
     check(res, {
       'user endpoint status': (r) => r.status === 200 || r.status === 404,
     });
@@ -54,7 +54,7 @@ export default function () {
   } else if (endpointType < 0.5) {
     // 20% - Country endpoints
     const countryId = TEST_COUNTRY_IDS[Math.floor(Math.random() * TEST_COUNTRY_IDS.length)];
-    const res = http.get(`${BASE_URL}/api/v1/countries/${countryId}`, { headers });
+    const res = http.get(`${BASE_URL}/notes-api/v1/countries/${countryId}`, { headers });
     check(res, {
       'country endpoint status': (r) => r.status === 200 || r.status === 404,
     });
@@ -62,7 +62,7 @@ export default function () {
   } else if (endpointType < 0.7) {
     // 20% - Note endpoints
     const noteId = TEST_NOTE_IDS[Math.floor(Math.random() * TEST_NOTE_IDS.length)];
-    const res = http.get(`${BASE_URL}/api/v1/notes/${noteId}`, { headers });
+    const res = http.get(`${BASE_URL}/notes-api/v1/notes/${noteId}`, { headers });
     check(res, {
       'note endpoint status': (r) => r.status === 200 || r.status === 404,
     });
@@ -70,14 +70,14 @@ export default function () {
   } else if (endpointType < 0.85) {
     // 15% - Search endpoints
     const searchType = Math.random() < 0.5 ? 'users' : 'countries';
-    const res = http.get(`${BASE_URL}/api/v1/search/${searchType}?limit=10&page=1`, { headers });
+    const res = http.get(`${BASE_URL}/notes-api/v1/search/${searchType}?limit=10&page=1`, { headers });
     check(res, {
       'search endpoint status': (r) => r.status === 200,
     });
     errorRate.add(res.status >= 500);
   } else {
     // 15% - Analytics endpoints
-    const res = http.get(`${BASE_URL}/api/v1/analytics/global`, { headers });
+    const res = http.get(`${BASE_URL}/notes-api/v1/analytics/global`, { headers });
     check(res, {
       'analytics endpoint status': (r) => r.status === 200,
     });

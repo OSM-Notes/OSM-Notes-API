@@ -28,7 +28,7 @@ describe('Anti-Abuse Middleware Integration', () => {
       ];
 
       for (const userAgent of aiUserAgents) {
-        const response = await request(app).get('/api/v1').set('User-Agent', userAgent);
+        const response = await request(app).get('/notes-api/v1').set('User-Agent', userAgent);
 
         expect(response.status).toBe(403);
         const body = response.body as {
@@ -44,7 +44,9 @@ describe('Anti-Abuse Middleware Integration', () => {
     it('should allow legitimate User-Agents', async () => {
       const legitimateUserAgent = 'MyApp/1.0 (contact@example.com)';
 
-      const response = await request(app).get('/api/v1').set('User-Agent', legitimateUserAgent);
+      const response = await request(app)
+        .get('/notes-api/v1')
+        .set('User-Agent', legitimateUserAgent);
 
       // Should return 200, but may return 500 if there's a database connection issue
       // in CI environment when tests run in sequence
@@ -61,7 +63,7 @@ describe('Anti-Abuse Middleware Integration', () => {
       const botUserAgents = ['curl/7.68.0', 'python-requests/2.28.1', 'Wget/1.21.3'];
 
       for (const userAgent of botUserAgents) {
-        const response = await request(app).get('/api/v1').set('User-Agent', userAgent);
+        const response = await request(app).get('/notes-api/v1').set('User-Agent', userAgent);
 
         // Bots should be allowed but flagged for restrictive rate limiting
         // The middleware should pass but mark the request as bot
@@ -80,7 +82,7 @@ describe('Anti-Abuse Middleware Integration', () => {
       ];
 
       for (const userAgent of legitimateUserAgents) {
-        const response = await request(app).get('/api/v1').set('User-Agent', userAgent);
+        const response = await request(app).get('/notes-api/v1').set('User-Agent', userAgent);
 
         // Should return 200, but may return 500 if there's a database connection issue
         // in CI environment when tests run in sequence

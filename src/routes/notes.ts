@@ -17,21 +17,21 @@ function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => P
 }
 
 /**
- * @route   GET /api/v1/notes
+ * @route   GET /notes-api/v1/notes
  * @desc    Search notes with filters
  * @access  Public
  */
 router.get('/', asyncHandler(notesController.searchNotes));
 
 /**
- * @route   GET /api/v1/notes/:note_id
+ * @route   GET /notes-api/v1/notes/:note_id
  * @desc    Get a note by ID
  * @access  Public
  */
 router.get('/:note_id', asyncHandler(notesController.getNoteById));
 
 /**
- * @route   GET /api/v1/notes/:note_id/comments
+ * @route   GET /notes-api/v1/notes/:note_id/comments
  * @desc    Get comments for a note
  * @access  Public
  */

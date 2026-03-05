@@ -25,7 +25,7 @@ describe('Cache Middleware Integration', () => {
   describe('Cache headers', () => {
     it('should include X-Cache header in response', async () => {
       const response = await request(app)
-        .get('/api/v1/analytics/global')
+        .get('/notes-api/v1/analytics/global')
         .set('User-Agent', validUserAgent);
 
       // Should return 200 (if data exists) or 500 (if DB unavailable)
@@ -36,7 +36,7 @@ describe('Cache Middleware Integration', () => {
 
     it('should return MISS on first request', async () => {
       const response = await request(app)
-        .get('/api/v1/analytics/global')
+        .get('/notes-api/v1/analytics/global')
         .set('User-Agent', validUserAgent);
 
       // Cache should be MISS or DISABLED (if Redis not available)
@@ -47,7 +47,7 @@ describe('Cache Middleware Integration', () => {
   describe('Cache behavior with Redis unavailable', () => {
     it('should continue working when Redis is not available', async () => {
       const response = await request(app)
-        .get('/api/v1/users/12345')
+        .get('/notes-api/v1/users/12345')
         .set('User-Agent', validUserAgent);
 
       // Should return 200 (if data exists) or 500 (if DB unavailable)
@@ -57,11 +57,11 @@ describe('Cache Middleware Integration', () => {
 
     it('should still return valid responses without cache', async () => {
       const response1 = await request(app)
-        .get('/api/v1/countries/42')
+        .get('/notes-api/v1/countries/42')
         .set('User-Agent', validUserAgent);
 
       const response2 = await request(app)
-        .get('/api/v1/countries/42')
+        .get('/notes-api/v1/countries/42')
         .set('User-Agent', validUserAgent);
 
       // Both should work (even if cache is disabled)
@@ -73,12 +73,12 @@ describe('Cache Middleware Integration', () => {
   describe('Cache key generation', () => {
     it('should generate different cache keys for different query parameters', async () => {
       const response1 = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .query({ metric: 'history_whole_open', limit: 10 })
         .set('User-Agent', validUserAgent);
 
       const response2 = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .query({ metric: 'history_whole_closed', limit: 10 })
         .set('User-Agent', validUserAgent);
 
@@ -91,12 +91,12 @@ describe('Cache Middleware Integration', () => {
       const query = { metric: 'history_whole_open', limit: 5 };
 
       const response1 = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .query(query)
         .set('User-Agent', validUserAgent);
 
       const response2 = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .query(query)
         .set('User-Agent', validUserAgent);
 
@@ -109,7 +109,7 @@ describe('Cache Middleware Integration', () => {
   describe('Cache only for GET requests', () => {
     it('should not cache POST requests', async () => {
       const response = await request(app)
-        .post('/api/v1/analytics/global')
+        .post('/notes-api/v1/analytics/global')
         .set('User-Agent', validUserAgent);
 
       // POST should not be cached (should return 404 or method not allowed)
@@ -123,7 +123,7 @@ describe('Cache Middleware Integration', () => {
   describe('Cache with different endpoints', () => {
     it('should cache analytics endpoint', async () => {
       const response = await request(app)
-        .get('/api/v1/analytics/global')
+        .get('/notes-api/v1/analytics/global')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
@@ -132,7 +132,7 @@ describe('Cache Middleware Integration', () => {
 
     it('should cache user profile endpoint', async () => {
       const response = await request(app)
-        .get('/api/v1/users/12345')
+        .get('/notes-api/v1/users/12345')
         .set('User-Agent', validUserAgent);
 
       expect([200, 404, 500]).toContain(response.status);
@@ -141,7 +141,7 @@ describe('Cache Middleware Integration', () => {
 
     it('should cache country profile endpoint', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/42')
+        .get('/notes-api/v1/countries/42')
         .set('User-Agent', validUserAgent);
 
       expect([200, 404, 500]).toContain(response.status);
@@ -150,7 +150,7 @@ describe('Cache Middleware Integration', () => {
 
     it('should cache rankings endpoints', async () => {
       const response = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .query({ metric: 'history_whole_open', limit: 10 })
         .set('User-Agent', validUserAgent);
 

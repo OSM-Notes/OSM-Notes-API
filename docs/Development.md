@@ -259,7 +259,7 @@ We follow [Semantic Versioning](https://semver.org/):
 See [docs/API_VERSIONING.md](API_Versioning.md) for detailed API versioning strategy.
 
 **Summary**:
-- API versioned via URL path: `/api/v1`, `/api/v2`, etc.
+- API versioned via URL path: `/notes-api/v1`, `/notes-api/v2`, etc.
 - Breaking changes require new version
 - Deprecation timeline: 6 months minimum
 - Version support: Current + previous version

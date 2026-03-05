@@ -140,17 +140,17 @@ echo ""
 
 # Simple endpoints (fast)
 run_benchmark "/health" "Health Check" 20
-run_benchmark "/api/v1/notes/1" "Get Note by ID" 20
-run_benchmark "/api/v1/users/1" "Get User Profile" 20
-run_benchmark "/api/v1/countries/1" "Get Country Profile" 20
+run_benchmark "/notes-api/v1/notes/1" "Get Note by ID" 20
+run_benchmark "/notes-api/v1/users/1" "Get User Profile" 20
+run_benchmark "/notes-api/v1/countries/1" "Get Country Profile" 20
 
 # Search endpoints (medium)
-run_benchmark "/api/v1/notes?limit=10" "Search Notes" 15
-run_benchmark "/api/v1/search/users?q=test" "Search Users" 15
+run_benchmark "/notes-api/v1/notes?limit=10" "Search Notes" 15
+run_benchmark "/notes-api/v1/search/users?q=test" "Search Users" 15
 
 # Analytics endpoints (slower)
-run_benchmark "/api/v1/analytics/global" "Global Analytics" 10
-run_benchmark "/api/v1/users/rankings?limit=10" "User Rankings" 10
+run_benchmark "/notes-api/v1/analytics/global" "Global Analytics" 10
+run_benchmark "/notes-api/v1/users/rankings?limit=10" "User Rankings" 10
 
 # Close JSON array
 sed -i '$ s/,$//' "$RESULTS_FILE"

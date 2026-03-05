@@ -33,7 +33,7 @@ function cacheHandler(
 }
 
 /**
- * @route   GET /api/v1/analytics/global
+ * @route   GET /notes-api/v1/analytics/global
  * @desc    Get global analytics
  * @access  Public
  */
@@ -48,7 +48,7 @@ router.get(
 );
 
 /**
- * @route   GET /api/v1/analytics/comparison
+ * @route   GET /notes-api/v1/analytics/comparison
  * @desc    Compare users or countries by their metrics
  * @access  Public
  */
@@ -63,7 +63,7 @@ router.get(
 );
 
 /**
- * @route   GET /api/v1/analytics/trends
+ * @route   GET /notes-api/v1/analytics/trends
  * @desc    Get temporal trends for users, countries, or global
  * @access  Public
  */

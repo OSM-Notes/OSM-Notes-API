@@ -41,9 +41,9 @@ BASE_URL=http://api.example.com k6 run tests/load/users.js
 ```
 
 **Endpoints probados**:
-- `GET /api/v1/users/:id` - Perfil de usuario
-- `GET /api/v1/search/users` - Búsqueda de usuarios
-- `GET /api/v1/users/rankings` - Rankings de usuarios
+- `GET /notes-api/v1/users/:id` - Perfil de usuario
+- `GET /notes-api/v1/search/users` - Búsqueda de usuarios
+- `GET /notes-api/v1/users/rankings` - Rankings de usuarios
 
 ### 2. notes.js
 Tests de carga para endpoints de notas.
@@ -54,9 +54,9 @@ k6 run --vus 30 --duration 3m tests/load/notes.js
 ```
 
 **Endpoints probados**:
-- `GET /api/v1/notes/:id` - Detalle de nota
-- `GET /api/v1/notes/:id/comments` - Comentarios de nota
-- `GET /api/v1/notes` - Búsqueda de notas
+- `GET /notes-api/v1/notes/:id` - Detalle de nota
+- `GET /notes-api/v1/notes/:id/comments` - Comentarios de nota
+- `GET /notes-api/v1/notes` - Búsqueda de notas
 
 ### 3. analytics.js
 Tests de carga para endpoints de analytics (queries más pesadas).
@@ -67,9 +67,9 @@ k6 run --vus 10 --duration 5m tests/load/analytics.js
 ```
 
 **Endpoints probados**:
-- `GET /api/v1/analytics/global` - Analytics globales
-- `GET /api/v1/analytics/trends` - Tendencias
-- `GET /api/v1/analytics/comparison` - Comparaciones
+- `GET /notes-api/v1/analytics/global` - Analytics globales
+- `GET /notes-api/v1/analytics/trends` - Tendencias
+- `GET /notes-api/v1/analytics/comparison` - Comparaciones
 
 **Nota**: Este test usa menos VUS porque las queries de analytics son más pesadas.
 

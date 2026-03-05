@@ -24,11 +24,11 @@ This document outlines the API versioning strategy for OSM Notes API.
 API versions are specified in the URL path:
 
 ```
-/api/v1/users/12345
-/api/v2/users/12345
+/notes-api/v1/users/12345
+/notes-api/v2/users/12345
 ```
 
-**Format**: `/api/v{major_version}/...`
+**Format**: `/notes-api/v{major_version}/...`
 
 ### Version Numbering
 
@@ -141,16 +141,16 @@ Migration guides include:
 
 ```bash
 # ✅ Good: Pin to specific version
-GET /api/v1/users/12345
+GET /notes-api/v1/users/12345
 
 # ⚠️ Avoid: Using latest without version
-GET /api/users/12345  # Not supported
+GET /notes-api/users/12345  # Not supported
 ```
 
 ### 2. Handle Deprecation Headers
 
 ```javascript
-const response = await fetch('/api/v1/users/12345');
+const response = await fetch('/notes-api/v1/users/12345');
 const deprecation = response.headers.get('Deprecation');
 const sunset = response.headers.get('Sunset');
 
@@ -167,7 +167,7 @@ If your application needs to support multiple versions:
 ```javascript
 // Support both v1 and v2
 const apiVersion = userPreferences.apiVersion || 'v1';
-const url = `/api/${apiVersion}/users/12345`;
+const url = `/notes-api/${apiVersion}/users/12345`;
 ```
 
 ### 4. Monitor Deprecation Notices
@@ -182,8 +182,8 @@ const url = `/api/${apiVersion}/users/12345`;
 
 ```typescript
 // Express router setup
-app.use('/api/v1', v1Router);
-app.use('/api/v2', v2Router);
+app.use('/notes-api/v1', v1Router);
+app.use('/notes-api/v2', v2Router);
 ```
 
 ### Version Detection
@@ -191,7 +191,7 @@ app.use('/api/v2', v2Router);
 ```typescript
 // Middleware to detect API version from URL
 function detectApiVersion(req: Request): string {
-  const match = req.path.match(/^\/api\/v(\d+)\//);
+  const match = req.path.match(/^\/notes-api\/v(\d+)\//);
   return match ? `v${match[1]}` : 'v1';
 }
 ```

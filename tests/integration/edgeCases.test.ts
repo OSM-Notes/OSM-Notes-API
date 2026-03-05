@@ -25,7 +25,7 @@ describe('Edge Cases and Boundary Conditions', () => {
   describe('Notes Endpoints - Edge Cases', () => {
     it('should handle very large note ID', async () => {
       const response = await request(app)
-        .get('/api/v1/notes/999999999999')
+        .get('/notes-api/v1/notes/999999999999')
         .set('User-Agent', validUserAgent);
 
       // Should either return 404 (not found), 200 (if exists), or 500 (if DB unavailable)
@@ -35,7 +35,7 @@ describe('Edge Cases and Boundary Conditions', () => {
     it('should handle note ID at maximum safe integer', async () => {
       const maxSafeInt = Number.MAX_SAFE_INTEGER;
       const response = await request(app)
-        .get(`/api/v1/notes/${maxSafeInt}`)
+        .get(`/notes-api/v1/notes/${maxSafeInt}`)
         .set('User-Agent', validUserAgent);
 
       expect([200, 400, 404, 500]).toContain(response.status);
@@ -43,7 +43,7 @@ describe('Edge Cases and Boundary Conditions', () => {
 
     it('should handle floating point note ID', async () => {
       const response = await request(app)
-        .get('/api/v1/notes/123.45')
+        .get('/notes-api/v1/notes/123.45')
         .set('User-Agent', validUserAgent);
 
       expect([400, 500]).toContain(response.status);
@@ -51,7 +51,7 @@ describe('Edge Cases and Boundary Conditions', () => {
 
     it('should handle note ID with leading zeros', async () => {
       const response = await request(app)
-        .get('/api/v1/notes/00012345')
+        .get('/notes-api/v1/notes/00012345')
         .set('User-Agent', validUserAgent);
 
       // Should parse as 12345
@@ -59,7 +59,9 @@ describe('Edge Cases and Boundary Conditions', () => {
     });
 
     it('should handle empty search query', async () => {
-      const response = await request(app).get('/api/v1/notes').set('User-Agent', validUserAgent);
+      const response = await request(app)
+        .get('/notes-api/v1/notes')
+        .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
       if (response.status === 200) {
@@ -69,7 +71,7 @@ describe('Edge Cases and Boundary Conditions', () => {
 
     it('should handle search with all filters empty', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?status=&country=&user=')
+        .get('/notes-api/v1/notes?status=&country=&user=')
         .set('User-Agent', validUserAgent);
 
       // May return 200 (valid), 400 (invalid empty params), or 500 (DB error)
@@ -79,14 +81,14 @@ describe('Edge Cases and Boundary Conditions', () => {
     it('should handle pagination at boundary values', async () => {
       // Test page 1 with limit 1
       const response1 = await request(app)
-        .get('/api/v1/notes?page=1&limit=1')
+        .get('/notes-api/v1/notes?page=1&limit=1')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response1.status);
 
       // Test maximum limit
       const response2 = await request(app)
-        .get('/api/v1/notes?page=1&limit=100')
+        .get('/notes-api/v1/notes?page=1&limit=100')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response2.status);
@@ -95,21 +97,21 @@ describe('Edge Cases and Boundary Conditions', () => {
     it('should handle invalid pagination parameters', async () => {
       // Test page 0
       const response1 = await request(app)
-        .get('/api/v1/notes?page=0&limit=10')
+        .get('/notes-api/v1/notes?page=0&limit=10')
         .set('User-Agent', validUserAgent);
 
       expect(response1.status).toBe(400);
 
       // Test negative page
       const response2 = await request(app)
-        .get('/api/v1/notes?page=-1&limit=10')
+        .get('/notes-api/v1/notes?page=-1&limit=10')
         .set('User-Agent', validUserAgent);
 
       expect(response2.status).toBe(400);
 
       // Test limit exceeding maximum
       const response3 = await request(app)
-        .get('/api/v1/notes?page=1&limit=1000')
+        .get('/notes-api/v1/notes?page=1&limit=1000')
         .set('User-Agent', validUserAgent);
 
       expect(response3.status).toBe(400);
@@ -117,7 +119,7 @@ describe('Edge Cases and Boundary Conditions', () => {
 
     it('should handle special characters in query parameters', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?status=open&country=42&user=123')
+        .get('/notes-api/v1/notes?status=open&country=42&user=123')
         .set('User-Agent', validUserAgent);
 
       expect([200, 400, 500]).toContain(response.status);
@@ -126,7 +128,7 @@ describe('Edge Cases and Boundary Conditions', () => {
     it('should handle very long User-Agent string', async () => {
       const longUserAgent = `TestApp/1.0 (${'a'.repeat(500)}@example.com)`;
       const response = await request(app)
-        .get('/api/v1/notes?limit=1')
+        .get('/notes-api/v1/notes?limit=1')
         .set('User-Agent', longUserAgent);
 
       // Should either accept or reject based on validation
@@ -137,7 +139,7 @@ describe('Edge Cases and Boundary Conditions', () => {
   describe('Users Endpoints - Edge Cases', () => {
     it('should handle very large user ID', async () => {
       const response = await request(app)
-        .get('/api/v1/users/999999999999')
+        .get('/notes-api/v1/users/999999999999')
         .set('User-Agent', validUserAgent);
 
       expect([200, 404, 500]).toContain(response.status);
@@ -145,7 +147,7 @@ describe('Edge Cases and Boundary Conditions', () => {
 
     it('should handle user ID with special characters', async () => {
       const response = await request(app)
-        .get('/api/v1/users/123%20456')
+        .get('/notes-api/v1/users/123%20456')
         .set('User-Agent', validUserAgent);
 
       expect([400, 500]).toContain(response.status);
@@ -153,7 +155,7 @@ describe('Edge Cases and Boundary Conditions', () => {
 
     it('should handle user ID as string with numbers', async () => {
       const response = await request(app)
-        .get('/api/v1/users/123abc')
+        .get('/notes-api/v1/users/123abc')
         .set('User-Agent', validUserAgent);
 
       expect([400, 500]).toContain(response.status);
@@ -163,7 +165,7 @@ describe('Edge Cases and Boundary Conditions', () => {
   describe('Countries Endpoints - Edge Cases', () => {
     it('should handle very large country ID', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/999999999999')
+        .get('/notes-api/v1/countries/999999999999')
         .set('User-Agent', validUserAgent);
 
       expect([200, 404, 500]).toContain(response.status);
@@ -171,7 +173,7 @@ describe('Edge Cases and Boundary Conditions', () => {
 
     it('should handle country ID with leading zeros', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/00042')
+        .get('/notes-api/v1/countries/00042')
         .set('User-Agent', validUserAgent);
 
       // Should parse as 42
@@ -189,7 +191,7 @@ describe('Edge Cases and Boundary Conditions', () => {
 
       for (const attempt of sqlInjectionAttempts) {
         const response = await request(app)
-          .get(`/api/v1/notes/${encodeURIComponent(attempt)}`)
+          .get(`/notes-api/v1/notes/${encodeURIComponent(attempt)}`)
           .set('User-Agent', validUserAgent);
 
         // Should reject with 400, not execute SQL (or 500 if DB unavailable)
@@ -206,7 +208,7 @@ describe('Edge Cases and Boundary Conditions', () => {
 
       for (const attempt of xssAttempts) {
         const response = await request(app)
-          .get(`/api/v1/notes?status=${encodeURIComponent(attempt)}`)
+          .get(`/notes-api/v1/notes?status=${encodeURIComponent(attempt)}`)
           .set('User-Agent', validUserAgent);
 
         // Should reject with 400
@@ -219,7 +221,7 @@ describe('Edge Cases and Boundary Conditions', () => {
 
       for (const attempt of pathTraversalAttempts) {
         const response = await request(app)
-          .get(`/api/v1/notes/${encodeURIComponent(attempt)}123`)
+          .get(`/notes-api/v1/notes/${encodeURIComponent(attempt)}123`)
           .set('User-Agent', validUserAgent);
 
         // Should reject with 400
@@ -230,7 +232,7 @@ describe('Edge Cases and Boundary Conditions', () => {
     it('should handle extremely long URLs', async () => {
       const longQuery = '?status=' + 'a'.repeat(10000);
       const response = await request(app)
-        .get(`/api/v1/notes${longQuery}`)
+        .get(`/notes-api/v1/notes${longQuery}`)
         .set('User-Agent', validUserAgent);
 
       // Should either reject or handle gracefully
@@ -242,7 +244,9 @@ describe('Edge Cases and Boundary Conditions', () => {
     it('should handle multiple concurrent requests', async () => {
       const requests = Array(10)
         .fill(null)
-        .map(() => request(app).get('/api/v1/notes?limit=1').set('User-Agent', validUserAgent));
+        .map(() =>
+          request(app).get('/notes-api/v1/notes?limit=1').set('User-Agent', validUserAgent)
+        );
 
       const responses = await Promise.all(requests);
 
@@ -259,7 +263,7 @@ describe('Edge Cases and Boundary Conditions', () => {
   describe('Content-Type Validation', () => {
     it('should handle requests with incorrect Content-Type', async () => {
       const response = await request(app)
-        .get('/api/v1/notes')
+        .get('/notes-api/v1/notes')
         .set('User-Agent', validUserAgent)
         .set('Content-Type', 'application/xml');
 
@@ -273,7 +277,7 @@ describe('Edge Cases and Boundary Conditions', () => {
       const unicodeUserAgent = 'TestApp/1.0 (test@example.com) 测试';
       try {
         const response = await request(app)
-          .get('/api/v1/notes?limit=1')
+          .get('/notes-api/v1/notes?limit=1')
           .set('User-Agent', unicodeUserAgent);
 
         // Should either accept or reject based on validation

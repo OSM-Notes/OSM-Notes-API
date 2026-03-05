@@ -22,9 +22,9 @@ describe('Hashtags API Integration Tests', () => {
     app = createApp();
   });
 
-  describe('GET /api/v1/hashtags', () => {
+  describe('GET /notes-api/v1/hashtags', () => {
     it('should return 400 if User-Agent header is missing', async () => {
-      const response = await request(app).get('/api/v1/hashtags');
+      const response = await request(app).get('/notes-api/v1/hashtags');
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
@@ -32,7 +32,7 @@ describe('Hashtags API Integration Tests', () => {
 
     it('should return list of hashtags with pagination', async () => {
       const response = await request(app)
-        .get('/api/v1/hashtags')
+        .get('/notes-api/v1/hashtags')
         .set('User-Agent', VALID_USER_AGENT);
 
       // Should return 200 (if dwh schema exists) or 500 (if dwh schema doesn't exist in CI)
@@ -51,7 +51,7 @@ describe('Hashtags API Integration Tests', () => {
 
     it('should support pagination parameters', async () => {
       const response = await request(app)
-        .get('/api/v1/hashtags?page=1&limit=10')
+        .get('/notes-api/v1/hashtags?page=1&limit=10')
         .set('User-Agent', VALID_USER_AGENT);
 
       // Should return 200 (if dwh schema exists) or 500 (if dwh schema doesn't exist in CI)
@@ -67,7 +67,7 @@ describe('Hashtags API Integration Tests', () => {
 
     it('should support order parameter (asc)', async () => {
       const response = await request(app)
-        .get('/api/v1/hashtags?order=asc')
+        .get('/notes-api/v1/hashtags?order=asc')
         .set('User-Agent', VALID_USER_AGENT);
 
       // Should return 200 (if dwh schema exists) or 500 (if dwh schema doesn't exist in CI)
@@ -80,7 +80,7 @@ describe('Hashtags API Integration Tests', () => {
 
     it('should support order parameter (desc)', async () => {
       const response = await request(app)
-        .get('/api/v1/hashtags?order=desc')
+        .get('/notes-api/v1/hashtags?order=desc')
         .set('User-Agent', VALID_USER_AGENT);
 
       // Should return 200 (if dwh schema exists) or 500 (if dwh schema doesn't exist in CI)
@@ -93,7 +93,7 @@ describe('Hashtags API Integration Tests', () => {
 
     it('should return 400 for invalid order parameter', async () => {
       const response = await request(app)
-        .get('/api/v1/hashtags?order=invalid')
+        .get('/notes-api/v1/hashtags?order=invalid')
         .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(400);
@@ -102,7 +102,7 @@ describe('Hashtags API Integration Tests', () => {
 
     it('should return hashtags with count property', async () => {
       const response = await request(app)
-        .get('/api/v1/hashtags')
+        .get('/notes-api/v1/hashtags')
         .set('User-Agent', VALID_USER_AGENT);
 
       // Should return 200 (if dwh schema exists) or 500 (if dwh schema doesn't exist in CI)
@@ -120,9 +120,9 @@ describe('Hashtags API Integration Tests', () => {
     });
   });
 
-  describe('GET /api/v1/hashtags/:hashtag', () => {
+  describe('GET /notes-api/v1/hashtags/:hashtag', () => {
     it('should return 400 if User-Agent header is missing', async () => {
-      const response = await request(app).get('/api/v1/hashtags/fixme');
+      const response = await request(app).get('/notes-api/v1/hashtags/fixme');
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
@@ -130,7 +130,7 @@ describe('Hashtags API Integration Tests', () => {
 
     it('should return hashtag details with users and countries', async () => {
       const response = await request(app)
-        .get('/api/v1/hashtags/fixme')
+        .get('/notes-api/v1/hashtags/fixme')
         .set('User-Agent', VALID_USER_AGENT);
 
       // Should return 200 (if dwh schema exists) or 500 (if dwh schema doesn't exist in CI)
@@ -157,7 +157,7 @@ describe('Hashtags API Integration Tests', () => {
 
     it('should handle hashtag with # prefix', async () => {
       const response = await request(app)
-        .get('/api/v1/hashtags/%23fixme')
+        .get('/notes-api/v1/hashtags/%23fixme')
         .set('User-Agent', VALID_USER_AGENT);
 
       // Should return 200 (if dwh schema exists) or 500 (if dwh schema doesn't exist in CI)
@@ -170,7 +170,7 @@ describe('Hashtags API Integration Tests', () => {
 
     it('should return empty arrays when hashtag not found', async () => {
       const response = await request(app)
-        .get('/api/v1/hashtags/nonexistenthashtag12345')
+        .get('/notes-api/v1/hashtags/nonexistenthashtag12345')
         .set('User-Agent', VALID_USER_AGENT);
 
       // Should return 200 (if dwh schema exists) or 500 (if dwh schema doesn't exist in CI)
@@ -193,7 +193,7 @@ describe('Hashtags API Integration Tests', () => {
 
     it('should return 400 for empty hashtag', async () => {
       const response = await request(app)
-        .get('/api/v1/hashtags/')
+        .get('/notes-api/v1/hashtags/')
         .set('User-Agent', VALID_USER_AGENT);
 
       // Express may return 404 (route not found), 400 (bad request), or 500 (if dwh schema doesn't exist)
@@ -202,7 +202,7 @@ describe('Hashtags API Integration Tests', () => {
 
     it('should return user summaries with correct structure', async () => {
       const response = await request(app)
-        .get('/api/v1/hashtags/fixme')
+        .get('/notes-api/v1/hashtags/fixme')
         .set('User-Agent', VALID_USER_AGENT);
 
       // Should return 200 (if dwh schema exists) or 500 (if dwh schema doesn't exist in CI)
@@ -229,7 +229,7 @@ describe('Hashtags API Integration Tests', () => {
 
     it('should return country summaries with correct structure', async () => {
       const response = await request(app)
-        .get('/api/v1/hashtags/fixme')
+        .get('/notes-api/v1/hashtags/fixme')
         .set('User-Agent', VALID_USER_AGENT);
 
       // Should return 200 (if dwh schema exists) or 500 (if dwh schema doesn't exist in CI)
@@ -256,7 +256,7 @@ describe('Hashtags API Integration Tests', () => {
 
     it('should limit users and countries to 50 each', async () => {
       const response = await request(app)
-        .get('/api/v1/hashtags/fixme')
+        .get('/notes-api/v1/hashtags/fixme')
         .set('User-Agent', VALID_USER_AGENT);
 
       // Should return 200 (if dwh schema exists) or 500 (if dwh schema doesn't exist in CI)

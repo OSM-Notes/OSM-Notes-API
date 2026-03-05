@@ -22,7 +22,7 @@ function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => P
 }
 
 /**
- * GET /api/v1/hashtags
+ * GET /notes-api/v1/hashtags
  * Get list of hashtags with usage counts
  */
 router.get(
@@ -35,7 +35,7 @@ router.get(
 );
 
 /**
- * GET /api/v1/hashtags/:hashtag
+ * GET /notes-api/v1/hashtags/:hashtag
  * Get details for a specific hashtag
  */
 router.get(

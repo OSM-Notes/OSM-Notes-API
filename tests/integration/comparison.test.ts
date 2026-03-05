@@ -22,9 +22,11 @@ describe('Comparison API Integration Tests', () => {
     app = createApp();
   });
 
-  describe('GET /api/v1/analytics/comparison', () => {
+  describe('GET /notes-api/v1/analytics/comparison', () => {
     it('should return 400 if User-Agent header is missing', async () => {
-      const response = await request(app).get('/api/v1/analytics/comparison?type=users&ids=12345');
+      const response = await request(app).get(
+        '/notes-api/v1/analytics/comparison?type=users&ids=12345'
+      );
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
@@ -32,7 +34,7 @@ describe('Comparison API Integration Tests', () => {
 
     it('should return 400 if type parameter is missing', async () => {
       const response = await request(app)
-        .get('/api/v1/analytics/comparison?ids=12345')
+        .get('/notes-api/v1/analytics/comparison?ids=12345')
         .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(400);
@@ -43,7 +45,7 @@ describe('Comparison API Integration Tests', () => {
 
     it('should return 400 if ids parameter is missing', async () => {
       const response = await request(app)
-        .get('/api/v1/analytics/comparison?type=users')
+        .get('/notes-api/v1/analytics/comparison?type=users')
         .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(400);
@@ -54,7 +56,7 @@ describe('Comparison API Integration Tests', () => {
 
     it('should return 400 for invalid type parameter', async () => {
       const response = await request(app)
-        .get('/api/v1/analytics/comparison?type=invalid&ids=12345')
+        .get('/notes-api/v1/analytics/comparison?type=invalid&ids=12345')
         .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(400);
@@ -63,7 +65,7 @@ describe('Comparison API Integration Tests', () => {
 
     it('should return 400 for empty ids parameter', async () => {
       const response = await request(app)
-        .get('/api/v1/analytics/comparison?type=users&ids=')
+        .get('/notes-api/v1/analytics/comparison?type=users&ids=')
         .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(400);
@@ -72,7 +74,7 @@ describe('Comparison API Integration Tests', () => {
 
     it('should return 400 for invalid ID format', async () => {
       const response = await request(app)
-        .get('/api/v1/analytics/comparison?type=users&ids=abc,123')
+        .get('/notes-api/v1/analytics/comparison?type=users&ids=abc,123')
         .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(400);
@@ -82,7 +84,7 @@ describe('Comparison API Integration Tests', () => {
     it('should return 400 for more than 10 IDs', async () => {
       const ids = Array.from({ length: 11 }, (_, i) => i + 1).join(',');
       const response = await request(app)
-        .get(`/api/v1/analytics/comparison?type=users&ids=${ids}`)
+        .get(`/notes-api/v1/analytics/comparison?type=users&ids=${ids}`)
         .set('User-Agent', VALID_USER_AGENT);
 
       expect(response.status).toBe(400);
@@ -93,7 +95,7 @@ describe('Comparison API Integration Tests', () => {
 
     it('should compare users successfully', async () => {
       const response = await request(app)
-        .get('/api/v1/analytics/comparison?type=users&ids=12345,67890')
+        .get('/notes-api/v1/analytics/comparison?type=users&ids=12345,67890')
         .set('User-Agent', VALID_USER_AGENT);
 
       // Should return 200 (if users exist) or 500 (if DB unavailable)
@@ -118,7 +120,7 @@ describe('Comparison API Integration Tests', () => {
 
     it('should compare countries successfully', async () => {
       const response = await request(app)
-        .get('/api/v1/analytics/comparison?type=countries&ids=42,43')
+        .get('/notes-api/v1/analytics/comparison?type=countries&ids=42,43')
         .set('User-Agent', VALID_USER_AGENT);
 
       // Should return 200 (if countries exist) or 500 (if DB unavailable)
@@ -143,7 +145,7 @@ describe('Comparison API Integration Tests', () => {
 
     it('should handle single user comparison', async () => {
       const response = await request(app)
-        .get('/api/v1/analytics/comparison?type=users&ids=12345')
+        .get('/notes-api/v1/analytics/comparison?type=users&ids=12345')
         .set('User-Agent', VALID_USER_AGENT);
 
       expect([200, 500]).toContain(response.status);
@@ -159,7 +161,7 @@ describe('Comparison API Integration Tests', () => {
 
     it('should handle single country comparison', async () => {
       const response = await request(app)
-        .get('/api/v1/analytics/comparison?type=countries&ids=42')
+        .get('/notes-api/v1/analytics/comparison?type=countries&ids=42')
         .set('User-Agent', VALID_USER_AGENT);
 
       expect([200, 500]).toContain(response.status);
@@ -173,7 +175,7 @@ describe('Comparison API Integration Tests', () => {
 
     it('should handle whitespace in ids parameter', async () => {
       const response = await request(app)
-        .get('/api/v1/analytics/comparison?type=users&ids=12345, 67890 , 11111')
+        .get('/notes-api/v1/analytics/comparison?type=users&ids=12345, 67890 , 11111')
         .set('User-Agent', VALID_USER_AGENT);
 
       expect([200, 400, 500]).toContain(response.status);
@@ -181,7 +183,7 @@ describe('Comparison API Integration Tests', () => {
 
     it('should return empty entities array when IDs not found', async () => {
       const response = await request(app)
-        .get('/api/v1/analytics/comparison?type=users&ids=999999999')
+        .get('/notes-api/v1/analytics/comparison?type=users&ids=999999999')
         .set('User-Agent', VALID_USER_AGENT);
 
       expect([200, 500]).toContain(response.status);
@@ -195,7 +197,7 @@ describe('Comparison API Integration Tests', () => {
 
     it('should return user comparison with correct structure', async () => {
       const response = await request(app)
-        .get('/api/v1/analytics/comparison?type=users&ids=12345')
+        .get('/notes-api/v1/analytics/comparison?type=users&ids=12345')
         .set('User-Agent', VALID_USER_AGENT);
 
       const responseBody = response.body as { entities: unknown[] };
@@ -228,7 +230,7 @@ describe('Comparison API Integration Tests', () => {
 
     it('should return country comparison with correct structure', async () => {
       const response = await request(app)
-        .get('/api/v1/analytics/comparison?type=countries&ids=42')
+        .get('/notes-api/v1/analytics/comparison?type=countries&ids=42')
         .set('User-Agent', VALID_USER_AGENT);
 
       const body = response.body as { entities: unknown[] };

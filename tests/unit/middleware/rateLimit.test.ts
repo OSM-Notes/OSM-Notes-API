@@ -35,7 +35,7 @@ describe('rateLimitMiddleware', () => {
     mockRequest = {
       ip: '127.0.0.1',
       get: jest.fn(),
-      path: '/api/v1/notes',
+      path: '/notes-api/v1/notes',
     };
     mockResponse = {
       status: jest.fn().mockReturnThis(),
@@ -281,7 +281,7 @@ describe('rateLimitMiddleware', () => {
     it('should not skip rate limiting for other endpoints', async () => {
       const testRequest = {
         ...mockRequest,
-        path: '/api/v1/notes',
+        path: '/notes-api/v1/notes',
       } as Partial<Request>;
       (testRequest.get as jest.Mock).mockReturnValue('TestApp/1.0 (test@example.com)');
 

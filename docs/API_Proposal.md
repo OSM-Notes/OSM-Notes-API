@@ -238,7 +238,7 @@ flowchart TD
 
 1. **RESTful**: Sigue estándares REST
 2. **JSON**: Todas las respuestas en JSON
-3. **Versionado**: `/api/v1/` para compatibilidad futura
+3. **Versionado**: `/notes-api/v1/` para compatibilidad futura
 4. **Paginación**: Todas las listas paginadas
 5. **Filtros**: Parámetros de query estándar
 6. **Documentación**: OpenAPI/Swagger
@@ -249,7 +249,7 @@ flowchart TD
 
 ```mermaid
 graph TD
-    ROOT[/api/v1/]
+    ROOT[/notes-api/v1/]
     
     subgraph Users["/users"]
         U1[GET /users<br/>Lista de usuarios paginada]
@@ -390,7 +390,7 @@ graph TD
 #### 1. Perfil de Usuario
 
 ```http
-GET /api/v1/users/12345
+GET /notes-api/v1/users/12345
 ```
 
 **Respuesta**:
@@ -442,7 +442,7 @@ GET /api/v1/users/12345
 #### 2. Perfil de País
 
 ```http
-GET /api/v1/countries/42
+GET /notes-api/v1/countries/42
 ```
 
 **Respuesta**:
@@ -481,7 +481,7 @@ GET /api/v1/countries/42
 #### 3. Búsqueda Avanzada de Usuarios
 
 ```http
-GET /api/v1/search/users?min_notes=10&country=42&hashtag=#MapColombia&sort=resolution_rate&order=desc&page=1&limit=20
+GET /notes-api/v1/search/users?min_notes=10&country=42&hashtag=#MapColombia&sort=resolution_rate&order=desc&page=1&limit=20
 ```
 
 **Parámetros**:
@@ -522,7 +522,7 @@ GET /api/v1/search/users?min_notes=10&country=42&hashtag=#MapColombia&sort=resol
 #### 4. Rankings
 
 ```http
-GET /api/v1/users/rankings?metric=history_whole_closed&country=42&limit=10
+GET /notes-api/v1/users/rankings?metric=history_whole_closed&country=42&limit=10
 ```
 
 **Respuesta**:
@@ -545,7 +545,7 @@ GET /api/v1/users/rankings?metric=history_whole_closed&country=42&limit=10
 #### 5. Estadísticas Globales
 
 ```http
-GET /api/v1/analytics/global
+GET /notes-api/v1/analytics/global
 ```
 
 **Respuesta**:
@@ -569,7 +569,7 @@ GET /api/v1/analytics/global
 #### 6. Búsqueda de Notas
 
 ```http
-GET /api/v1/search/notes?country=42&status=open&hashtag=#MapColombia&date_from=2024-01-01&date_to=2024-12-31&page=1&limit=50
+GET /notes-api/v1/search/notes?country=42&status=open&hashtag=#MapColombia&date_from=2024-01-01&date_to=2024-12-31&page=1&limit=50
 ```
 
 **Parámetros**:
@@ -613,26 +613,26 @@ GET /api/v1/search/notes?country=42&status=open&hashtag=#MapColombia&date_from=2
 #### 1. Filtros Múltiples
 
 ```http
-GET /api/v1/users?min_notes=10&max_notes=1000&country=42,43&hashtag=#MapColombia,#MissingMaps&sort=resolution_rate&order=desc
+GET /notes-api/v1/users?min_notes=10&max_notes=1000&country=42,43&hashtag=#MapColombia,#MissingMaps&sort=resolution_rate&order=desc
 ```
 
 #### 2. Campos Selectivos
 
 ```http
-GET /api/v1/users/12345?fields=username,history_whole_open,resolution_rate
+GET /notes-api/v1/users/12345?fields=username,history_whole_open,resolution_rate
 ```
 
 #### 3. Formatos Alternativos
 
 ```http
-GET /api/v1/users/12345.csv
-GET /api/v1/users/12345.xml
+GET /notes-api/v1/users/12345.csv
+GET /notes-api/v1/users/12345.xml
 ```
 
 #### 4. Agregaciones
 
 ```http
-GET /api/v1/analytics/aggregate?group_by=country&metric=avg_days_to_resolution&filter=resolution_rate>50
+GET /notes-api/v1/analytics/aggregate?group_by=country&metric=avg_days_to_resolution&filter=resolution_rate>50
 ```
 
 ---
@@ -646,8 +646,8 @@ GET /api/v1/analytics/aggregate?group_by=country&metric=avg_days_to_resolution&f
 **Con API**:
 ```javascript
 // Consulta en tiempo real
-const stats = await fetch('/api/v1/analytics/global').then(r => r.json());
-const countries = await fetch('/api/v1/countries?sort=notes_health_score&order=desc&limit=10').then(r => r.json());
+const stats = await fetch('/notes-api/v1/analytics/global').then(r => r.json());
+const countries = await fetch('/notes-api/v1/countries?sort=notes_health_score&order=desc&limit=10').then(r => r.json());
 ```
 
 **Beneficio**: Datos siempre actualizados sin regenerar JSON.
@@ -659,8 +659,8 @@ const countries = await fetch('/api/v1/countries?sort=notes_health_score&order=d
 **Con API**:
 ```javascript
 // App móvil consulta API
-const userProfile = await fetch('/api/v1/users/12345').then(r => r.json());
-const userNotes = await fetch('/api/v1/users/12345/notes?status=open&limit=20').then(r => r.json());
+const userProfile = await fetch('/notes-api/v1/users/12345').then(r => r.json());
+const userNotes = await fetch('/notes-api/v1/users/12345/notes?status=open&limit=20').then(r => r.json());
 ```
 
 **Beneficio**: App móvil puede mostrar perfiles y notas en tiempo real.
@@ -697,10 +697,10 @@ def get_contributions(username):
 import requests
 
 # Obtener todos los países con alta resolución
-countries = requests.get('/api/v1/countries?min_resolution_rate=80&sort=avg_days_to_resolution').json()
+countries = requests.get('/notes-api/v1/countries?min_resolution_rate=80&sort=avg_days_to_resolution').json()
 
 # Comparar países
-comparison = requests.get('/api/v1/analytics/comparison?countries=42,43,44&metrics=resolution_rate,avg_days_to_resolution').json()
+comparison = requests.get('/notes-api/v1/analytics/comparison?countries=42,43,44&metrics=resolution_rate,avg_days_to_resolution').json()
 ```
 
 **Beneficio**: Acceso estructurado sin necesidad de SQL.
@@ -712,9 +712,9 @@ comparison = requests.get('/api/v1/analytics/comparison?countries=42,43,44&metri
 **Con API**:
 ```javascript
 // Organizador de campaña rastrea progreso
-const campaign = await fetch('/api/v1/hashtags/#MapColombia2025').then(r => r.json());
-const participants = await fetch('/api/v1/hashtags/#MapColombia2025/users').then(r => r.json());
-const notes = await fetch('/api/v1/hashtags/#MapColombia2025/notes?status=open').then(r => r.json());
+const campaign = await fetch('/notes-api/v1/hashtags/#MapColombia2025').then(r => r.json());
+const participants = await fetch('/notes-api/v1/hashtags/#MapColombia2025/users').then(r => r.json());
+const notes = await fetch('/notes-api/v1/hashtags/#MapColombia2025/notes?status=open').then(r => r.json());
 ```
 
 **Beneficio**: Rastreo fácil de campañas y participación.
@@ -1351,7 +1351,7 @@ import request from 'supertest';
 import app from '../../src/app';
 import { setupTestDB, teardownTestDB } from '../helpers/db';
 
-describe('GET /api/v1/users/:user_id', () => {
+describe('GET /notes-api/v1/users/:user_id', () => {
   beforeAll(async () => {
     await setupTestDB();
   });
@@ -1362,7 +1362,7 @@ describe('GET /api/v1/users/:user_id', () => {
 
   test('returns user profile with valid user_id', async () => {
     const response = await request(app)
-      .get('/api/v1/users/12345')
+      .get('/notes-api/v1/users/12345')
       .set('User-Agent', 'MyApp/1.0')
       .expect(200);
 
@@ -1373,14 +1373,14 @@ describe('GET /api/v1/users/:user_id', () => {
 
   test('returns 404 for non-existent user', async () => {
     await request(app)
-      .get('/api/v1/users/99999')
+      .get('/notes-api/v1/users/99999')
       .set('User-Agent', 'MyApp/1.0')
       .expect(404);
   });
 
   test('validates User-Agent header', async () => {
     await request(app)
-      .get('/api/v1/users/12345')
+      .get('/notes-api/v1/users/12345')
       .expect(400)
       .expect(res => {
         expect(res.body.error).toContain('User-Agent');
@@ -1403,7 +1403,7 @@ import { validateResponse } from 'openapi-validator-middleware';
 
 test('response matches OpenAPI schema', async () => {
   const response = await request(app)
-    .get('/api/v1/users/12345')
+    .get('/notes-api/v1/users/12345')
     .set('User-Agent', 'MyApp/1.0');
 
   const errors = validateResponse(response, '/users/{user_id}', 'get', 200);
@@ -2031,7 +2031,7 @@ if (process.env.NODE_ENV !== 'production') {
   "timestamp": "2025-12-14T10:30:00Z",
   "level": "info",
   "method": "GET",
-  "path": "/api/v1/users/12345",
+  "path": "/notes-api/v1/users/12345",
   "statusCode": 200,
   "responseTime": 45,
   "ip": "192.168.1.1",
@@ -2345,11 +2345,11 @@ router.get('/health', async (req, res) => {
 **Objetivo**: Endpoints básicos funcionales con documentación y pruebas
 
 **Endpoints**:
-- ✅ `GET /api/v1/users/{user_id}` - Perfil de usuario
-- ✅ `GET /api/v1/countries/{country_id}` - Perfil de país
-- ✅ `GET /api/v1/analytics/global` - Estadísticas globales
-- ✅ `GET /api/v1/users` - Lista de usuarios (paginada)
-- ✅ `GET /api/v1/countries` - Lista de países (paginada)
+- ✅ `GET /notes-api/v1/users/{user_id}` - Perfil de usuario
+- ✅ `GET /notes-api/v1/countries/{country_id}` - Perfil de país
+- ✅ `GET /notes-api/v1/analytics/global` - Estadísticas globales
+- ✅ `GET /notes-api/v1/users` - Lista de usuarios (paginada)
+- ✅ `GET /notes-api/v1/countries` - Lista de países (paginada)
 
 **Features**:
 - Validación básica
@@ -2380,10 +2380,10 @@ router.get('/health', async (req, res) => {
 - ✅ **Pruebas de carga básicas**
 
 **Endpoints Adicionales**:
-- `GET /api/v1/search/users` - Búsqueda de usuarios
-- `GET /api/v1/search/countries` - Búsqueda de países
-- `GET /api/v1/users/rankings` - Rankings
-- `GET /api/v1/countries/rankings` - Rankings de países
+- `GET /notes-api/v1/search/users` - Búsqueda de usuarios
+- `GET /notes-api/v1/search/countries` - Búsqueda de países
+- `GET /notes-api/v1/users/rankings` - Rankings
+- `GET /notes-api/v1/countries/rankings` - Rankings de países
 
 **Monitoreo**:
 - Setup de Prometheus
@@ -2403,12 +2403,12 @@ router.get('/health', async (req, res) => {
 - ✅ **Alertas configuradas**
 
 **Endpoints Adicionales**:
-- `GET /api/v1/notes` - Búsqueda de notas
-- `GET /api/v1/notes/{note_id}` - Detalle de nota
-- `GET /api/v1/hashtags` - Lista de hashtags
-- `GET /api/v1/hashtags/{hashtag}` - Estadísticas de hashtag
-- `GET /api/v1/analytics/comparison` - Comparaciones
-- `GET /api/v1/analytics/trends` - Tendencias
+- `GET /notes-api/v1/notes` - Búsqueda de notas
+- `GET /notes-api/v1/notes/{note_id}` - Detalle de nota
+- `GET /notes-api/v1/hashtags` - Lista de hashtags
+- `GET /notes-api/v1/hashtags/{hashtag}` - Estadísticas de hashtag
+- `GET /notes-api/v1/analytics/comparison` - Comparaciones
+- `GET /notes-api/v1/analytics/trends` - Tendencias
 
 **Monitoreo Avanzado**:
 - Dashboards completos (API, DB, Negocio, Seguridad)
@@ -2474,7 +2474,7 @@ Total: 12 semanas (~3 meses)
 **Riesgo**: Cambios en datamarts pueden romper API.
 
 **Mitigación**:
-- Versionado de API (`/api/v1/`, `/api/v2/`)
+- Versionado de API (`/notes-api/v1/`, `/api/v2/`)
 - Tests de integración
 - Documentación de cambios
 - Deprecation warnings
@@ -3304,10 +3304,10 @@ export function validate(schema: Joi.Schema) {
 import request from 'supertest';
 import app from '../../src/index';
 
-describe('GET /api/v1/users/:user_id', () => {
+describe('GET /notes-api/v1/users/:user_id', () => {
   test('returns user profile with valid user_id', async () => {
     const response = await request(app)
-      .get('/api/v1/users/12345')
+      .get('/notes-api/v1/users/12345')
       .set('User-Agent', 'TestApp/1.0 (test@example.com)')
       .expect(200);
     
@@ -3318,7 +3318,7 @@ describe('GET /api/v1/users/:user_id', () => {
   
   test('returns 400 without User-Agent', async () => {
     await request(app)
-      .get('/api/v1/users/12345')
+      .get('/notes-api/v1/users/12345')
       .expect(400)
       .expect(res => {
         expect(res.body.error).toContain('User-Agent');
@@ -3327,7 +3327,7 @@ describe('GET /api/v1/users/:user_id', () => {
   
   test('returns 404 for non-existent user', async () => {
     await request(app)
-      .get('/api/v1/users/999999')
+      .get('/notes-api/v1/users/999999')
       .set('User-Agent', 'TestApp/1.0 (test@example.com)')
       .expect(404);
   });
@@ -3357,7 +3357,7 @@ npm test
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" http://localhost:3000/health
 
 # 7. Probar endpoint de usuario
-curl -H "User-Agent: TestApp/1.0 (test@example.com)" http://localhost:3000/api/v1/users/12345
+curl -H "User-Agent: TestApp/1.0 (test@example.com)" http://localhost:3000/notes-api/v1/users/12345
 ```
 
 ### Checklist de Implementación
@@ -3452,7 +3452,7 @@ info:
   title: OSM Notes Analytics API
   version: 1.0.0
 paths:
-  /api/v1/users/{user_id}:
+  /notes-api/v1/users/{user_id}:
     get:
       summary: Get user profile
       parameters:

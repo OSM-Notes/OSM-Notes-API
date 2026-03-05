@@ -31,7 +31,7 @@ function cacheHandler(
 }
 
 /**
- * @route   GET /api/v1/countries/rankings
+ * @route   GET /notes-api/v1/countries/rankings
  * @desc    Get country rankings by metric
  * @access  Public
  */
@@ -43,7 +43,7 @@ router.get(
 );
 
 /**
- * @route   GET /api/v1/countries/:country_id
+ * @route   GET /notes-api/v1/countries/:country_id
  * @desc    Get country profile by ID
  * @access  Public
  */

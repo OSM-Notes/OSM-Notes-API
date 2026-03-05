@@ -22,12 +22,12 @@ describe('Users Endpoints', () => {
     app = createApp();
   });
 
-  describe('GET /api/v1/users/:user_id', () => {
+  describe('GET /notes-api/v1/users/:user_id', () => {
     it('should return 200 status for valid user ID', async () => {
       // Note: This test requires a real database with test data
       // For now, we'll test the endpoint structure
       const response = await request(app)
-        .get('/api/v1/users/12345')
+        .get('/notes-api/v1/users/12345')
         .set('User-Agent', validUserAgent);
 
       // Should return 200 (if user exists), 404 (if not), or 500 (if DB unavailable)
@@ -36,7 +36,7 @@ describe('Users Endpoints', () => {
 
     it('should return 400 for invalid user ID', async () => {
       const response = await request(app)
-        .get('/api/v1/users/invalid')
+        .get('/notes-api/v1/users/invalid')
         .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
@@ -45,20 +45,24 @@ describe('Users Endpoints', () => {
     });
 
     it('should return 400 for negative user ID', async () => {
-      const response = await request(app).get('/api/v1/users/-1').set('User-Agent', validUserAgent);
+      const response = await request(app)
+        .get('/notes-api/v1/users/-1')
+        .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
     });
 
     it('should return 400 for zero user ID', async () => {
-      const response = await request(app).get('/api/v1/users/0').set('User-Agent', validUserAgent);
+      const response = await request(app)
+        .get('/notes-api/v1/users/0')
+        .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
     });
 
     it('should return JSON response', async () => {
       const response = await request(app)
-        .get('/api/v1/users/12345')
+        .get('/notes-api/v1/users/12345')
         .set('User-Agent', validUserAgent);
 
       expect(response.headers['content-type']).toMatch(/json/);
@@ -66,7 +70,7 @@ describe('Users Endpoints', () => {
 
     it('should return user profile data when user exists', async () => {
       const response = await request(app)
-        .get('/api/v1/users/12345')
+        .get('/notes-api/v1/users/12345')
         .set('User-Agent', validUserAgent);
 
       if (response.status === 200) {
@@ -77,7 +81,7 @@ describe('Users Endpoints', () => {
     });
 
     it('should require User-Agent header', async () => {
-      const response = await request(app).get('/api/v1/users/12345');
+      const response = await request(app).get('/notes-api/v1/users/12345');
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
@@ -88,7 +92,7 @@ describe('Users Endpoints', () => {
       // Reduced from 60 to 15 for better performance
       const requests = Array(15)
         .fill(null)
-        .map(() => request(app).get('/api/v1/users/12345').set('User-Agent', validUserAgent));
+        .map(() => request(app).get('/notes-api/v1/users/12345').set('User-Agent', validUserAgent));
 
       const responses = await Promise.all(requests);
 

@@ -218,7 +218,7 @@ export function createStore(): Store | undefined {
  * app.use(rateLimitMiddleware);
  *
  * // Or apply to specific routes
- * app.use('/api/v1', rateLimitMiddleware);
+ * app.use('/notes-api/v1', rateLimitMiddleware);
  */
 export const rateLimitMiddleware = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes

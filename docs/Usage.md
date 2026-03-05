@@ -110,7 +110,7 @@ Known bots are automatically detected and subject to restrictive rate limiting (
 ### Base URL
 
 ```
-http://localhost:3000/api/v1
+http://localhost:3000/notes-api/v1
 ```
 
 ### Health Check
@@ -157,7 +157,7 @@ Get detailed information about a specific note.
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/notes/12345
+     http://localhost:3000/notes-api/v1/notes/12345
 ```
 
 **Response**:
@@ -188,7 +188,7 @@ Get all comments for a specific note.
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/notes/12345/comments
+     http://localhost:3000/notes-api/v1/notes/12345/comments
 ```
 
 **Response**:
@@ -229,13 +229,13 @@ Search notes with various filters and pagination.
 **Basic Search**:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/notes?status=open&limit=10"
+     "http://localhost:3000/notes-api/v1/notes?status=open&limit=10"
 ```
 
 **With Filters**:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/notes?country=42&status=open&date_from=2024-01-01&date_to=2024-12-31&page=1&limit=20"
+     "http://localhost:3000/notes-api/v1/notes?country=42&status=open&date_from=2024-01-01&date_to=2024-12-31&page=1&limit=20"
 ```
 
 **Query Parameters**:
@@ -301,19 +301,19 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 Search open notes in Colombia:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/notes?country=42&status=open"
+     "http://localhost:3000/notes-api/v1/notes?country=42&status=open"
 ```
 
 Search notes by user:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/notes?user_id=67890"
+     "http://localhost:3000/notes-api/v1/notes?user_id=67890"
 ```
 
 Search notes in a bounding box:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/notes?bbox=-74.1,4.6,-74.0,4.7"
+     "http://localhost:3000/notes-api/v1/notes?bbox=-74.1,4.6,-74.0,4.7"
 ```
 
 #### Advanced Search Notes
@@ -324,7 +324,7 @@ The advanced search feature extends the basic search with text search capabiliti
 Search for notes containing specific text in their comments:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/notes?text=test"
+     "http://localhost:3000/notes-api/v1/notes?text=test"
 ```
 
 **Logical Operators**:
@@ -333,19 +333,19 @@ Combine multiple filters using AND (default) or OR operators:
 **AND Operator** (default - all conditions must match):
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/notes?country=42&status=open&operator=AND"
+     "http://localhost:3000/notes-api/v1/notes?country=42&status=open&operator=AND"
 ```
 
 **OR Operator** (any condition can match):
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/notes?country=42&status=open&operator=OR"
+     "http://localhost:3000/notes-api/v1/notes?country=42&status=open&operator=OR"
 ```
 
 **Combining Text Search with Filters**:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/notes?text=test&country=42&status=open&operator=AND"
+     "http://localhost:3000/notes-api/v1/notes?text=test&country=42&status=open&operator=AND"
 ```
 
 **Advanced Query Parameters**:
@@ -364,13 +364,13 @@ Advanced search is automatically enabled when either `text` or `operator` parame
 Search notes with text "help" in comments:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/notes?text=help"
+     "http://localhost:3000/notes-api/v1/notes?text=help"
 ```
 
 Search notes in Colombia OR Spain with text "fix":
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/notes?country=42&country=43&text=fix&operator=OR"
+     "http://localhost:3000/notes-api/v1/notes?country=42&country=43&text=fix&operator=OR"
 ```
 
 **Note**: When using OR operator with multiple values of the same filter (e.g., multiple countries), you may need to make separate requests or use the text search combined with other filters.
@@ -381,7 +381,7 @@ Get detailed user profile with analytics and statistics.
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/users/12345
+     http://localhost:3000/notes-api/v1/users/12345
 ```
 
 **Response**:
@@ -437,7 +437,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 ```bash
 # Get user profile
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/users/12345
+     http://localhost:3000/notes-api/v1/users/12345
 ```
 
 ### Country Profile Endpoint
@@ -446,7 +446,7 @@ Get detailed country profile with analytics and statistics.
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/countries/42
+     http://localhost:3000/notes-api/v1/countries/42
 ```
 
 **Response**:
@@ -493,7 +493,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 ```bash
 # Get country profile
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/countries/42
+     http://localhost:3000/notes-api/v1/countries/42
 ```
 
 ### Global Analytics Endpoint
@@ -502,7 +502,7 @@ Get global statistics and analytics for all OSM notes.
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/analytics/global
+     http://localhost:3000/notes-api/v1/analytics/global
 ```
 
 **Response**:
@@ -546,14 +546,14 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 ```bash
 # Get global analytics
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/analytics/global
+     http://localhost:3000/notes-api/v1/analytics/global
 ```
 
 ### Trends Endpoint
 
 The trends endpoint provides temporal analysis of notes activity for users, countries, or globally.
 
-**Endpoint**: `GET /api/v1/analytics/trends`
+**Endpoint**: `GET /notes-api/v1/analytics/trends`
 
 **Query Parameters**:
 - `type` (required): Type of entity to get trends for. Must be one of:
@@ -566,7 +566,7 @@ The trends endpoint provides temporal analysis of notes activity for users, coun
 **Example Request - User Trends**:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/analytics/trends?type=users&user_id=12345"
+     "http://localhost:3000/notes-api/v1/analytics/trends?type=users&user_id=12345"
 ```
 
 **Example Response - User Trends**:
@@ -599,7 +599,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 **Example Request - Country Trends**:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/analytics/trends?type=countries&country_id=42"
+     "http://localhost:3000/notes-api/v1/analytics/trends?type=countries&country_id=42"
 ```
 
 **Example Response - Country Trends**:
@@ -627,7 +627,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 **Example Request - Global Trends**:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/analytics/trends?type=global"
+     "http://localhost:3000/notes-api/v1/analytics/trends?type=global"
 ```
 
 **Example Response - Global Trends**:
@@ -671,7 +671,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 Compare multiple users or countries side-by-side by their metrics.
 
 ```bash
-GET /api/v1/analytics/comparison?type=<type>&ids=<ids>
+GET /notes-api/v1/analytics/comparison?type=<type>&ids=<ids>
 ```
 
 **Query Parameters**:
@@ -685,19 +685,19 @@ GET /api/v1/analytics/comparison?type=<type>&ids=<ids>
 Compare two users:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/analytics/comparison?type=users&ids=12345,67890"
+     "http://localhost:3000/notes-api/v1/analytics/comparison?type=users&ids=12345,67890"
 ```
 
 Compare multiple countries:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/analytics/comparison?type=countries&ids=42,43,44"
+     "http://localhost:3000/notes-api/v1/analytics/comparison?type=countries&ids=42,43,44"
 ```
 
 Compare single user:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/analytics/comparison?type=users&ids=12345"
+     "http://localhost:3000/notes-api/v1/analytics/comparison?type=users&ids=12345"
 ```
 
 **Response (Users Comparison)**:
@@ -823,7 +823,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 Search for users by username or user_id.
 
 ```bash
-GET /api/v1/search/users?q=<query>
+GET /notes-api/v1/search/users?q=<query>
 ```
 
 **Query Parameters**:
@@ -834,13 +834,13 @@ GET /api/v1/search/users?q=<query>
 Search by username pattern:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/search/users?q=test"
+     "http://localhost:3000/notes-api/v1/search/users?q=test"
 ```
 
 Search by exact user_id:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/search/users?q=12345"
+     "http://localhost:3000/notes-api/v1/search/users?q=12345"
 ```
 
 **Response**:
@@ -873,7 +873,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 Search for countries by name (any language), ISO code, or country_id.
 
 ```bash
-GET /api/v1/search/countries?q=<query>
+GET /notes-api/v1/search/countries?q=<query>
 ```
 
 **Query Parameters**:
@@ -884,19 +884,19 @@ GET /api/v1/search/countries?q=<query>
 Search by country name:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/search/countries?q=Colombia"
+     "http://localhost:3000/notes-api/v1/search/countries?q=Colombia"
 ```
 
 Search by ISO code:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/search/countries?q=CO"
+     "http://localhost:3000/notes-api/v1/search/countries?q=CO"
 ```
 
 Search by exact country_id:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/search/countries?q=42"
+     "http://localhost:3000/notes-api/v1/search/countries?q=42"
 ```
 
 **Response**:
@@ -934,7 +934,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 Get rankings of users by various metrics.
 
 ```bash
-GET /api/v1/users/rankings?metric=<metric>&country=<country_id>&limit=<limit>&order=<order>
+GET /notes-api/v1/users/rankings?metric=<metric>&country=<country_id>&limit=<limit>&order=<order>
 ```
 
 **Query Parameters**:
@@ -953,19 +953,19 @@ GET /api/v1/users/rankings?metric=<metric>&country=<country_id>&limit=<limit>&or
 Get top 10 users by notes opened:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/users/rankings?metric=history_whole_open&limit=10"
+     "http://localhost:3000/notes-api/v1/users/rankings?metric=history_whole_open&limit=10"
 ```
 
 Get top 5 users by resolution rate in a specific country:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/users/rankings?metric=resolution_rate&country=42&limit=5"
+     "http://localhost:3000/notes-api/v1/users/rankings?metric=resolution_rate&country=42&limit=5"
 ```
 
 Get users with lowest average resolution time (ascending order):
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/users/rankings?metric=avg_days_to_resolution&order=asc&limit=20"
+     "http://localhost:3000/notes-api/v1/users/rankings?metric=avg_days_to_resolution&order=asc&limit=20"
 ```
 
 **Response**:
@@ -1010,7 +1010,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 Get rankings of countries by various metrics.
 
 ```bash
-GET /api/v1/countries/rankings?metric=<metric>&limit=<limit>&order=<order>
+GET /notes-api/v1/countries/rankings?metric=<metric>&limit=<limit>&order=<order>
 ```
 
 **Query Parameters**:
@@ -1028,19 +1028,19 @@ GET /api/v1/countries/rankings?metric=<metric>&limit=<limit>&order=<order>
 Get top 10 countries by notes opened:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/countries/rankings?metric=history_whole_open&limit=10"
+     "http://localhost:3000/notes-api/v1/countries/rankings?metric=history_whole_open&limit=10"
 ```
 
 Get top 5 countries by resolution rate:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/countries/rankings?metric=resolution_rate&limit=5"
+     "http://localhost:3000/notes-api/v1/countries/rankings?metric=resolution_rate&limit=5"
 ```
 
 Get countries with best health scores:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/countries/rankings?metric=notes_health_score&order=desc&limit=20"
+     "http://localhost:3000/notes-api/v1/countries/rankings?metric=notes_health_score&order=desc&limit=20"
 ```
 
 **Response**:
@@ -1085,7 +1085,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 Get a list of all hashtags with usage counts.
 
 ```bash
-GET /api/v1/hashtags?page=<page>&limit=<limit>&order=<order>
+GET /notes-api/v1/hashtags?page=<page>&limit=<limit>&order=<order>
 ```
 
 **Query Parameters**:
@@ -1098,19 +1098,19 @@ GET /api/v1/hashtags?page=<page>&limit=<limit>&order=<order>
 Get first page of hashtags (most common first):
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/hashtags"
+     "http://localhost:3000/notes-api/v1/hashtags"
 ```
 
 Get second page with 20 results per page:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/hashtags?page=2&limit=20"
+     "http://localhost:3000/notes-api/v1/hashtags?page=2&limit=20"
 ```
 
 Get hashtags sorted by count ascending (least common first):
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/hashtags?order=asc"
+     "http://localhost:3000/notes-api/v1/hashtags?order=asc"
 ```
 
 **Response**:
@@ -1155,7 +1155,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 Get detailed information about a specific hashtag, including users and countries using it.
 
 ```bash
-GET /api/v1/hashtags/:hashtag
+GET /notes-api/v1/hashtags/:hashtag
 ```
 
 **Path Parameters**:
@@ -1166,13 +1166,13 @@ GET /api/v1/hashtags/:hashtag
 Get details for "fixme" hashtag:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/hashtags/fixme"
+     "http://localhost:3000/notes-api/v1/hashtags/fixme"
 ```
 
 Get details with # prefix (automatically removed):
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/hashtags/%23fixme"
+     "http://localhost:3000/notes-api/v1/hashtags/%23fixme"
 ```
 
 **Response**:
@@ -1242,11 +1242,11 @@ The API uses Redis-based response caching to improve performance and reduce data
   - `DISABLED`: Cache is not available (Redis not configured or error occurred)
 
 **Cached Endpoints**:
-- `/api/v1/analytics/global` - 10 minutes TTL
-- `/api/v1/users/:user_id` - 5 minutes TTL
-- `/api/v1/countries/:country_id` - 5 minutes TTL
-- `/api/v1/users/rankings` - 5 minutes TTL
-- `/api/v1/countries/rankings` - 5 minutes TTL
+- `/notes-api/v1/analytics/global` - 10 minutes TTL
+- `/notes-api/v1/users/:user_id` - 5 minutes TTL
+- `/notes-api/v1/countries/:country_id` - 5 minutes TTL
+- `/notes-api/v1/users/rankings` - 5 minutes TTL
+- `/notes-api/v1/countries/rankings` - 5 minutes TTL
 
 **Cache Behavior**:
 - Only successful responses (2xx status codes) are cached
@@ -1259,14 +1259,14 @@ The API uses Redis-based response caching to improve performance and reduce data
 ```bash
 # First request - Cache MISS
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/analytics/global
+     http://localhost:3000/notes-api/v1/analytics/global
 
 # Response includes:
 # X-Cache: MISS
 
 # Second identical request - Cache HIT (if within TTL)
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/analytics/global
+     http://localhost:3000/notes-api/v1/analytics/global
 
 # Response includes:
 # X-Cache: HIT
@@ -1314,8 +1314,8 @@ curl http://localhost:3000/metrics
 # Response (Prometheus format):
 # # HELP http_requests_total Total number of HTTP requests
 # # TYPE http_requests_total counter
-# http_requests_total{method="GET",route="/api/v1/users/:id",status_code="200"} 42
-# http_request_duration_seconds_bucket{method="GET",route="/api/v1/users/:id",le="0.1"} 35
+# http_requests_total{method="GET",route="/notes-api/v1/users/:id",status_code="200"} 42
+# http_request_duration_seconds_bucket{method="GET",route="/notes-api/v1/users/:id",le="0.1"} 35
 # ...
 ```
 
@@ -1376,10 +1376,10 @@ scrape_configs:
 ```bash
 # ✅ Correct
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/users/12345
+     http://localhost:3000/notes-api/v1/users/12345
 
 # ❌ Incorrect
-curl http://localhost:3000/api/v1/users/12345
+curl http://localhost:3000/notes-api/v1/users/12345
 ```
 
 ### 2. Respect Rate Limits
@@ -1412,7 +1412,7 @@ try {
 For endpoints that return lists, use pagination:
 
 ```bash
-GET /api/v1/notes?page=1&limit=20
+GET /notes-api/v1/notes?page=1&limit=20
 ```
 
 **Pagination Query Parameters**:
@@ -1453,14 +1453,14 @@ X-Total-Count: 250
 X-Page: 2
 X-Per-Page: 20
 X-Total-Pages: 13
-Link: </api/v1/notes?page=1&limit=20>; rel="first", </api/v1/notes?page=1&limit=20>; rel="prev", </api/v1/notes?page=3&limit=20>; rel="next", </api/v1/notes?page=13&limit=20>; rel="last"
+Link: </notes-api/v1/notes?page=1&limit=20>; rel="first", </notes-api/v1/notes?page=1&limit=20>; rel="prev", </notes-api/v1/notes?page=3&limit=20>; rel="next", </notes-api/v1/notes?page=13&limit=20>; rel="last"
 ```
 
 **Using Pagination Headers**:
 You can use these headers to implement pagination navigation without parsing the response body:
 
 ```javascript
-const response = await fetch('/api/v1/notes?page=2&limit=20', {
+const response = await fetch('/notes-api/v1/notes?page=2&limit=20', {
   headers: { 'User-Agent': 'MyApp/1.0 (contact@example.com)' }
 });
 

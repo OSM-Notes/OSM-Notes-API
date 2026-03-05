@@ -12,13 +12,17 @@ import countriesRouter from './countries';
 import analyticsRouter from './analytics';
 import searchRouter from './search';
 import hashtagsRouter from './hashtags';
+import osmCompatRouter from './osmCompat';
 
 const router = Router();
 const { apiVersion } = getAppConfig();
 
+/** Base path for this project's API (notes-api v1, v2, ...) */
+const notesApiBase = `notes-api/${apiVersion}`;
+
 /**
  * @swagger
- * /api/v1:
+ * /notes-api/v1:
  *   get:
  *     summary: Get API version information
  *     tags: [Info]
@@ -45,7 +49,7 @@ const { apiVersion } = getAppConfig();
  *                   type: string
  *                   example: operational
  */
-router.get(`/api/${apiVersion}`, (_req, res) => {
+router.get(`/${notesApiBase}`, (_req, res) => {
   res.json({
     name: 'OSM Notes API',
     version: process.env.npm_package_version || '0.1.0',
@@ -65,33 +69,39 @@ router.use('/health', healthRouter);
 router.use('/metrics', metricsRouter);
 
 /**
- * Notes routes
+ * OSM API 0.6 compatibility (notes only, read-only)
+ * Same paths/params as api.openstreetmap.org for easy migration.
  */
-router.use(`/api/${apiVersion}/notes`, notesRouter);
+router.use('/api/0.6/notes', osmCompatRouter);
+
+/**
+ * Notes routes (this project's API)
+ */
+router.use(`/${notesApiBase}/notes`, notesRouter);
 
 /**
  * Users routes
  */
-router.use(`/api/${apiVersion}/users`, usersRouter);
+router.use(`/${notesApiBase}/users`, usersRouter);
 
 /**
  * Countries routes
  */
-router.use(`/api/${apiVersion}/countries`, countriesRouter);
+router.use(`/${notesApiBase}/countries`, countriesRouter);
 
 /**
  * Analytics routes
  */
-router.use(`/api/${apiVersion}/analytics`, analyticsRouter);
+router.use(`/${notesApiBase}/analytics`, analyticsRouter);
 
 /**
  * Search routes
  */
-router.use(`/api/${apiVersion}/search`, searchRouter);
+router.use(`/${notesApiBase}/search`, searchRouter);
 
 /**
  * Hashtags routes
  */
-router.use(`/api/${apiVersion}/hashtags`, hashtagsRouter);
+router.use(`/${notesApiBase}/hashtags`, hashtagsRouter);
 
 export default router;

@@ -199,7 +199,7 @@ flowchart TD
 **Ejemplo de Integración**:
 ```python
 # Terranote se suscribe a notificaciones
-POST /api/v1/subscriptions
+POST /notes-api/v1/subscriptions
 {
   "type": "area_notes",
   "area": {
@@ -597,7 +597,7 @@ const userSearchSchema = Joi.object({
 
 /**
  * @swagger
- * /api/v1/users/{user_id}:
+ * /notes-api/v1/users/{user_id}:
  *   get:
  *     summary: Get user profile
  *     tags: [Users]
@@ -794,7 +794,7 @@ export async function getUserProfileService(userId: number) {
 - ✅ Fácil agregar nuevos endpoints
 - ✅ Base para webhooks y notificaciones
 - ✅ **Autenticación OAuth preparada**: Arquitectura lista para agregar OAuth cuando sea necesario (ver sección "Análisis: ¿Requerir OAuth de OSM?")
-- ✅ Versionado de API (`/api/v1/`, `/api/v2/`)
+- ✅ Versionado de API (`/notes-api/v1/`, `/api/v2/`)
 
 **Impacto**: Medio - Beneficio a largo plazo
 
@@ -1600,18 +1600,18 @@ export function antiAbuseMiddleware(req: Request, res: Response, next: NextFunct
 
 ```
 Endpoints Públicos (sin OAuth):
-├── GET /api/v1/users/{id}           # Perfil público
-├── GET /api/v1/countries/{id}       # Perfil país
-├── GET /api/v1/notes                # Búsqueda pública
-├── GET /api/v1/analytics/global     # Estadísticas globales
-└── GET /api/v1/search/*             # Búsquedas públicas
+├── GET /notes-api/v1/users/{id}           # Perfil público
+├── GET /notes-api/v1/countries/{id}       # Perfil país
+├── GET /notes-api/v1/notes                # Búsqueda pública
+├── GET /notes-api/v1/analytics/global     # Estadísticas globales
+└── GET /notes-api/v1/search/*             # Búsquedas públicas
 
 Endpoints con OAuth (requerido):
-├── POST /api/v1/subscriptions       # Crear suscripción
-├── GET /api/v1/subscriptions        # Mis suscripciones
-├── DELETE /api/v1/subscriptions/{id} # Eliminar suscripción
-├── GET /api/v1/preferences           # Preferencias de usuario
-└── POST /api/v1/webhooks/test       # Probar webhook
+├── POST /notes-api/v1/subscriptions       # Crear suscripción
+├── GET /notes-api/v1/subscriptions        # Mis suscripciones
+├── DELETE /notes-api/v1/subscriptions/{id} # Eliminar suscripción
+├── GET /notes-api/v1/preferences           # Preferencias de usuario
+└── POST /notes-api/v1/webhooks/test       # Probar webhook
 ```
 
 **Pros**:
@@ -2097,12 +2097,12 @@ export const oauthConfig = {
 **Objetivo**: Endpoints básicos funcionales
 
 **Endpoints** (prioridad: Notas primero para Terranote):
-- ✅ `GET /api/v1/notes` - Búsqueda de notas (PRIORITARIO)
-- ✅ `GET /api/v1/notes/{note_id}` - Detalle de nota (PRIORITARIO)
-- ✅ `GET /api/v1/notes/{note_id}/comments` - Comentarios de nota (PRIORITARIO)
-- ✅ `GET /api/v1/users/{user_id}` - Perfil de usuario
-- ✅ `GET /api/v1/countries/{country_id}` - Perfil de país
-- ✅ `GET /api/v1/analytics/global` - Estadísticas globales
+- ✅ `GET /notes-api/v1/notes` - Búsqueda de notas (PRIORITARIO)
+- ✅ `GET /notes-api/v1/notes/{note_id}` - Detalle de nota (PRIORITARIO)
+- ✅ `GET /notes-api/v1/notes/{note_id}/comments` - Comentarios de nota (PRIORITARIO)
+- ✅ `GET /notes-api/v1/users/{user_id}` - Perfil de usuario
+- ✅ `GET /notes-api/v1/countries/{country_id}` - Perfil de país
+- ✅ `GET /notes-api/v1/analytics/global` - Estadísticas globales
 
 **Features**:
 - Validación básica
@@ -2144,10 +2144,10 @@ export const oauthConfig = {
 - ✅ Logging estructurado
 
 **Endpoints Adicionales**:
-- `GET /api/v1/search/users`
-- `GET /api/v1/search/countries`
-- `GET /api/v1/users/rankings`
-- `GET /api/v1/countries/rankings`
+- `GET /notes-api/v1/search/users`
+- `GET /notes-api/v1/search/countries`
+- `GET /notes-api/v1/users/rankings`
+- `GET /notes-api/v1/countries/rankings`
 
 **Entregables**:
 - Búsqueda funcional
@@ -2172,12 +2172,12 @@ export const oauthConfig = {
 - ✅ Monitoreo completo
 
 **Endpoints Adicionales**:
-- `GET /api/v1/notes`
-- `GET /api/v1/notes/{note_id}`
-- `GET /api/v1/hashtags`
-- `GET /api/v1/hashtags/{hashtag}`
-- `GET /api/v1/analytics/comparison`
-- `GET /api/v1/analytics/trends`
+- `GET /notes-api/v1/notes`
+- `GET /notes-api/v1/notes/{note_id}`
+- `GET /notes-api/v1/hashtags`
+- `GET /notes-api/v1/hashtags/{hashtag}`
+- `GET /notes-api/v1/analytics/comparison`
+- `GET /notes-api/v1/analytics/trends`
 
 **Entregables**:
 - API completa según propuesta
@@ -2203,11 +2203,11 @@ export const oauthConfig = {
 - ✅ Retry y manejo de fallos en webhooks
 
 **Endpoints Adicionales**:
-- `POST /api/v1/subscriptions` - Crear suscripción
-- `GET /api/v1/subscriptions` - Listar suscripciones
-- `DELETE /api/v1/subscriptions/{id}` - Eliminar suscripción
-- `GET /api/v1/subscriptions/{id}/events` - Historial de eventos
-- `POST /api/v1/webhooks/test` - Probar webhook
+- `POST /notes-api/v1/subscriptions` - Crear suscripción
+- `GET /notes-api/v1/subscriptions` - Listar suscripciones
+- `DELETE /notes-api/v1/subscriptions/{id}` - Eliminar suscripción
+- `GET /notes-api/v1/subscriptions/{id}/events` - Historial de eventos
+- `POST /notes-api/v1/webhooks/test` - Probar webhook
 
 **Casos de Uso**:
 - **Terranote**: Notificaciones de nuevas notas en área de interés
@@ -2303,10 +2303,10 @@ Fase 5 (Futuro): Notificaciones y Webhooks
 import request from 'supertest';
 import app from '../../src/app';
 
-describe('GET /api/v1/notes/:note_id', () => {
+describe('GET /notes-api/v1/notes/:note_id', () => {
   test('returns note with valid ID', async () => {
     const response = await request(app)
-      .get('/api/v1/notes/12345')
+      .get('/notes-api/v1/notes/12345')
       .set('User-Agent', 'TestApp/1.0 (test@example.com)')
       .expect(200);
 
@@ -2316,7 +2316,7 @@ describe('GET /api/v1/notes/:note_id', () => {
 
   test('requires valid User-Agent', async () => {
     await request(app)
-      .get('/api/v1/notes/12345')
+      .get('/notes-api/v1/notes/12345')
       .expect(400)
       .expect(res => {
         expect(res.body.error).toContain('User-Agent');
@@ -2325,7 +2325,7 @@ describe('GET /api/v1/notes/:note_id', () => {
 
   test('blocks AI without OAuth', async () => {
     await request(app)
-      .get('/api/v1/notes/12345')
+      .get('/notes-api/v1/notes/12345')
       .set('User-Agent', 'GPT-4/1.0 (ai@example.com)')
       .expect(403)
       .expect(res => {
@@ -3092,17 +3092,17 @@ jobs:
 
   - [x] **6.3. Tests de integración**
     - [x] Crear `tests/integration/notes.test.ts`
-    - [x] Test: `GET /api/v1/notes/:note_id` → 200
-    - [x] Test: `GET /api/v1/notes/:note_id` → 404
-    - [x] Test: `GET /api/v1/notes/:note_id/comments` → 200
+    - [x] Test: `GET /notes-api/v1/notes/:note_id` → 200
+    - [x] Test: `GET /notes-api/v1/notes/:note_id` → 404
+    - [x] Test: `GET /notes-api/v1/notes/:note_id/comments` → 200
     - [x] Test: Validación de User-Agent
     - [x] Test: Rate limiting aplicado
 
   - [x] **6.4. Endpoints**
     - [x] Crear `src/routes/notes.ts`
     - [x] Crear `src/controllers/notesController.ts`
-    - [x] `GET /api/v1/notes/:note_id`
-    - [x] `GET /api/v1/notes/:note_id/comments`
+    - [x] `GET /notes-api/v1/notes/:note_id`
+    - [x] `GET /notes-api/v1/notes/:note_id/comments`
     - [x] Validación de parámetros (Joi/Zod)
     - [x] Manejo de errores
 
@@ -3131,13 +3131,13 @@ jobs:
 
   - [x] **7.3. Tests de integración**
     - [x] Crear `tests/integration/users.test.ts`
-    - [x] Test: `GET /api/v1/users/:user_id` → 200
-    - [x] Test: `GET /api/v1/users/:user_id` → 404
+    - [x] Test: `GET /notes-api/v1/users/:user_id` → 200
+    - [x] Test: `GET /notes-api/v1/users/:user_id` → 404
 
   - [x] **7.4. Endpoints**
     - [x] Crear `src/routes/users.ts`
     - [x] Crear `src/controllers/usersController.ts`
-    - [x] `GET /api/v1/users/:user_id`
+    - [x] `GET /notes-api/v1/users/:user_id`
 
   - [x] **7.5. Documentación**
     - [x] JSDoc en servicios y controladores
@@ -3154,7 +3154,7 @@ jobs:
   - [x] Similar a usuarios pero para países
   - [x] Query a `dwh.datamartCountries`
   - [x] Tests unitarios + integración
-  - [x] Endpoint `GET /api/v1/countries/:country_id`
+  - [x] Endpoint `GET /notes-api/v1/countries/:country_id`
   - [x] Documentación
 
 **Entregables**:
@@ -3167,7 +3167,7 @@ jobs:
   - [x] Similar pero para analytics global
   - [x] Query a `dwh.datamartGlobal`
   - [x] Tests unitarios + integración
-  - [x] Endpoint `GET /api/v1/analytics/global`
+  - [x] Endpoint `GET /notes-api/v1/analytics/global`
   - [x] Documentación
 
 **Entregables**:
@@ -3192,7 +3192,7 @@ jobs:
     - [x] CORS
     - [x] Helmet
   - [x] Registrar todas las rutas
-  - [x] Configurar versionado de API (`/api/v1`)
+  - [x] Configurar versionado de API (`/notes-api/v1`)
 
 - [x] **11. Manejo de Errores**
   - [x] Crear `src/middleware/errorHandler.ts`
@@ -3280,7 +3280,7 @@ jobs:
 - [x] **18. Búsqueda Básica (TDD)**
   - [x] Tests primero: `tests/unit/services/searchService.test.ts`
   - [x] Implementar `src/services/searchService.ts`
-  - [x] Endpoints: `GET /api/v1/search/users`, `GET /api/v1/search/countries`
+  - [x] Endpoints: `GET /notes-api/v1/search/users`, `GET /notes-api/v1/search/countries`
   - [x] Tests de integración
   - [x] Documentación
 
@@ -3300,7 +3300,7 @@ jobs:
 
 - [x] **21. Rankings (TDD)**
   - [x] Tests primero
-  - [x] Endpoints: `GET /api/v1/users/rankings`, `GET /api/v1/countries/rankings`
+  - [x] Endpoints: `GET /notes-api/v1/users/rankings`, `GET /notes-api/v1/countries/rankings`
   - [x] Ordenamiento configurable
   - [x] Validación de parámetros (Joi)
   - [x] Tests de integración
@@ -3365,21 +3365,21 @@ jobs:
 
 - [x] **26. Endpoints de Hashtags (TDD)**
   - [x] Tests primero
-  - [x] `GET /api/v1/hashtags`
-  - [x] `GET /api/v1/hashtags/:hashtag`
+  - [x] `GET /notes-api/v1/hashtags`
+  - [x] `GET /notes-api/v1/hashtags/:hashtag`
   - [x] Tests de integración
   - [x] Documentación
 
 - [x] **27. Comparaciones (TDD)**
   - [x] Tests primero
-  - [x] `GET /api/v1/analytics/comparison`
+  - [x] `GET /notes-api/v1/analytics/comparison`
   - [x] Comparar usuarios/países
   - [x] Tests de integración
   - [x] Documentación
 
 - [x] **28. Tendencias (TDD)**
   - [x] Tests primero
-  - [x] `GET /api/v1/analytics/trends`
+  - [x] `GET /notes-api/v1/analytics/trends`
   - [x] Análisis temporal
   - [x] Tests de integración
   - [x] Documentación
@@ -3531,9 +3531,9 @@ jobs:
 - [ ] **40. Sistema de Suscripciones (TDD)**
   - [ ] Tests primero
   - [ ] Modelo de datos para suscripciones
-  - [ ] `POST /api/v1/subscriptions`
-  - [ ] `GET /api/v1/subscriptions`
-  - [ ] `DELETE /api/v1/subscriptions/:id`
+  - [ ] `POST /notes-api/v1/subscriptions`
+  - [ ] `GET /notes-api/v1/subscriptions`
+  - [ ] `DELETE /notes-api/v1/subscriptions/:id`
   - [ ] Tests de integración
   - [ ] Documentación
 
@@ -3542,7 +3542,7 @@ jobs:
   - [ ] Envío de webhooks
   - [ ] Retry automático
   - [ ] Manejo de fallos
-  - [ ] `POST /api/v1/webhooks/test`
+  - [ ] `POST /notes-api/v1/webhooks/test`
   - [ ] Tests de integración
   - [ ] Documentación
 
@@ -3819,7 +3819,7 @@ docs/
 **Tareas**:
 - [ ] Adoptar Semantic Versioning
 - [ ] Documentar política de versionado
-- [ ] Versionar API (`/api/v1`, `/api/v2`)
+- [ ] Versionar API (`/notes-api/v1`, `/api/v2`)
 - [ ] Documentar breaking changes
 
 **Faltante**: Changelog

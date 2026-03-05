@@ -10,7 +10,7 @@ import { ApiError } from '../middleware/errorHandler';
 
 /**
  * @swagger
- * /api/v1/countries/{country_id}:
+ * /notes-api/v1/countries/{country_id}:
  *   get:
  *     summary: Get country profile by ID
  *     tags: [Countries]

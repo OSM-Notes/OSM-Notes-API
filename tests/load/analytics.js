@@ -52,7 +52,7 @@ export default function () {
 
   // Test 1: Get global analytics
   const globalStart = Date.now();
-  const globalRes = http.get(`${BASE_URL}/api/v1/analytics/global`, { headers });
+  const globalRes = http.get(`${BASE_URL}/notes-api/v1/analytics/global`, { headers });
   const globalDuration = Date.now() - globalStart;
   
   const globalCheck = check(globalRes, {
@@ -74,7 +74,7 @@ export default function () {
 
   // Test 2: Get trends
   const trendsStart = Date.now();
-  const trendsRes = http.get(`${BASE_URL}/api/v1/analytics/trends?type=users&ids=${TEST_USER_IDS[0]}`, { headers });
+  const trendsRes = http.get(`${BASE_URL}/notes-api/v1/analytics/trends?type=users&ids=${TEST_USER_IDS[0]}`, { headers });
   const trendsDuration = Date.now() - trendsStart;
   
   const trendsCheck = check(trendsRes, {
@@ -97,7 +97,7 @@ export default function () {
   // Test 3: Get comparison
   const userIds = TEST_USER_IDS.slice(0, 2).join(',');
   const comparisonStart = Date.now();
-  const comparisonRes = http.get(`${BASE_URL}/api/v1/analytics/comparison?type=users&ids=${userIds}`, { headers });
+  const comparisonRes = http.get(`${BASE_URL}/notes-api/v1/analytics/comparison?type=users&ids=${userIds}`, { headers });
   const comparisonDuration = Date.now() - comparisonStart;
   
   const comparisonCheck = check(comparisonRes, {

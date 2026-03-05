@@ -64,12 +64,12 @@ describe('Notes Endpoints', () => {
     app = createApp();
   });
 
-  describe('GET /api/v1/notes/:note_id', () => {
+  describe('GET /notes-api/v1/notes/:note_id', () => {
     it('should return 200 status for valid note ID', async () => {
       // Note: This test requires a real database with test data
       // For now, we'll test the endpoint structure
       const response = await request(app)
-        .get('/api/v1/notes/12345')
+        .get('/notes-api/v1/notes/12345')
         .set('User-Agent', validUserAgent);
 
       // Should return 200 (if note exists), 404 (if not), or 500 (if DB unavailable)
@@ -78,7 +78,7 @@ describe('Notes Endpoints', () => {
 
     it('should return 400 for invalid note ID', async () => {
       const response = await request(app)
-        .get('/api/v1/notes/invalid')
+        .get('/notes-api/v1/notes/invalid')
         .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
@@ -87,27 +87,31 @@ describe('Notes Endpoints', () => {
     });
 
     it('should return 400 for negative note ID', async () => {
-      const response = await request(app).get('/api/v1/notes/-1').set('User-Agent', validUserAgent);
+      const response = await request(app)
+        .get('/notes-api/v1/notes/-1')
+        .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
     });
 
     it('should return 400 for zero note ID', async () => {
-      const response = await request(app).get('/api/v1/notes/0').set('User-Agent', validUserAgent);
+      const response = await request(app)
+        .get('/notes-api/v1/notes/0')
+        .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
     });
 
     it('should return JSON response', async () => {
       const response = await request(app)
-        .get('/api/v1/notes/12345')
+        .get('/notes-api/v1/notes/12345')
         .set('User-Agent', validUserAgent);
 
       expect(response.headers['content-type']).toMatch(/json/);
     });
 
     it('should require User-Agent header', async () => {
-      const response = await request(app).get('/api/v1/notes/12345');
+      const response = await request(app).get('/notes-api/v1/notes/12345');
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
@@ -118,7 +122,7 @@ describe('Notes Endpoints', () => {
       // Reduced from 60 to 15 for better performance
       const requests = Array(15)
         .fill(null)
-        .map(() => request(app).get('/api/v1/notes/12345').set('User-Agent', validUserAgent));
+        .map(() => request(app).get('/notes-api/v1/notes/12345').set('User-Agent', validUserAgent));
 
       const responses = await Promise.all(requests);
 
@@ -129,10 +133,10 @@ describe('Notes Endpoints', () => {
     });
   });
 
-  describe('GET /api/v1/notes/:note_id/comments', () => {
+  describe('GET /notes-api/v1/notes/:note_id/comments', () => {
     it('should return 200 status for valid note ID', async () => {
       const response = await request(app)
-        .get('/api/v1/notes/12345/comments')
+        .get('/notes-api/v1/notes/12345/comments')
         .set('User-Agent', validUserAgent);
 
       // Should return 200 (if note exists), 404 (if not), or 500 (if DB unavailable)
@@ -141,7 +145,7 @@ describe('Notes Endpoints', () => {
 
     it('should return 400 for invalid note ID', async () => {
       const response = await request(app)
-        .get('/api/v1/notes/invalid/comments')
+        .get('/notes-api/v1/notes/invalid/comments')
         .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
@@ -149,7 +153,7 @@ describe('Notes Endpoints', () => {
 
     it('should return JSON response with data array', async () => {
       const response = await request(app)
-        .get('/api/v1/notes/12345/comments')
+        .get('/notes-api/v1/notes/12345/comments')
         .set('User-Agent', validUserAgent);
 
       expect(response.headers['content-type']).toMatch(/json/);
@@ -163,15 +167,17 @@ describe('Notes Endpoints', () => {
     });
 
     it('should require User-Agent header', async () => {
-      const response = await request(app).get('/api/v1/notes/12345/comments');
+      const response = await request(app).get('/notes-api/v1/notes/12345/comments');
 
       expect(response.status).toBe(400);
     });
   });
 
-  describe('GET /api/v1/notes (search)', () => {
+  describe('GET /notes-api/v1/notes (search)', () => {
     it('should return 200 status for search without filters', async () => {
-      const response = await request(app).get('/api/v1/notes').set('User-Agent', validUserAgent);
+      const response = await request(app)
+        .get('/notes-api/v1/notes')
+        .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
       if (response.status === 200) {
@@ -191,7 +197,7 @@ describe('Notes Endpoints', () => {
 
     it('should return 200 with pagination metadata', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?page=1&limit=10')
+        .get('/notes-api/v1/notes?page=1&limit=10')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
@@ -206,7 +212,7 @@ describe('Notes Endpoints', () => {
 
     it('should include pagination headers in response', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?page=1&limit=10')
+        .get('/notes-api/v1/notes?page=1&limit=10')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
@@ -237,7 +243,7 @@ describe('Notes Endpoints', () => {
 
     it('should include Link header with navigation links when on first page', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?page=1&limit=10')
+        .get('/notes-api/v1/notes?page=1&limit=10')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
@@ -257,7 +263,7 @@ describe('Notes Endpoints', () => {
 
     it('should include Link header with navigation links when on middle page', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?page=2&limit=10')
+        .get('/notes-api/v1/notes?page=2&limit=10')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
@@ -277,7 +283,7 @@ describe('Notes Endpoints', () => {
 
     it('should preserve query parameters in pagination Link headers', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?status=open&country=42&page=1&limit=10')
+        .get('/notes-api/v1/notes?status=open&country=42&page=1&limit=10')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
@@ -295,7 +301,7 @@ describe('Notes Endpoints', () => {
 
     it('should accept status filter', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?status=open')
+        .get('/notes-api/v1/notes?status=open')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
@@ -303,7 +309,7 @@ describe('Notes Endpoints', () => {
 
     it('should return 400 for invalid status', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?status=invalid')
+        .get('/notes-api/v1/notes?status=invalid')
         .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
@@ -311,7 +317,7 @@ describe('Notes Endpoints', () => {
 
     it('should accept country filter', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?country=42')
+        .get('/notes-api/v1/notes?country=42')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
@@ -319,7 +325,7 @@ describe('Notes Endpoints', () => {
 
     it('should accept user_id filter', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?user_id=12345')
+        .get('/notes-api/v1/notes?user_id=12345')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
@@ -332,7 +338,7 @@ describe('Notes Endpoints', () => {
 
     it('should accept date_from filter', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?date_from=2024-01-01')
+        .get('/notes-api/v1/notes?date_from=2024-01-01')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
@@ -345,7 +351,7 @@ describe('Notes Endpoints', () => {
 
     it('should accept date_to filter', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?date_to=2024-12-31')
+        .get('/notes-api/v1/notes?date_to=2024-12-31')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
@@ -358,7 +364,7 @@ describe('Notes Endpoints', () => {
 
     it('should accept date range (date_from and date_to)', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?date_from=2024-01-01&date_to=2024-12-31')
+        .get('/notes-api/v1/notes?date_from=2024-01-01&date_to=2024-12-31')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
@@ -371,7 +377,7 @@ describe('Notes Endpoints', () => {
 
     it('should accept bbox filter', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?bbox=-74.1,4.5,-74.0,4.7')
+        .get('/notes-api/v1/notes?bbox=-74.1,4.5,-74.0,4.7')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
@@ -384,7 +390,7 @@ describe('Notes Endpoints', () => {
 
     it('should return 400 for invalid date_from format', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?date_from=2024/01/01')
+        .get('/notes-api/v1/notes?date_from=2024/01/01')
         .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
@@ -392,7 +398,7 @@ describe('Notes Endpoints', () => {
 
     it('should return 400 for invalid bbox format', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?bbox=1,2,3')
+        .get('/notes-api/v1/notes?bbox=1,2,3')
         .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
@@ -400,7 +406,7 @@ describe('Notes Endpoints', () => {
 
     it('should accept hashtag filter (requires dwh)', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?hashtag=fixme')
+        .get('/notes-api/v1/notes?hashtag=fixme')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
@@ -413,7 +419,7 @@ describe('Notes Endpoints', () => {
 
     it('should accept hashtag with # prefix', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?hashtag=%23fixme')
+        .get('/notes-api/v1/notes?hashtag=%23fixme')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
@@ -421,7 +427,7 @@ describe('Notes Endpoints', () => {
 
     it('should accept application filter (requires dwh)', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?application=JOSM')
+        .get('/notes-api/v1/notes?application=JOSM')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(response.status);
@@ -434,7 +440,7 @@ describe('Notes Endpoints', () => {
 
     it('should return 400 for invalid page number', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?page=0')
+        .get('/notes-api/v1/notes?page=0')
         .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
@@ -442,7 +448,7 @@ describe('Notes Endpoints', () => {
 
     it('should return 400 for invalid limit (too high)', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?limit=200')
+        .get('/notes-api/v1/notes?limit=200')
         .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
@@ -450,14 +456,14 @@ describe('Notes Endpoints', () => {
 
     it('should return 400 for invalid limit (negative)', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?limit=-1')
+        .get('/notes-api/v1/notes?limit=-1')
         .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
     });
 
     it('should require User-Agent header', async () => {
-      const response = await request(app).get('/api/v1/notes');
+      const response = await request(app).get('/notes-api/v1/notes');
 
       expect(response.status).toBe(400);
     });

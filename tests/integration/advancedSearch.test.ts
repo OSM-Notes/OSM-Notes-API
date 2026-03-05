@@ -22,10 +22,10 @@ describe('Advanced Search Endpoints', () => {
     app = createApp();
   });
 
-  describe('GET /api/v1/notes with advanced search', () => {
+  describe('GET /notes-api/v1/notes with advanced search', () => {
     it('should support text search parameter', async () => {
       const response = await request(app)
-        .get('/api/v1/notes')
+        .get('/notes-api/v1/notes')
         .query({ text: 'test' })
         .set('User-Agent', validUserAgent);
 
@@ -40,7 +40,7 @@ describe('Advanced Search Endpoints', () => {
 
     it('should support AND operator (default)', async () => {
       const response = await request(app)
-        .get('/api/v1/notes')
+        .get('/notes-api/v1/notes')
         .query({
           country: 1,
           status: 'open',
@@ -57,7 +57,7 @@ describe('Advanced Search Endpoints', () => {
 
     it('should support OR operator', async () => {
       const response = await request(app)
-        .get('/api/v1/notes')
+        .get('/notes-api/v1/notes')
         .query({
           country: 1,
           status: 'open',
@@ -74,7 +74,7 @@ describe('Advanced Search Endpoints', () => {
 
     it('should combine text search with other filters', async () => {
       const response = await request(app)
-        .get('/api/v1/notes')
+        .get('/notes-api/v1/notes')
         .query({
           text: 'test',
           country: 1,
@@ -92,7 +92,7 @@ describe('Advanced Search Endpoints', () => {
 
     it('should validate operator parameter', async () => {
       const response = await request(app)
-        .get('/api/v1/notes')
+        .get('/notes-api/v1/notes')
         .query({
           operator: 'INVALID',
         })
@@ -106,7 +106,7 @@ describe('Advanced Search Endpoints', () => {
     it('should validate text parameter length', async () => {
       const longText = 'a'.repeat(501);
       const response = await request(app)
-        .get('/api/v1/notes')
+        .get('/notes-api/v1/notes')
         .query({
           text: longText,
         })
@@ -118,7 +118,7 @@ describe('Advanced Search Endpoints', () => {
 
     it('should support pagination with advanced search', async () => {
       const response = await request(app)
-        .get('/api/v1/notes')
+        .get('/notes-api/v1/notes')
         .query({
           text: 'test',
           page: 1,
@@ -141,7 +141,7 @@ describe('Advanced Search Endpoints', () => {
     });
 
     it('should require User-Agent header', async () => {
-      const response = await request(app).get('/api/v1/notes').query({
+      const response = await request(app).get('/notes-api/v1/notes').query({
         text: 'test',
       });
 
@@ -153,7 +153,7 @@ describe('Advanced Search Endpoints', () => {
 
     it('should work with date range filters', async () => {
       const response = await request(app)
-        .get('/api/v1/notes')
+        .get('/notes-api/v1/notes')
         .query({
           text: 'test',
           date_from: '2024-01-01',
@@ -171,7 +171,7 @@ describe('Advanced Search Endpoints', () => {
 
     it('should work with bbox filter', async () => {
       const response = await request(app)
-        .get('/api/v1/notes')
+        .get('/notes-api/v1/notes')
         .query({
           text: 'test',
           bbox: '-3.0,40.0,-2.0,41.0',

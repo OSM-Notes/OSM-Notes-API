@@ -26,7 +26,7 @@ describe('Complete API Flows', () => {
     it('should complete full flow for notes', async () => {
       // Step 1: Search for notes
       const searchResponse = await request(app)
-        .get('/api/v1/notes?status=open&limit=5')
+        .get('/notes-api/v1/notes?status=open&limit=5')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(searchResponse.status);
@@ -50,7 +50,7 @@ describe('Complete API Flows', () => {
 
           // Step 2: Get note details
           const noteResponse = await request(app)
-            .get(`/api/v1/notes/${firstNoteId}`)
+            .get(`/notes-api/v1/notes/${firstNoteId}`)
             .set('User-Agent', validUserAgent);
 
           expect([200, 404]).toContain(noteResponse.status);
@@ -62,7 +62,7 @@ describe('Complete API Flows', () => {
 
             // Step 3: Get note comments
             const commentsResponse = await request(app)
-              .get(`/api/v1/notes/${firstNoteId}/comments`)
+              .get(`/notes-api/v1/notes/${firstNoteId}/comments`)
               .set('User-Agent', validUserAgent);
 
             expect([200, 404]).toContain(commentsResponse.status);
@@ -83,7 +83,7 @@ describe('Complete API Flows', () => {
     it('should complete flow for user-related data', async () => {
       // Step 1: Get a user profile
       const userResponse = await request(app)
-        .get('/api/v1/users/12345')
+        .get('/notes-api/v1/users/12345')
         .set('User-Agent', validUserAgent);
 
       expect([200, 404, 500]).toContain(userResponse.status);
@@ -95,7 +95,7 @@ describe('Complete API Flows', () => {
 
         // Step 2: Search for notes by this user
         const notesResponse = await request(app)
-          .get(`/api/v1/notes?user=${userData.user_id}`)
+          .get(`/notes-api/v1/notes?user=${userData.user_id}`)
           .set('User-Agent', validUserAgent);
 
         expect([200, 500]).toContain(notesResponse.status);
@@ -111,7 +111,7 @@ describe('Complete API Flows', () => {
     it('should complete flow for country-related data', async () => {
       // Step 1: Get a country profile
       const countryResponse = await request(app)
-        .get('/api/v1/countries/42')
+        .get('/notes-api/v1/countries/42')
         .set('User-Agent', validUserAgent);
 
       expect([200, 404, 500]).toContain(countryResponse.status);
@@ -123,7 +123,7 @@ describe('Complete API Flows', () => {
 
         // Step 2: Search for notes in this country
         const notesResponse = await request(app)
-          .get(`/api/v1/notes?country=${countryData.country_id}`)
+          .get(`/notes-api/v1/notes?country=${countryData.country_id}`)
           .set('User-Agent', validUserAgent);
 
         expect([200, 500]).toContain(notesResponse.status);
@@ -139,7 +139,7 @@ describe('Complete API Flows', () => {
     it('should complete flow for analytics and related endpoints', async () => {
       // Step 1: Get global analytics
       const analyticsResponse = await request(app)
-        .get('/api/v1/analytics/global')
+        .get('/notes-api/v1/analytics/global')
         .set('User-Agent', validUserAgent);
 
       expect([200, 404, 500]).toContain(analyticsResponse.status);
@@ -149,7 +149,7 @@ describe('Complete API Flows', () => {
 
         // Step 2: Get notes to verify consistency
         const notesResponse = await request(app)
-          .get('/api/v1/notes?limit=1')
+          .get('/notes-api/v1/notes?limit=1')
           .set('User-Agent', validUserAgent);
 
         expect([200, 500]).toContain(notesResponse.status);
@@ -164,7 +164,7 @@ describe('Complete API Flows', () => {
     it('should navigate through multiple pages', async () => {
       // Step 1: Get first page
       const page1Response = await request(app)
-        .get('/api/v1/notes?page=1&limit=10')
+        .get('/notes-api/v1/notes?page=1&limit=10')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(page1Response.status);
@@ -175,7 +175,7 @@ describe('Complete API Flows', () => {
       // Step 2: Navigate to next page if available
       if (page1Response.status === 200 && page1Body.pagination.total_pages > 1) {
         const page2Response = await request(app)
-          .get('/api/v1/notes?page=2&limit=10')
+          .get('/notes-api/v1/notes?page=2&limit=10')
           .set('User-Agent', validUserAgent);
 
         expect(page2Response.status).toBe(200);
@@ -189,14 +189,14 @@ describe('Complete API Flows', () => {
     it('should recover from invalid request and continue', async () => {
       // Step 1: Make invalid request
       const invalidResponse = await request(app)
-        .get('/api/v1/notes/invalid')
+        .get('/notes-api/v1/notes/invalid')
         .set('User-Agent', validUserAgent);
 
       expect(invalidResponse.status).toBe(400);
 
       // Step 2: Make valid request after error
       const validResponse = await request(app)
-        .get('/api/v1/notes?limit=5')
+        .get('/notes-api/v1/notes?limit=5')
         .set('User-Agent', validUserAgent);
 
       expect([200, 500]).toContain(validResponse.status);

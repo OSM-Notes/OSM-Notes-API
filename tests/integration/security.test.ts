@@ -25,11 +25,11 @@ describe('Security Tests', () => {
   describe('User-Agent Validation Security', () => {
     it('should reject requests without User-Agent header', async () => {
       const endpoints = [
-        '/api/v1/notes',
-        '/api/v1/notes/12345',
-        '/api/v1/users/12345',
-        '/api/v1/countries/42',
-        '/api/v1/analytics/global',
+        '/notes-api/v1/notes',
+        '/notes-api/v1/notes/12345',
+        '/notes-api/v1/users/12345',
+        '/notes-api/v1/countries/42',
+        '/notes-api/v1/analytics/global',
       ];
 
       for (const endpoint of endpoints) {
@@ -52,7 +52,9 @@ describe('Security Tests', () => {
       ];
 
       for (const ua of aiUserAgents) {
-        const response = await request(app).get('/api/v1/notes?limit=1').set('User-Agent', ua);
+        const response = await request(app)
+          .get('/notes-api/v1/notes?limit=1')
+          .set('User-Agent', ua);
 
         // Should either reject (403) or require OAuth (or 500 if DB unavailable)
         expect([400, 403, 500]).toContain(response.status);
@@ -63,7 +65,9 @@ describe('Security Tests', () => {
       const botUserAgents = ['bot', 'crawler', 'spider', 'scraper'];
 
       for (const ua of botUserAgents) {
-        const response = await request(app).get('/api/v1/notes?limit=1').set('User-Agent', ua);
+        const response = await request(app)
+          .get('/notes-api/v1/notes?limit=1')
+          .set('User-Agent', ua);
 
         // Should reject or require proper format
         expect([400, 403]).toContain(response.status);
@@ -80,7 +84,9 @@ describe('Security Tests', () => {
       ];
 
       for (const ua of validUserAgents) {
-        const response = await request(app).get('/api/v1/notes?limit=1').set('User-Agent', ua);
+        const response = await request(app)
+          .get('/notes-api/v1/notes?limit=1')
+          .set('User-Agent', ua);
 
         // Should accept valid formats
         expect([200, 404, 500]).toContain(response.status);
@@ -91,11 +97,11 @@ describe('Security Tests', () => {
   describe('Rate Limiting Security', () => {
     it('should enforce rate limits on all endpoints', async () => {
       const endpoints = [
-        '/api/v1/notes',
-        '/api/v1/notes/12345',
-        '/api/v1/users/12345',
-        '/api/v1/countries/42',
-        '/api/v1/analytics/global',
+        '/notes-api/v1/notes',
+        '/notes-api/v1/notes/12345',
+        '/notes-api/v1/users/12345',
+        '/notes-api/v1/countries/42',
+        '/notes-api/v1/analytics/global',
       ];
 
       for (const endpoint of endpoints) {
@@ -116,7 +122,7 @@ describe('Security Tests', () => {
 
     it('should handle rate limit headers correctly', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?limit=1')
+        .get('/notes-api/v1/notes?limit=1')
         .set('User-Agent', validUserAgent);
 
       // Should have rate limit headers if configured
@@ -136,7 +142,11 @@ describe('Security Tests', () => {
         "admin'/*",
       ];
 
-      const endpoints = ['/api/v1/notes/', '/api/v1/users/', '/api/v1/countries/'];
+      const endpoints = [
+        '/notes-api/v1/notes/',
+        '/notes-api/v1/users/',
+        '/notes-api/v1/countries/',
+      ];
 
       for (const endpoint of endpoints) {
         for (const payload of sqlInjectionPayloads) {
@@ -155,7 +165,7 @@ describe('Security Tests', () => {
 
       for (const payload of nosqlPayloads) {
         const response = await request(app)
-          .get(`/api/v1/notes?${payload}`)
+          .get(`/notes-api/v1/notes?${payload}`)
           .set('User-Agent', validUserAgent);
 
         // Should reject or handle safely
@@ -174,7 +184,7 @@ describe('Security Tests', () => {
 
       for (const payload of commandInjectionPayloads) {
         const response = await request(app)
-          .get(`/api/v1/notes/${encodeURIComponent(payload)}`)
+          .get(`/notes-api/v1/notes/${encodeURIComponent(payload)}`)
           .set('User-Agent', validUserAgent);
 
         // Should reject with 400 (or 429 if rate limited, or 500 if DB unavailable)
@@ -195,7 +205,7 @@ describe('Security Tests', () => {
 
       for (const payload of pathTraversalPayloads) {
         const response = await request(app)
-          .get(`/api/v1/notes/${payload}123`)
+          .get(`/notes-api/v1/notes/${payload}123`)
           .set('User-Agent', validUserAgent);
 
         // Should reject with 400 (or 429 if rate limited, or 500 if DB unavailable)
@@ -214,7 +224,7 @@ describe('Security Tests', () => {
 
       for (const payload of xssPayloads) {
         const response = await request(app)
-          .get(`/api/v1/notes?status=${encodeURIComponent(payload)}`)
+          .get(`/notes-api/v1/notes?status=${encodeURIComponent(payload)}`)
           .set('User-Agent', validUserAgent);
 
         // Should reject with 400 (or 429 if rate limited, or 500 if DB unavailable)
@@ -231,7 +241,7 @@ describe('Security Tests', () => {
 
       for (const payload of xxePayloads) {
         const response = await request(app)
-          .get(`/api/v1/notes?q=${encodeURIComponent(payload)}`)
+          .get(`/notes-api/v1/notes?q=${encodeURIComponent(payload)}`)
           .set('User-Agent', validUserAgent);
 
         // Should reject or handle safely
@@ -242,7 +252,11 @@ describe('Security Tests', () => {
 
   describe('HTTP Method Security', () => {
     it('should reject unsupported HTTP methods', async () => {
-      const endpoints = ['/api/v1/notes', '/api/v1/notes/12345', '/api/v1/users/12345'];
+      const endpoints = [
+        '/notes-api/v1/notes',
+        '/notes-api/v1/notes/12345',
+        '/notes-api/v1/users/12345',
+      ];
 
       for (const endpoint of endpoints) {
         // Test POST (should be rejected for GET-only endpoints)
@@ -273,7 +287,7 @@ describe('Security Tests', () => {
   describe('Header Security', () => {
     it('should have security headers set', async () => {
       const response = await request(app)
-        .get('/api/v1/notes?limit=1')
+        .get('/notes-api/v1/notes?limit=1')
         .set('User-Agent', validUserAgent);
 
       // Check for security headers (Helmet should set these)
@@ -283,7 +297,7 @@ describe('Security Tests', () => {
 
     it('should handle CORS correctly', async () => {
       const response = await request(app)
-        .options('/api/v1/notes')
+        .options('/notes-api/v1/notes')
         .set('Origin', 'http://example.com')
         .set('User-Agent', validUserAgent);
 
@@ -296,7 +310,7 @@ describe('Security Tests', () => {
     it('should handle extremely large requests', async () => {
       const largeQuery = '?status=' + 'a'.repeat(10000);
       const response = await request(app)
-        .get(`/api/v1/notes${largeQuery}`)
+        .get(`/notes-api/v1/notes${largeQuery}`)
         .set('User-Agent', validUserAgent);
 
       // Should reject or handle gracefully
@@ -311,7 +325,7 @@ describe('Security Tests', () => {
         .join('&');
 
       const response = await request(app)
-        .get(`/api/v1/notes?${manyParams}`)
+        .get(`/notes-api/v1/notes?${manyParams}`)
         .set('User-Agent', validUserAgent);
 
       // Should handle or reject gracefully
@@ -322,7 +336,7 @@ describe('Security Tests', () => {
   describe('Information Disclosure', () => {
     it('should not expose sensitive information in error messages', async () => {
       const response = await request(app)
-        .get('/api/v1/notes/invalid')
+        .get('/notes-api/v1/notes/invalid')
         .set('User-Agent', validUserAgent);
 
       expect([400, 429, 500]).toContain(response.status);
@@ -343,7 +357,7 @@ describe('Security Tests', () => {
       // This test assumes production mode
       // In development, stack traces might be shown
       const response = await request(app)
-        .get('/api/v1/nonexistent')
+        .get('/notes-api/v1/nonexistent')
         .set('User-Agent', validUserAgent);
 
       expect([404, 429]).toContain(response.status);

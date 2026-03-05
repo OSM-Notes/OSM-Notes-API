@@ -52,7 +52,7 @@ export default function () {
   // Test 1: Get note detail
   const noteId = TEST_NOTE_IDS[Math.floor(Math.random() * TEST_NOTE_IDS.length)];
   const detailStart = Date.now();
-  const detailRes = http.get(`${BASE_URL}/api/v1/notes/${noteId}`, { headers });
+  const detailRes = http.get(`${BASE_URL}/notes-api/v1/notes/${noteId}`, { headers });
   const detailDuration = Date.now() - detailStart;
   
   const detailCheck = check(detailRes, {
@@ -75,7 +75,7 @@ export default function () {
 
   // Test 2: Get note comments
   const commentsStart = Date.now();
-  const commentsRes = http.get(`${BASE_URL}/api/v1/notes/${noteId}/comments`, { headers });
+  const commentsRes = http.get(`${BASE_URL}/notes-api/v1/notes/${noteId}/comments`, { headers });
   const commentsDuration = Date.now() - commentsStart;
   
   const commentsCheck = check(commentsRes, {
@@ -98,7 +98,7 @@ export default function () {
 
   // Test 3: Search notes
   const searchStart = Date.now();
-  const searchRes = http.get(`${BASE_URL}/api/v1/notes?limit=10&page=1`, { headers });
+  const searchRes = http.get(`${BASE_URL}/notes-api/v1/notes?limit=10&page=1`, { headers });
   const searchDuration = Date.now() - searchStart;
   
   const searchCheck = check(searchRes, {

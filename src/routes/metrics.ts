@@ -34,7 +34,7 @@ function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => P
  *               example: |
  *                 # HELP http_requests_total Total number of HTTP requests
  *                 # TYPE http_requests_total counter
- *                 http_requests_total{method="GET",route="/api/v1/users/:id",status_code="200"} 42
+ *                 http_requests_total{method="GET",route="/notes-api/v1/users/:id",status_code="200"} 42
  */
 router.get(
   '/',

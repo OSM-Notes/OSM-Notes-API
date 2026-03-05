@@ -196,7 +196,7 @@ export async function invalidateCache(key: string): Promise<void> {
 /**
  * Invalidate cache by pattern (e.g., all user-related cache)
  *
- * @param pattern - Redis key pattern (e.g., 'cache:GET:/api/v1/users/*')
+ * @param pattern - Redis key pattern (e.g., 'cache:GET:/notes-api/v1/users/*')
  */
 export async function invalidateCacheByPattern(pattern: string): Promise<void> {
   const redisClient = getRedisClient();

@@ -12,7 +12,7 @@ import { setPaginationHeaders } from '../utils/pagination';
 
 /**
  * @swagger
- * /api/v1/hashtags:
+ * /notes-api/v1/hashtags:
  *   get:
  *     summary: Get list of hashtags with usage counts
  *     tags: [Hashtags]
@@ -109,7 +109,7 @@ export async function getHashtags(req: Request, res: Response, next: NextFunctio
     if (limitStr) queryParams.limit = limitStr;
     if (orderStr) queryParams.order = orderStr;
 
-    setPaginationHeaders(res, result.pagination, '/api/v1/hashtags', queryParams);
+    setPaginationHeaders(res, result.pagination, '/notes-api/v1/hashtags', queryParams);
 
     res.json({
       data: result.data,
@@ -122,7 +122,7 @@ export async function getHashtags(req: Request, res: Response, next: NextFunctio
 
 /**
  * @swagger
- * /api/v1/hashtags/{hashtag}:
+ * /notes-api/v1/hashtags/{hashtag}:
  *   get:
  *     summary: Get details for a specific hashtag
  *     tags: [Hashtags]

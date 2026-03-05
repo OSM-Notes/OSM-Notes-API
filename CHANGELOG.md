@@ -29,15 +29,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 #### Core API Endpoints
 
 - Notes endpoints:
-  - `GET /api/v1/notes/:note_id` - Get note by ID
-  - `GET /api/v1/notes/:note_id/comments` - Get note comments
-  - `GET /api/v1/notes` - Search notes with filters and pagination
+  - `GET /notes-api/v1/notes/:note_id` - Get note by ID
+  - `GET /notes-api/v1/notes/:note_id/comments` - Get note comments
+  - `GET /notes-api/v1/notes` - Search notes with filters and pagination
 - User profiles endpoint:
-  - `GET /api/v1/users/:user_id` - Get user profile with analytics
+  - `GET /notes-api/v1/users/:user_id` - Get user profile with analytics
 - Country profiles endpoint:
-  - `GET /api/v1/countries/:country_id` - Get country profile with analytics
+  - `GET /notes-api/v1/countries/:country_id` - Get country profile with analytics
 - Global analytics endpoint:
-  - `GET /api/v1/analytics/global` - Get global statistics
+  - `GET /notes-api/v1/analytics/global` - Get global statistics
 - Health check endpoint:
   - `GET /health` - API and dependencies status
 

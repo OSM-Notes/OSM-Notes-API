@@ -229,7 +229,7 @@ redis-cli GET "rate-limit:192.168.1.1:MyApp/1.0"
 redis-cli KEYS "cache:*"
 
 # Check specific value
-redis-cli GET "cache:GET:/api/v1/users/123:"
+redis-cli GET "cache:GET:/notes-api/v1/users/123:"
 ```
 
 ## Troubleshooting

@@ -14,7 +14,7 @@ import { setPaginationHeaders } from '../utils/pagination';
 
 /**
  * @swagger
- * /api/v1/notes/{note_id}:
+ * /notes-api/v1/notes/{note_id}:
  *   get:
  *     summary: Get a note by ID
  *     tags: [Notes]
@@ -78,7 +78,7 @@ export async function getNoteById(req: Request, res: Response, next: NextFunctio
 
 /**
  * @swagger
- * /api/v1/notes/{note_id}/comments:
+ * /notes-api/v1/notes/{note_id}/comments:
  *   get:
  *     summary: Get comments for a note
  *     tags: [Notes]
@@ -146,7 +146,7 @@ export async function getNoteComments(
 
 /**
  * @swagger
- * /api/v1/notes:
+ * /notes-api/v1/notes:
  *   get:
  *     summary: Search notes with filters (supports advanced search with text and logical operators)
  *     tags: [Notes]
@@ -293,7 +293,7 @@ export async function searchNotes(req: Request, res: Response, next: NextFunctio
       const result = await advancedSearchService.advancedSearchNotes(filters);
 
       // Set pagination headers
-      setPaginationHeaders(res, result.pagination, '/api/v1/notes', {
+      setPaginationHeaders(res, result.pagination, '/notes-api/v1/notes', {
         ...filters,
       });
 
@@ -324,7 +324,7 @@ export async function searchNotes(req: Request, res: Response, next: NextFunctio
     const result = await noteService.searchNotes(filters);
 
     // Set pagination headers
-    setPaginationHeaders(res, result.pagination, '/api/v1/notes', {
+    setPaginationHeaders(res, result.pagination, '/notes-api/v1/notes', {
       country: filters.country,
       status: filters.status,
       hashtag: filters.hashtag,

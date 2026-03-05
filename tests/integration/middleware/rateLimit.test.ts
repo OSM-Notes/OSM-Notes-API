@@ -24,7 +24,7 @@ describe('Rate Limiting Middleware Integration', () => {
 
   describe('Rate limit headers', () => {
     it('should include rate limit headers in response', async () => {
-      const response = await request(app).get('/api/v1').set('User-Agent', validUserAgent);
+      const response = await request(app).get('/notes-api/v1').set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(200);
       // express-rate-limit v7 uses standardHeaders: true
@@ -35,7 +35,7 @@ describe('Rate Limiting Middleware Integration', () => {
     });
 
     it('should show correct limit (50 requests)', async () => {
-      const response = await request(app).get('/api/v1').set('User-Agent', validUserAgent);
+      const response = await request(app).get('/notes-api/v1').set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(200);
       const limit = parseInt(response.headers['ratelimit-limit'] || '0', 10);
@@ -43,11 +43,11 @@ describe('Rate Limiting Middleware Integration', () => {
     });
 
     it('should decrement remaining count', async () => {
-      const response1 = await request(app).get('/api/v1').set('User-Agent', validUserAgent);
+      const response1 = await request(app).get('/notes-api/v1').set('User-Agent', validUserAgent);
 
       const remaining1 = parseInt(response1.headers['ratelimit-remaining'] || '0', 10);
 
-      const response2 = await request(app).get('/api/v1').set('User-Agent', validUserAgent);
+      const response2 = await request(app).get('/notes-api/v1').set('User-Agent', validUserAgent);
 
       const remaining2 = parseInt(response2.headers['ratelimit-remaining'] || '0', 10);
 
@@ -60,7 +60,7 @@ describe('Rate Limiting Middleware Integration', () => {
       // Make a few requests (well under the limit)
       const requests = Array(5)
         .fill(null)
-        .map(() => request(app).get('/api/v1').set('User-Agent', validUserAgent));
+        .map(() => request(app).get('/notes-api/v1').set('User-Agent', validUserAgent));
 
       const responses = await Promise.all(requests);
       responses.forEach((response) => {
@@ -73,7 +73,7 @@ describe('Rate Limiting Middleware Integration', () => {
       // In a real scenario, we'd use a test Redis instance or mock
       // For now, we test the structure and that rate limiting is active
 
-      const response = await request(app).get('/api/v1').set('User-Agent', validUserAgent);
+      const response = await request(app).get('/notes-api/v1').set('User-Agent', validUserAgent);
 
       // Should either succeed (if under limit) or return 429 (if over limit)
       expect([200, 429]).toContain(response.status);
@@ -96,9 +96,9 @@ describe('Rate Limiting Middleware Integration', () => {
       const userAgent1 = 'App1/1.0 (app1@example.com)';
       const userAgent2 = 'App2/1.0 (app2@example.com)';
 
-      const response1 = await request(app).get('/api/v1').set('User-Agent', userAgent1);
+      const response1 = await request(app).get('/notes-api/v1').set('User-Agent', userAgent1);
 
-      const response2 = await request(app).get('/api/v1').set('User-Agent', userAgent2);
+      const response2 = await request(app).get('/notes-api/v1').set('User-Agent', userAgent2);
 
       // Both should succeed (different User-Agents = different rate limit buckets)
       expect(response1.status).toBe(200);

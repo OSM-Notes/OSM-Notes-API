@@ -10,7 +10,7 @@ import { UserRankingsParams, UserRankingMetric } from '../types';
 
 /**
  * @swagger
- * /api/v1/users/rankings:
+ * /notes-api/v1/users/rankings:
  *   get:
  *     summary: Get user rankings by metric
  *     tags: [Users]

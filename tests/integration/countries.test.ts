@@ -22,12 +22,12 @@ describe('Countries Endpoints', () => {
     app = createApp();
   });
 
-  describe('GET /api/v1/countries/:country_id', () => {
+  describe('GET /notes-api/v1/countries/:country_id', () => {
     it('should return 200 status for valid country ID', async () => {
       // Note: This test requires a real database with test data
       // For now, we'll test the endpoint structure
       const response = await request(app)
-        .get('/api/v1/countries/42')
+        .get('/notes-api/v1/countries/42')
         .set('User-Agent', validUserAgent);
 
       // Should return 200 (if country exists), 404 (if not), or 500 (if DB unavailable)
@@ -36,7 +36,7 @@ describe('Countries Endpoints', () => {
 
     it('should return 400 for invalid country ID', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/invalid')
+        .get('/notes-api/v1/countries/invalid')
         .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
@@ -46,7 +46,7 @@ describe('Countries Endpoints', () => {
 
     it('should return 400 for negative country ID', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/-1')
+        .get('/notes-api/v1/countries/-1')
         .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
@@ -54,7 +54,7 @@ describe('Countries Endpoints', () => {
 
     it('should return 400 for zero country ID', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/0')
+        .get('/notes-api/v1/countries/0')
         .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
@@ -62,7 +62,7 @@ describe('Countries Endpoints', () => {
 
     it('should return JSON response', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/42')
+        .get('/notes-api/v1/countries/42')
         .set('User-Agent', validUserAgent);
 
       expect(response.headers['content-type']).toMatch(/json/);
@@ -70,7 +70,7 @@ describe('Countries Endpoints', () => {
 
     it('should return country profile data when country exists', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/42')
+        .get('/notes-api/v1/countries/42')
         .set('User-Agent', validUserAgent);
 
       if (response.status === 200) {
@@ -81,7 +81,7 @@ describe('Countries Endpoints', () => {
     });
 
     it('should require User-Agent header', async () => {
-      const response = await request(app).get('/api/v1/countries/42');
+      const response = await request(app).get('/notes-api/v1/countries/42');
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
@@ -92,7 +92,9 @@ describe('Countries Endpoints', () => {
       // Reduced from 60 to 15 for better performance
       const requests = Array(15)
         .fill(null)
-        .map(() => request(app).get('/api/v1/countries/42').set('User-Agent', validUserAgent));
+        .map(() =>
+          request(app).get('/notes-api/v1/countries/42').set('User-Agent', validUserAgent)
+        );
 
       const responses = await Promise.all(requests);
 

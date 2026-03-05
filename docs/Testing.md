@@ -98,58 +98,58 @@ curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
 **2. Get a note by ID:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/api/v1/notes/12345
+     http://localhost:3000/notes-api/v1/notes/12345
 ```
 
 **3. Get note comments:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/api/v1/notes/12345/comments
+     http://localhost:3000/notes-api/v1/notes/12345/comments
 ```
 
 **4. Search notes with filters:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     "http://localhost:3000/api/v1/notes?status=open&country=42&limit=10"
+     "http://localhost:3000/notes-api/v1/notes?status=open&country=42&limit=10"
 ```
 
 **5. Get user profile:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/api/v1/users/12345
+     http://localhost:3000/notes-api/v1/users/12345
 ```
 
 **6. Get country profile:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/api/v1/countries/42
+     http://localhost:3000/notes-api/v1/countries/42
 ```
 
 **7. Get global analytics:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/api/v1/analytics/global
+     http://localhost:3000/notes-api/v1/analytics/global
 ```
 
 #### Validation Tests
 
 **Test without User-Agent (should fail):**
 ```bash
-curl http://localhost:3000/api/v1/notes/12345
+curl http://localhost:3000/notes-api/v1/notes/12345
 # Expected: 400 Bad Request
 ```
 
 **Test with invalid User-Agent:**
 ```bash
 curl -H "User-Agent: InvalidFormat" \
-     http://localhost:3000/api/v1/notes/12345
+     http://localhost:3000/notes-api/v1/notes/12345
 # Expected: 400 Bad Request
 ```
 
 **Test with invalid ID:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/api/v1/notes/invalid
+     http://localhost:3000/notes-api/v1/notes/invalid
 # Expected: 400 Bad Request
 ```
 
@@ -157,7 +157,7 @@ curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
 ```bash
 for i in {1..60}; do
   curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-       http://localhost:3000/api/v1/notes/12345
+       http://localhost:3000/notes-api/v1/notes/12345
   echo ""
 done
 # After 50 requests, should return 429 Too Many Requests
@@ -174,9 +174,9 @@ pip install httpie
 # Usage examples
 http GET localhost:3000/health User-Agent:"TestApp/1.0 (test@example.com)"
 
-http GET localhost:3000/api/v1/notes/12345 User-Agent:"TestApp/1.0 (test@example.com)"
+http GET localhost:3000/notes-api/v1/notes/12345 User-Agent:"TestApp/1.0 (test@example.com)"
 
-http GET localhost:3000/api/v1/notes \
+http GET localhost:3000/notes-api/v1/notes \
   User-Agent:"TestApp/1.0 (test@example.com)" \
   status==open \
   country==42 \
@@ -203,15 +203,15 @@ http GET localhost:3000/api/v1/notes \
      - Method: GET
 
    - **GET Note by ID**
-     - URL: `{{base_url}}/api/v1/notes/12345`
+     - URL: `{{base_url}}/notes-api/v1/notes/12345`
      - Method: GET
 
    - **GET Note Comments**
-     - URL: `{{base_url}}/api/v1/notes/12345/comments`
+     - URL: `{{base_url}}/notes-api/v1/notes/12345/comments`
      - Method: GET
 
    - **GET Search Notes**
-     - URL: `{{base_url}}/api/v1/notes`
+     - URL: `{{base_url}}/notes-api/v1/notes`
      - Method: GET
      - Params:
        - `status`: `open`
@@ -219,15 +219,15 @@ http GET localhost:3000/api/v1/notes \
        - `limit`: `10`
 
    - **GET User Profile**
-     - URL: `{{base_url}}/api/v1/users/12345`
+     - URL: `{{base_url}}/notes-api/v1/users/12345`
      - Method: GET
 
    - **GET Country Profile**
-     - URL: `{{base_url}}/api/v1/countries/42`
+     - URL: `{{base_url}}/notes-api/v1/countries/42`
      - Method: GET
 
    - **GET Global Analytics**
-     - URL: `{{base_url}}/api/v1/analytics/global`
+     - URL: `{{base_url}}/notes-api/v1/analytics/global`
      - Method: GET
 
 ### 5. Testing with Node.js Scripts
@@ -275,19 +275,19 @@ async function testEndpoints() {
     console.log('Health Check:', health.status, health.data);
 
     // Test notes
-    const notes = await makeRequest('/api/v1/notes/12345');
+    const notes = await makeRequest('/notes-api/v1/notes/12345');
     console.log('Note:', notes.status);
 
     // Test users
-    const users = await makeRequest('/api/v1/users/12345');
+    const users = await makeRequest('/notes-api/v1/users/12345');
     console.log('User:', users.status);
 
     // Test countries
-    const countries = await makeRequest('/api/v1/countries/42');
+    const countries = await makeRequest('/notes-api/v1/countries/42');
     console.log('Country:', countries.status);
 
     // Test analytics
-    const analytics = await makeRequest('/api/v1/analytics/global');
+    const analytics = await makeRequest('/notes-api/v1/analytics/global');
     console.log('Analytics:', analytics.status);
 
   } catch (error) {
@@ -330,11 +330,11 @@ To format JSON responses in the terminal:
 ```bash
 # With curl and jq
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/api/v1/notes/12345 | jq
+     http://localhost:3000/notes-api/v1/notes/12345 | jq
 
 # With curl and python
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/api/v1/notes/12345 | python -m json.tool
+     http://localhost:3000/notes-api/v1/notes/12345 | python -m json.tool
 ```
 
 ## Testing Checklist
@@ -361,18 +361,18 @@ curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
 - [ ] Error messages are clear and useful
 
 ### Specific Endpoints
-- [ ] GET /api/v1/notes/:note_id
-- [ ] GET /api/v1/notes/:note_id/comments
-- [ ] GET /api/v1/notes (search)
-- [ ] GET /api/v1/users/:user_id
-- [ ] GET /api/v1/countries/:country_id
-- [ ] GET /api/v1/analytics/global
+- [ ] GET /notes-api/v1/notes/:note_id
+- [ ] GET /notes-api/v1/notes/:note_id/comments
+- [ ] GET /notes-api/v1/notes (search)
+- [ ] GET /notes-api/v1/users/:user_id
+- [ ] GET /notes-api/v1/countries/:country_id
+- [ ] GET /notes-api/v1/analytics/global
 
 ## API options and test coverage
 
 The following table summarises which API options are covered by tests. **Unit tests** exercise service logic with a mocked DB; **integration tests** call the real HTTP API (and may hit a real DB).
 
-### GET /api/v1/notes (search)
+### GET /notes-api/v1/notes (search)
 
 | Option        | Unit (noteService) | Unit (advancedSearch) | Integration (notes.test) | Integration (advancedSearch.test) |
 |---------------|--------------------|------------------------|--------------------------|-----------------------------------|
@@ -393,7 +393,7 @@ Note: `hashtag` and `application` are implemented only in the **standard search*
 
 ### Other endpoints
 
-- **GET /api/v1/notes/:id**, **GET /api/v1/notes/:id/comments**: unit (getNoteById, getNoteComments) and integration (notes.test) with valid/invalid ID, User-Agent, rate limit.
+- **GET /notes-api/v1/notes/:id**, **GET /notes-api/v1/notes/:id/comments**: unit (getNoteById, getNoteComments) and integration (notes.test) with valid/invalid ID, User-Agent, rate limit.
 - **Analytics (trends, global)**: unit (trendsService, analyticsService) and integration (trends.test, analytics.test).
 - **Hashtags, comparison, rankings, search (users/countries), users, countries, health, etc.**: each has unit and/or integration tests; see the corresponding `tests/unit` and `tests/integration` files.
 

@@ -10,7 +10,7 @@ import { CountryRankingsParams, CountryRankingMetric } from '../types';
 
 /**
  * @swagger
- * /api/v1/countries/rankings:
+ * /notes-api/v1/countries/rankings:
  *   get:
  *     summary: Get country rankings by metric
  *     tags: [Countries]

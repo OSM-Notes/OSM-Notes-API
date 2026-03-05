@@ -31,7 +31,7 @@ function cacheHandler(
 }
 
 /**
- * @route   GET /api/v1/users/rankings
+ * @route   GET /notes-api/v1/users/rankings
  * @desc    Get user rankings by metric
  * @access  Public
  */
@@ -43,7 +43,7 @@ router.get(
 );
 
 /**
- * @route   GET /api/v1/users/:user_id
+ * @route   GET /notes-api/v1/users/:user_id
  * @desc    Get user profile by ID
  * @access  Public
  */

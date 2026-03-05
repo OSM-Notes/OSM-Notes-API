@@ -252,7 +252,7 @@ describe('notFoundHandler', () => {
   });
 
   it('should handle different paths', () => {
-    const paths = ['/api/v1/users', '/api/v1/notes/123', '/health'];
+    const paths = ['/notes-api/v1/users', '/notes-api/v1/notes/123', '/health'];
 
     paths.forEach((path) => {
       const testRequest = {

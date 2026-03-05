@@ -52,7 +52,7 @@ export default function () {
   // Test 1: Get user profile
   const userId = TEST_USER_IDS[Math.floor(Math.random() * TEST_USER_IDS.length)];
   const profileStart = Date.now();
-  const profileRes = http.get(`${BASE_URL}/api/v1/users/${userId}`, { headers });
+  const profileRes = http.get(`${BASE_URL}/notes-api/v1/users/${userId}`, { headers });
   const profileDuration = Date.now() - profileStart;
   
   const profileCheck = check(profileRes, {
@@ -74,7 +74,7 @@ export default function () {
 
   // Test 2: Search users (random query)
   const searchStart = Date.now();
-  const searchRes = http.get(`${BASE_URL}/api/v1/search/users?limit=10&page=1`, { headers });
+  const searchRes = http.get(`${BASE_URL}/notes-api/v1/search/users?limit=10&page=1`, { headers });
   const searchDuration = Date.now() - searchStart;
   
   const searchCheck = check(searchRes, {
@@ -96,7 +96,7 @@ export default function () {
 
   // Test 3: Get user rankings
   const rankingsStart = Date.now();
-  const rankingsRes = http.get(`${BASE_URL}/api/v1/users/rankings?limit=10&sort=history_whole_open&order=desc`, { headers });
+  const rankingsRes = http.get(`${BASE_URL}/notes-api/v1/users/rankings?limit=10&sort=history_whole_open&order=desc`, { headers });
   const rankingsDuration = Date.now() - rankingsStart;
   
   const rankingsCheck = check(rankingsRes, {

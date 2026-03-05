@@ -50,7 +50,7 @@ describe('Metrics Endpoint', () => {
       const validUserAgent = 'TestApp/1.0 (test@example.com)';
 
       // Make some API calls
-      await request(app).get('/api/v1/analytics/global').set('User-Agent', validUserAgent);
+      await request(app).get('/notes-api/v1/analytics/global').set('User-Agent', validUserAgent);
 
       // Get metrics
       const response = await request(app).get('/metrics');

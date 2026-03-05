@@ -10,7 +10,7 @@ import { ApiError } from '../middleware/errorHandler';
 
 /**
  * @swagger
- * /api/v1/users/{user_id}:
+ * /notes-api/v1/users/{user_id}:
  *   get:
  *     summary: Get user profile by ID
  *     tags: [Users]

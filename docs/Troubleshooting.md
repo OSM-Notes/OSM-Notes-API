@@ -95,7 +95,7 @@ docker compose logs -f api
 **Example**:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/notes/123
+     http://localhost:3000/notes-api/v1/notes/123
 ```
 
 ---
@@ -144,7 +144,7 @@ psql -h $DB_HOST -U $DB_USER -d $DB_NAME -c \
 4. Check rate limit headers:
    ```bash
    curl -I -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-        http://localhost:3000/api/v1/notes
+        http://localhost:3000/notes-api/v1/notes
    ```
    Look for:
    - `RateLimit-Limit`: Maximum requests allowed
@@ -643,7 +643,7 @@ Add request ID middleware (if implemented):
 ```bash
 curl -H "X-Request-ID: test-123" \
      -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/api/v1/notes
+     http://localhost:3000/notes-api/v1/notes
 ```
 
 ---

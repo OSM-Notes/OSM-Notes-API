@@ -263,7 +263,7 @@ curl -H "User-Agent: Monitor/1.0 (ops@example.com)" \
 
 # Test API endpoint
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/api/v1/analytics/global
+     http://localhost:3000/notes-api/v1/analytics/global
 ```
 
 #### Update Deployment
@@ -411,13 +411,13 @@ curl -H "User-Agent: Monitor/1.0 (ops@example.com)" \
 ```bash
 # Test various endpoints
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/api/v1/analytics/global
+     http://localhost:3000/notes-api/v1/analytics/global
 
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/api/v1/users/1
+     http://localhost:3000/notes-api/v1/users/1
 
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/api/v1/countries/42
+     http://localhost:3000/notes-api/v1/countries/42
 ```
 
 ### 3. Logs

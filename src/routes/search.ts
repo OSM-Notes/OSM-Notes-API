@@ -17,14 +17,14 @@ function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => P
 }
 
 /**
- * @route   GET /api/v1/search/users
+ * @route   GET /notes-api/v1/search/users
  * @desc    Search users by username or user_id
  * @access  Public
  */
 router.get('/users', asyncHandler(searchController.searchUsers));
 
 /**
- * @route   GET /api/v1/search/countries
+ * @route   GET /notes-api/v1/search/countries
  * @desc    Search countries by name, ISO code, or country_id
  * @access  Public
  */

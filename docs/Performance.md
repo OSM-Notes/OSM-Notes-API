@@ -448,12 +448,12 @@ AND [other conditions]
 
 | Endpoint | Target P50 | Target P95 | Target P99 |
 |----------|------------|------------|------------|
-| GET /api/v1/notes/:id | < 50ms | < 200ms | < 500ms |
-| GET /api/v1/notes/:id/comments | < 100ms | < 300ms | < 800ms |
-| GET /api/v1/notes (search) | < 200ms | < 500ms | < 1000ms |
-| GET /api/v1/users/:id | < 50ms | < 150ms | < 300ms |
-| GET /api/v1/countries/:id | < 50ms | < 150ms | < 300ms |
-| GET /api/v1/analytics/global | < 50ms | < 100ms | < 200ms |
+| GET /notes-api/v1/notes/:id | < 50ms | < 200ms | < 500ms |
+| GET /notes-api/v1/notes/:id/comments | < 100ms | < 300ms | < 800ms |
+| GET /notes-api/v1/notes (search) | < 200ms | < 500ms | < 1000ms |
+| GET /notes-api/v1/users/:id | < 50ms | < 150ms | < 300ms |
+| GET /notes-api/v1/countries/:id | < 50ms | < 150ms | < 300ms |
+| GET /notes-api/v1/analytics/global | < 50ms | < 100ms | < 200ms |
 
 ### Benchmarking Script
 
@@ -468,12 +468,12 @@ echo "Running performance benchmarks..."
 
 # Test endpoints
 endpoints=(
-  "/api/v1/analytics/global"
-  "/api/v1/users/1"
-  "/api/v1/countries/1"
-  "/api/v1/notes/1"
-  "/api/v1/notes/1/comments"
-  "/api/v1/notes?limit=20"
+  "/notes-api/v1/analytics/global"
+  "/notes-api/v1/users/1"
+  "/notes-api/v1/countries/1"
+  "/notes-api/v1/notes/1"
+  "/notes-api/v1/notes/1/comments"
+  "/notes-api/v1/notes?limit=20"
 )
 
 for endpoint in "${endpoints[@]}"; do
@@ -494,7 +494,7 @@ sudo apt-get install apache2-utils
 # Run benchmark
 ab -n 1000 -c 10 \
    -H "User-Agent: Benchmark/1.0 (benchmark@example.com)" \
-   http://localhost:3000/api/v1/analytics/global
+   http://localhost:3000/notes-api/v1/analytics/global
 ```
 
 ### Using k6 (Recommended)
@@ -522,10 +522,10 @@ export default function () {
   };
 
   const responses = {
-    global: http.get('http://localhost:3000/api/v1/analytics/global', { headers }),
-    user: http.get('http://localhost:3000/api/v1/users/1', { headers }),
-    country: http.get('http://localhost:3000/api/v1/countries/1', { headers }),
-    note: http.get('http://localhost:3000/api/v1/notes/1', { headers }),
+    global: http.get('http://localhost:3000/notes-api/v1/analytics/global', { headers }),
+    user: http.get('http://localhost:3000/notes-api/v1/users/1', { headers }),
+    country: http.get('http://localhost:3000/notes-api/v1/countries/1', { headers }),
+    note: http.get('http://localhost:3000/notes-api/v1/notes/1', { headers }),
   };
 
   check(responses.global, {
@@ -864,25 +864,25 @@ See `../tests/load/README.md` for detailed k6 usage instructions.
 | Endpoint | P50 | P95 | P99 | Target |
 |----------|-----|-----|-----|--------|
 | `GET /health` | ~10ms | ~50ms | ~100ms | < 100ms |
-| `GET /api/v1/notes/:id` | ~50ms | ~150ms | ~300ms | < 500ms |
-| `GET /api/v1/users/:id` | ~50ms | ~150ms | ~300ms | < 500ms |
-| `GET /api/v1/countries/:id` | ~50ms | ~150ms | ~300ms | < 500ms |
+| `GET /notes-api/v1/notes/:id` | ~50ms | ~150ms | ~300ms | < 500ms |
+| `GET /notes-api/v1/users/:id` | ~50ms | ~150ms | ~300ms | < 500ms |
+| `GET /notes-api/v1/countries/:id` | ~50ms | ~150ms | ~300ms | < 500ms |
 
 #### Search Endpoints
 
 | Endpoint | P50 | P95 | P99 | Target |
 |----------|-----|-----|-----|--------|
-| `GET /api/v1/notes?limit=10` | ~100ms | ~300ms | ~500ms | < 500ms |
-| `GET /api/v1/search/users` | ~150ms | ~400ms | ~800ms | < 1000ms |
+| `GET /notes-api/v1/notes?limit=10` | ~100ms | ~300ms | ~500ms | < 500ms |
+| `GET /notes-api/v1/search/users` | ~150ms | ~400ms | ~800ms | < 1000ms |
 
 #### Analytics Endpoints (Complex Queries)
 
 | Endpoint | P50 | P95 | P99 | Target |
 |----------|-----|-----|-----|--------|
-| `GET /api/v1/analytics/global` | ~200ms | ~1000ms | ~2000ms | < 2000ms |
-| `GET /api/v1/users/rankings` | ~300ms | ~1500ms | ~3000ms | < 2000ms |
-| `GET /api/v1/analytics/trends` | ~500ms | ~2000ms | ~5000ms | < 5000ms |
-| `GET /api/v1/analytics/comparison` | ~500ms | ~2000ms | ~5000ms | < 5000ms |
+| `GET /notes-api/v1/analytics/global` | ~200ms | ~1000ms | ~2000ms | < 2000ms |
+| `GET /notes-api/v1/users/rankings` | ~300ms | ~1500ms | ~3000ms | < 2000ms |
+| `GET /notes-api/v1/analytics/trends` | ~500ms | ~2000ms | ~5000ms | < 5000ms |
+| `GET /notes-api/v1/analytics/comparison` | ~500ms | ~2000ms | ~5000ms | < 5000ms |
 
 **Note**: These are baseline metrics. Actual performance may vary based on:
 - Database load and size

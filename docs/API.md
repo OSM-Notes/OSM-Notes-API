@@ -43,7 +43,7 @@ OSM Notes API provides programmatic access to OpenStreetMap notes analytics data
 **Key Features**:
 - RESTful API design
 - JSON responses
-- Versioned endpoints (`/api/v1/`)
+- Versioned endpoints (`/notes-api/v1/`)
 - Pagination support
 - Advanced filtering capabilities
 - Rate limiting and anti-abuse protection
@@ -63,7 +63,7 @@ http://localhost:3000
 https://notes-api.osm.lat
 ```
 
-All API endpoints are prefixed with `/api/v1/` except the health check endpoint.
+All API endpoints are prefixed with `/notes-api/v1/` except the health check endpoint.
 
 ---
 
@@ -274,7 +274,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 
 ### Notes
 
-#### GET /api/v1/notes
+#### GET /notes-api/v1/notes
 
 Search notes with various filters and pagination.
 
@@ -325,14 +325,14 @@ Search notes with various filters and pagination.
 **Example**:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/api/v1/notes?status=open&country=42&limit=10"
+     "http://localhost:3000/notes-api/v1/notes?status=open&country=42&limit=10"
 ```
 
 **Error Responses**:
 - `400 Bad Request`: Invalid parameters (invalid status, invalid page/limit values)
 - `500 Internal Server Error`: Server error
 
-#### GET /api/v1/notes/:note_id
+#### GET /notes-api/v1/notes/:note_id
 
 Get detailed information about a specific note.
 
@@ -362,7 +362,7 @@ Get detailed information about a specific note.
 **Example**:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/notes/12345
+     http://localhost:3000/notes-api/v1/notes/12345
 ```
 
 **Error Responses**:
@@ -370,7 +370,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 - `404 Not Found`: Note does not exist
 - `500 Internal Server Error`: Server error
 
-#### GET /api/v1/notes/:note_id/comments
+#### GET /notes-api/v1/notes/:note_id/comments
 
 Get all comments for a specific note.
 
@@ -410,7 +410,7 @@ Get all comments for a specific note.
 **Example**:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/notes/12345/comments
+     http://localhost:3000/notes-api/v1/notes/12345/comments
 ```
 
 **Error Responses**:
@@ -421,7 +421,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 
 ### Users
 
-#### GET /api/v1/users/:user_id
+#### GET /notes-api/v1/users/:user_id
 
 Get detailed profile and statistics for a specific user.
 
@@ -461,7 +461,7 @@ Get detailed profile and statistics for a specific user.
 **Example**:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/users/12345
+     http://localhost:3000/notes-api/v1/users/12345
 ```
 
 **Error Responses**:
@@ -473,7 +473,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 
 ### Countries
 
-#### GET /api/v1/countries/:country_id
+#### GET /notes-api/v1/countries/:country_id
 
 Get detailed profile and statistics for a specific country.
 
@@ -514,7 +514,7 @@ Get detailed profile and statistics for a specific country.
 **Example**:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/countries/42
+     http://localhost:3000/notes-api/v1/countries/42
 ```
 
 **Error Responses**:
@@ -526,7 +526,7 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 
 ### Analytics
 
-#### GET /api/v1/analytics/global
+#### GET /notes-api/v1/analytics/global
 
 Get global analytics and statistics across all OSM notes.
 
@@ -553,7 +553,7 @@ Get global analytics and statistics across all OSM notes.
 **Example**:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/api/v1/analytics/global
+     http://localhost:3000/notes-api/v1/analytics/global
 ```
 
 **Error Responses**:

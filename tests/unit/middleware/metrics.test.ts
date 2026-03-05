@@ -29,7 +29,7 @@ describe('metricsMiddleware', () => {
   beforeEach(() => {
     mockRequest = {
       method: 'GET',
-      path: '/api/v1/users/12345',
+      path: '/notes-api/v1/users/12345',
       ip: '127.0.0.1',
       get: jest.fn().mockReturnValue('TestApp/1.0 (test@example.com)'),
     };

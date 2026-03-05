@@ -36,9 +36,9 @@ describe('cacheMiddleware', () => {
   beforeEach(() => {
     mockRequest = {
       method: 'GET',
-      path: '/api/v1/users/12345',
+      path: '/notes-api/v1/users/12345',
       query: {},
-      originalUrl: '/api/v1/users/12345',
+      originalUrl: '/notes-api/v1/users/12345',
       protocol: 'http',
       get: jest.fn(),
     };
@@ -69,23 +69,23 @@ describe('cacheMiddleware', () => {
     it('should generate cache key from request path and query', () => {
       const req = {
         ...mockRequest,
-        path: '/api/v1/users/12345',
+        path: '/notes-api/v1/users/12345',
         query: {},
       } as Request;
 
       const key = generateCacheKey(req);
-      expect(key).toBe('cache:GET:/api/v1/users/12345:');
+      expect(key).toBe('cache:GET:/notes-api/v1/users/12345:');
     });
 
     it('should include query parameters in cache key', () => {
       const req = {
         ...mockRequest,
-        path: '/api/v1/users',
+        path: '/notes-api/v1/users',
         query: { page: '1', limit: '20' },
       } as Request;
 
       const key = generateCacheKey(req);
-      expect(key).toContain('cache:GET:/api/v1/users:');
+      expect(key).toContain('cache:GET:/notes-api/v1/users:');
       expect(key).toContain('page=1');
       expect(key).toContain('limit=20');
     });
@@ -93,7 +93,7 @@ describe('cacheMiddleware', () => {
     it('should sort query parameters for consistent keys', () => {
       const req1 = {
         ...mockRequest,
-        path: '/api/v1/users',
+        path: '/notes-api/v1/users',
         query: { limit: '20', page: '1' },
       } as Request;
 
@@ -101,7 +101,7 @@ describe('cacheMiddleware', () => {
 
       const req2 = {
         ...mockRequest,
-        path: '/api/v1/users',
+        path: '/notes-api/v1/users',
         query: { page: '1', limit: '20' },
       } as Request;
       const key2 = generateCacheKey(req2);
@@ -112,12 +112,12 @@ describe('cacheMiddleware', () => {
     it('should handle empty query parameters', () => {
       const req = {
         ...mockRequest,
-        path: '/api/v1/users',
+        path: '/notes-api/v1/users',
         query: {},
       } as Request;
 
       const key = generateCacheKey(req);
-      expect(key).toBe('cache:GET:/api/v1/users:');
+      expect(key).toBe('cache:GET:/notes-api/v1/users:');
     });
   });
 
@@ -384,21 +384,21 @@ describe('cacheMiddleware', () => {
     it('should delete cache key', async () => {
       mockRedisClient.del.mockResolvedValue(1);
 
-      await invalidateCache('cache:GET:/api/v1/users/12345:');
+      await invalidateCache('cache:GET:/notes-api/v1/users/12345:');
 
-      expect(mockRedisClient.del).toHaveBeenCalledWith('cache:GET:/api/v1/users/12345:');
+      expect(mockRedisClient.del).toHaveBeenCalledWith('cache:GET:/notes-api/v1/users/12345:');
     });
 
     it('should handle Redis unavailable gracefully', async () => {
       (getRedisClient as jest.Mock).mockReturnValue(null);
 
-      await expect(invalidateCache('cache:GET:/api/v1/users/12345:')).resolves.not.toThrow();
+      await expect(invalidateCache('cache:GET:/notes-api/v1/users/12345:')).resolves.not.toThrow();
     });
 
     it('should handle Redis errors gracefully', async () => {
       mockRedisClient.del.mockRejectedValue(new Error('Redis error'));
 
-      await expect(invalidateCache('cache:GET:/api/v1/users/12345:')).resolves.not.toThrow();
+      await expect(invalidateCache('cache:GET:/notes-api/v1/users/12345:')).resolves.not.toThrow();
     });
   });
 });

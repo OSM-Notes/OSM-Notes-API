@@ -54,10 +54,10 @@ describe('Rankings Endpoints', () => {
     app = createApp();
   });
 
-  describe('GET /api/v1/users/rankings', () => {
+  describe('GET /notes-api/v1/users/rankings', () => {
     it('should return 400 when metric is missing', async () => {
       const response = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
@@ -69,7 +69,7 @@ describe('Rankings Endpoints', () => {
 
     it('should return 400 when metric is invalid', async () => {
       const response = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .query({ metric: 'invalid_metric' })
         .set('User-Agent', validUserAgent);
 
@@ -81,7 +81,7 @@ describe('Rankings Endpoints', () => {
 
     it('should return 400 when limit is greater than 100', async () => {
       const response = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .query({ metric: 'history_whole_open', limit: 101 })
         .set('User-Agent', validUserAgent);
 
@@ -92,7 +92,7 @@ describe('Rankings Endpoints', () => {
 
     it('should return 400 when limit is less than 1', async () => {
       const response = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .query({ metric: 'history_whole_open', limit: 0 })
         .set('User-Agent', validUserAgent);
 
@@ -103,7 +103,7 @@ describe('Rankings Endpoints', () => {
 
     it('should return 400 when order is invalid', async () => {
       const response = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .query({ metric: 'history_whole_open', order: 'invalid' })
         .set('User-Agent', validUserAgent);
 
@@ -114,7 +114,7 @@ describe('Rankings Endpoints', () => {
 
     it('should return 400 when country is negative', async () => {
       const response = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .query({ metric: 'history_whole_open', country: -1 })
         .set('User-Agent', validUserAgent);
 
@@ -125,7 +125,7 @@ describe('Rankings Endpoints', () => {
 
     it('should return 200 for valid parameters', async () => {
       const response = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .query({ metric: 'history_whole_open', limit: 10 })
         .set('User-Agent', validUserAgent);
 
@@ -135,7 +135,7 @@ describe('Rankings Endpoints', () => {
 
     it('should return JSON response', async () => {
       const response = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .query({ metric: 'history_whole_open', limit: 10 })
         .set('User-Agent', validUserAgent);
 
@@ -146,7 +146,7 @@ describe('Rankings Endpoints', () => {
 
     it('should return rankings data structure when successful', async () => {
       const response = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .query({ metric: 'history_whole_open', limit: 10 })
         .set('User-Agent', validUserAgent);
 
@@ -177,7 +177,7 @@ describe('Rankings Endpoints', () => {
 
       for (const metric of validMetrics) {
         const response = await request(app)
-          .get('/api/v1/users/rankings')
+          .get('/notes-api/v1/users/rankings')
           .query({ metric, limit: 5 })
           .set('User-Agent', validUserAgent);
 
@@ -188,7 +188,7 @@ describe('Rankings Endpoints', () => {
 
     it('should accept country filter', async () => {
       const response = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .query({ metric: 'history_whole_open', country: 1, limit: 10 })
         .set('User-Agent', validUserAgent);
 
@@ -202,7 +202,7 @@ describe('Rankings Endpoints', () => {
 
     it('should accept order parameter', async () => {
       const response = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .query({ metric: 'history_whole_open', order: 'asc', limit: 10 })
         .set('User-Agent', validUserAgent);
 
@@ -216,17 +216,17 @@ describe('Rankings Endpoints', () => {
 
     it('should require User-Agent header', async () => {
       const response = await request(app)
-        .get('/api/v1/users/rankings')
+        .get('/notes-api/v1/users/rankings')
         .query({ metric: 'history_whole_open' });
 
       expect([400, 429]).toContain(response.status);
     });
   });
 
-  describe('GET /api/v1/countries/rankings', () => {
+  describe('GET /notes-api/v1/countries/rankings', () => {
     it('should return 400 when metric is missing', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/rankings')
+        .get('/notes-api/v1/countries/rankings')
         .set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(400);
@@ -238,7 +238,7 @@ describe('Rankings Endpoints', () => {
 
     it('should return 400 when metric is invalid', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/rankings')
+        .get('/notes-api/v1/countries/rankings')
         .query({ metric: 'invalid_metric' })
         .set('User-Agent', validUserAgent);
 
@@ -250,7 +250,7 @@ describe('Rankings Endpoints', () => {
 
     it('should return 400 when limit is greater than 100', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/rankings')
+        .get('/notes-api/v1/countries/rankings')
         .query({ metric: 'history_whole_open', limit: 101 })
         .set('User-Agent', validUserAgent);
 
@@ -261,7 +261,7 @@ describe('Rankings Endpoints', () => {
 
     it('should return 400 when limit is less than 1', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/rankings')
+        .get('/notes-api/v1/countries/rankings')
         .query({ metric: 'history_whole_open', limit: 0 })
         .set('User-Agent', validUserAgent);
 
@@ -272,7 +272,7 @@ describe('Rankings Endpoints', () => {
 
     it('should return 400 when order is invalid', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/rankings')
+        .get('/notes-api/v1/countries/rankings')
         .query({ metric: 'history_whole_open', order: 'invalid' })
         .set('User-Agent', validUserAgent);
 
@@ -283,7 +283,7 @@ describe('Rankings Endpoints', () => {
 
     it('should return 200 for valid parameters', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/rankings')
+        .get('/notes-api/v1/countries/rankings')
         .query({ metric: 'history_whole_open', limit: 10 })
         .set('User-Agent', validUserAgent);
 
@@ -293,7 +293,7 @@ describe('Rankings Endpoints', () => {
 
     it('should return JSON response', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/rankings')
+        .get('/notes-api/v1/countries/rankings')
         .query({ metric: 'history_whole_open', limit: 10 })
         .set('User-Agent', validUserAgent);
 
@@ -304,7 +304,7 @@ describe('Rankings Endpoints', () => {
 
     it('should return rankings data structure when successful', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/rankings')
+        .get('/notes-api/v1/countries/rankings')
         .query({ metric: 'history_whole_open', limit: 10 })
         .set('User-Agent', validUserAgent);
 
@@ -335,7 +335,7 @@ describe('Rankings Endpoints', () => {
 
       for (const metric of validMetrics) {
         const response = await request(app)
-          .get('/api/v1/countries/rankings')
+          .get('/notes-api/v1/countries/rankings')
           .query({ metric, limit: 5 })
           .set('User-Agent', validUserAgent);
 
@@ -346,7 +346,7 @@ describe('Rankings Endpoints', () => {
 
     it('should accept order parameter', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/rankings')
+        .get('/notes-api/v1/countries/rankings')
         .query({ metric: 'history_whole_open', order: 'asc', limit: 10 })
         .set('User-Agent', validUserAgent);
 
@@ -360,7 +360,7 @@ describe('Rankings Endpoints', () => {
 
     it('should require User-Agent header', async () => {
       const response = await request(app)
-        .get('/api/v1/countries/rankings')
+        .get('/notes-api/v1/countries/rankings')
         .query({ metric: 'history_whole_open' });
 
       expect([400, 429]).toContain(response.status);

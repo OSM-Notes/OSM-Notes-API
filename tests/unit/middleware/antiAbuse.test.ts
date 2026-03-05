@@ -14,7 +14,7 @@ describe('antiAbuseMiddleware', () => {
     mockRequest = {
       ip: '127.0.0.1',
       get: jest.fn(),
-      path: '/api/v1/test',
+      path: '/notes-api/v1/test',
     };
     mockResponse = {
       status: jest.fn().mockReturnThis(),

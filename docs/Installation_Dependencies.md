@@ -348,7 +348,7 @@ npm run dev
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" http://localhost:3000/health
 
 # Test endpoint (requires valid data in database)
-curl -H "User-Agent: TestApp/1.0 (test@example.com)" http://localhost:3000/api/v1/analytics/global
+curl -H "User-Agent: TestApp/1.0 (test@example.com)" http://localhost:3000/notes-api/v1/analytics/global
 ```
 
 ---

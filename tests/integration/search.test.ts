@@ -59,10 +59,10 @@ describe('Search Endpoints', () => {
     app = createApp();
   });
 
-  describe('GET /api/v1/search/users', () => {
+  describe('GET /notes-api/v1/search/users', () => {
     it('should return 200 status for valid search query', async () => {
       const response = await request(app)
-        .get('/api/v1/search/users')
+        .get('/notes-api/v1/search/users')
         .query({ q: 'test' })
         .set('User-Agent', validUserAgent);
 
@@ -72,7 +72,7 @@ describe('Search Endpoints', () => {
 
     it('should return 400 when query parameter is missing', async () => {
       const response = await request(app)
-        .get('/api/v1/search/users')
+        .get('/notes-api/v1/search/users')
         .set('User-Agent', validUserAgent);
 
       // May return 400 (validation error) or 429 (rate limited)
@@ -87,7 +87,7 @@ describe('Search Endpoints', () => {
 
     it('should return 400 when query parameter is empty', async () => {
       const response = await request(app)
-        .get('/api/v1/search/users')
+        .get('/notes-api/v1/search/users')
         .query({ q: '' })
         .set('User-Agent', validUserAgent);
 
@@ -100,7 +100,7 @@ describe('Search Endpoints', () => {
 
     it('should return 400 when query parameter is only whitespace', async () => {
       const response = await request(app)
-        .get('/api/v1/search/users')
+        .get('/notes-api/v1/search/users')
         .query({ q: '   ' })
         .set('User-Agent', validUserAgent);
 
@@ -110,7 +110,7 @@ describe('Search Endpoints', () => {
 
     it('should return JSON response with data array', async () => {
       const response = await request(app)
-        .get('/api/v1/search/users')
+        .get('/notes-api/v1/search/users')
         .query({ q: 'test' })
         .set('User-Agent', validUserAgent);
 
@@ -126,7 +126,7 @@ describe('Search Endpoints', () => {
 
     it('should return user search results with correct structure', async () => {
       const response = await request(app)
-        .get('/api/v1/search/users')
+        .get('/notes-api/v1/search/users')
         .query({ q: 'test' })
         .set('User-Agent', validUserAgent);
 
@@ -145,7 +145,7 @@ describe('Search Endpoints', () => {
 
     it('should search by numeric user_id when query is numeric', async () => {
       const response = await request(app)
-        .get('/api/v1/search/users')
+        .get('/notes-api/v1/search/users')
         .query({ q: '12345' })
         .set('User-Agent', validUserAgent);
 
@@ -154,7 +154,7 @@ describe('Search Endpoints', () => {
     });
 
     it('should require User-Agent header', async () => {
-      const response = await request(app).get('/api/v1/search/users').query({ q: 'test' });
+      const response = await request(app).get('/notes-api/v1/search/users').query({ q: 'test' });
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
@@ -164,7 +164,7 @@ describe('Search Endpoints', () => {
       // Make multiple requests quickly
       const requests = Array.from({ length: 55 }, () =>
         request(app)
-          .get('/api/v1/search/users')
+          .get('/notes-api/v1/search/users')
           .query({ q: 'test' })
           .set('User-Agent', validUserAgent)
       );
@@ -181,10 +181,10 @@ describe('Search Endpoints', () => {
     });
   });
 
-  describe('GET /api/v1/search/countries', () => {
+  describe('GET /notes-api/v1/search/countries', () => {
     it('should return 200 status for valid search query', async () => {
       const response = await request(app)
-        .get('/api/v1/search/countries')
+        .get('/notes-api/v1/search/countries')
         .query({ q: 'Colombia' })
         .set('User-Agent', validUserAgent);
 
@@ -194,7 +194,7 @@ describe('Search Endpoints', () => {
 
     it('should return 400 when query parameter is missing', async () => {
       const response = await request(app)
-        .get('/api/v1/search/countries')
+        .get('/notes-api/v1/search/countries')
         .set('User-Agent', validUserAgent);
 
       // May return 400 (validation error) or 429 (rate limited)
@@ -209,7 +209,7 @@ describe('Search Endpoints', () => {
 
     it('should return 400 when query parameter is empty', async () => {
       const response = await request(app)
-        .get('/api/v1/search/countries')
+        .get('/notes-api/v1/search/countries')
         .query({ q: '' })
         .set('User-Agent', validUserAgent);
 
@@ -222,7 +222,7 @@ describe('Search Endpoints', () => {
 
     it('should return 400 when query parameter is only whitespace', async () => {
       const response = await request(app)
-        .get('/api/v1/search/countries')
+        .get('/notes-api/v1/search/countries')
         .query({ q: '   ' })
         .set('User-Agent', validUserAgent);
 
@@ -232,7 +232,7 @@ describe('Search Endpoints', () => {
 
     it('should return JSON response with data array', async () => {
       const response = await request(app)
-        .get('/api/v1/search/countries')
+        .get('/notes-api/v1/search/countries')
         .query({ q: 'Colombia' })
         .set('User-Agent', validUserAgent);
 
@@ -248,7 +248,7 @@ describe('Search Endpoints', () => {
 
     it('should return country search results with correct structure', async () => {
       const response = await request(app)
-        .get('/api/v1/search/countries')
+        .get('/notes-api/v1/search/countries')
         .query({ q: 'Colombia' })
         .set('User-Agent', validUserAgent);
 
@@ -270,7 +270,7 @@ describe('Search Endpoints', () => {
 
     it('should search by ISO code', async () => {
       const response = await request(app)
-        .get('/api/v1/search/countries')
+        .get('/notes-api/v1/search/countries')
         .query({ q: 'CO' })
         .set('User-Agent', validUserAgent);
 
@@ -280,7 +280,7 @@ describe('Search Endpoints', () => {
 
     it('should search by numeric country_id when query is numeric', async () => {
       const response = await request(app)
-        .get('/api/v1/search/countries')
+        .get('/notes-api/v1/search/countries')
         .query({ q: '42' })
         .set('User-Agent', validUserAgent);
 
@@ -289,7 +289,9 @@ describe('Search Endpoints', () => {
     });
 
     it('should require User-Agent header', async () => {
-      const response = await request(app).get('/api/v1/search/countries').query({ q: 'Colombia' });
+      const response = await request(app)
+        .get('/notes-api/v1/search/countries')
+        .query({ q: 'Colombia' });
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
@@ -299,7 +301,7 @@ describe('Search Endpoints', () => {
       // Make multiple requests quickly
       const requests = Array.from({ length: 55 }, () =>
         request(app)
-          .get('/api/v1/search/countries')
+          .get('/notes-api/v1/search/countries')
           .query({ q: 'Colombia' })
           .set('User-Agent', validUserAgent)
       );
@@ -317,7 +319,7 @@ describe('Search Endpoints', () => {
 
     it('should limit results to 50 countries', async () => {
       const response = await request(app)
-        .get('/api/v1/search/countries')
+        .get('/notes-api/v1/search/countries')
         .query({ q: 'a' }) // Broad search that might return many results
         .set('User-Agent', validUserAgent);
 
@@ -330,7 +332,7 @@ describe('Search Endpoints', () => {
 
     it('should limit results to 50 users', async () => {
       const response = await request(app)
-        .get('/api/v1/search/users')
+        .get('/notes-api/v1/search/users')
         .query({ q: 'a' }) // Broad search that might return many results
         .set('User-Agent', validUserAgent);
 

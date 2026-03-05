@@ -29,8 +29,8 @@ describe('requestLogger middleware', () => {
   beforeEach(() => {
     mockRequest = {
       method: 'GET',
-      path: '/api/v1/users/12345',
-      originalUrl: '/api/v1/users/12345?page=1',
+      path: '/notes-api/v1/users/12345',
+      originalUrl: '/notes-api/v1/users/12345?page=1',
       query: { page: '1' },
       ip: '127.0.0.1',
       get: jest.fn().mockReturnValue('TestApp/1.0 (test@example.com)'),
@@ -97,7 +97,7 @@ describe('requestLogger middleware', () => {
         expect.objectContaining({
           requestId: mockRequest.requestId,
           method: 'GET',
-          path: '/api/v1/users/12345',
+          path: '/notes-api/v1/users/12345',
           ip: '127.0.0.1',
         })
       );
@@ -152,7 +152,7 @@ describe('requestLogger middleware', () => {
         expect.objectContaining({
           requestId: mockRequest.requestId,
           method: 'GET',
-          path: '/api/v1/users/12345',
+          path: '/notes-api/v1/users/12345',
           statusCode: 200,
         })
       );

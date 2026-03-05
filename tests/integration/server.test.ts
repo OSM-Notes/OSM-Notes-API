@@ -51,7 +51,7 @@ describe('Express Server Setup', () => {
     it('should parse JSON body', async () => {
       // Test JSON parsing by checking that invalid JSON returns 400
       const response = await request(app)
-        .post('/api/v1')
+        .post('/notes-api/v1')
         .send('invalid json')
         .set('Content-Type', 'application/json')
         .set('User-Agent', 'TestApp/1.0 (test@example.com)');
@@ -82,10 +82,10 @@ describe('Express Server Setup', () => {
   });
 
   describe('API Versioning', () => {
-    it('should have /api/v1 prefix', async () => {
+    it('should have /notes-api/v1 prefix', async () => {
       // This will be implemented when routes are added
       const response = await request(app)
-        .get('/api/v1')
+        .get('/notes-api/v1')
         .set('User-Agent', 'TestApp/1.0 (test@example.com)');
 
       // Should not be 404 if versioning is set up correctly

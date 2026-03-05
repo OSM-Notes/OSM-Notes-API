@@ -196,7 +196,7 @@ The `rate_limit_exceeded_total` metric increments each time a rate limit is exce
 
 HTTP metrics include labels:
 - `method`: HTTP method (GET, POST, etc.)
-- `route`: Normalized route (e.g., `/api/v1/users/:id`)
+- `route`: Normalized route (e.g., `/notes-api/v1/users/:id`)
 - `status_code`: HTTP status code
 
 ## Useful Prometheus Queries

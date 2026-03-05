@@ -13,7 +13,7 @@ import { TrendsResult } from '../types';
 
 /**
  * @swagger
- * /api/v1/analytics/global:
+ * /notes-api/v1/analytics/global:
  *   get:
  *     summary: Get global analytics and statistics
  *     tags: [Analytics]
@@ -62,7 +62,7 @@ export async function getGlobalAnalytics(
 
 /**
  * @swagger
- * /api/v1/analytics/comparison:
+ * /notes-api/v1/analytics/comparison:
  *   get:
  *     summary: Compare users or countries by their metrics
  *     tags: [Analytics]
@@ -209,7 +209,7 @@ export async function getComparison(
 
 /**
  * @swagger
- * /api/v1/analytics/trends:
+ * /notes-api/v1/analytics/trends:
  *   get:
  *     summary: Get temporal trends for users, countries, or global analytics
  *     tags: [Analytics]

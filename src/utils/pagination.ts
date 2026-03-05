@@ -12,7 +12,7 @@ import { Pagination } from '../types';
  *
  * @param res Express response object
  * @param pagination Pagination metadata
- * @param baseUrl Base URL for generating pagination links (e.g., '/api/v1/notes')
+ * @param baseUrl Base URL for generating pagination links (e.g., '/notes-api/v1/notes')
  * @param queryParams Query parameters to preserve in links (excluding page)
  */
 export function setPaginationHeaders(

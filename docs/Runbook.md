@@ -38,7 +38,7 @@ This runbook provides step-by-step procedures for operating and maintaining the 
 - **Service Name**: OSM Notes API
 - **Default Port**: 3000
 - **Health Endpoint**: `/health`
-- **API Base Path**: `/api/v1`
+- **API Base Path**: `/notes-api/v1` (this project); `/api/0.6/notes` (OSM compatibility)
 - **Documentation**: `/docs` (Swagger UI)
 
 ### Key Commands
@@ -196,7 +196,7 @@ After deployment, verify:
    ```bash
    # Test a simple endpoint
    curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-        http://localhost:3000/api/v1/analytics/global
+        http://localhost:3000/notes-api/v1/analytics/global
    ```
    Expected: `200 OK` with valid JSON
 
