@@ -8,12 +8,15 @@ import { Express } from 'express';
 describe('Anti-Abuse Middleware Integration', () => {
   let app: Express;
 
+  jest.setTimeout(25000);
+
   beforeAll(async () => {
     // Set required environment variables before importing app
     process.env.DB_HOST = process.env.DB_HOST || 'localhost';
     process.env.DB_NAME = process.env.DB_NAME || 'osm_notes_api_test';
     process.env.DB_USER = process.env.DB_USER || 'test_user';
     process.env.DB_PASSWORD = process.env.DB_PASSWORD || 'test_pass';
+    process.env.REDIS_HOST = ''; // Disable Redis so requests do not hang if Redis is down
 
     const { default: createApp } = await import('../../../src/index');
     app = createApp();

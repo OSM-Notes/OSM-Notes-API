@@ -1,11 +1,16 @@
 // Global test setup
 // This file runs before all tests
 
-// Set test environment variables
+// Load .env from project root (npm test runs from repo root) so local DB credentials
+// are used. Set DB_NAME, DB_USER, DB_PASSWORD (and optionally DB_HOST, DB_PORT) in .env
+// to use your local database; otherwise the defaults below apply.
+require('dotenv').config();
+
+// Set test environment variables (defaults only when not already set)
 process.env.NODE_ENV = 'test';
 process.env.LOG_LEVEL = 'error'; // Suppress logs during tests
 
-// Set required environment variables for tests (before any imports)
+// DB defaults: used only if DB_* are not set in .env or shell
 process.env.DB_HOST = process.env.DB_HOST || 'localhost';
 process.env.DB_NAME = process.env.DB_NAME || 'osm_notes_api_test';
 process.env.DB_USER = process.env.DB_USER || 'osm_notes_test_user';

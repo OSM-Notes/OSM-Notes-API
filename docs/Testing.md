@@ -51,7 +51,11 @@ npm run test:coverage
 npm run test:watch
 ```
 
-**Note**: Integration tests use the database **`osm_notes_api_test`** (see `tests/setup.ts`). Configure environment variables before running:
+**Note**: Integration tests need a PostgreSQL database. The test setup loads **`.env`** from the project root (if present), then applies defaults for any unset `DB_*` vars. So you can use your local DB in either way:
+
+1. **Use your existing local DB**: put your credentials in a `.env` file at the project root (e.g. `DB_NAME=mi_base`, `DB_USER=postgres`, `DB_PASSWORD=...`). When you run `npm test`, those values are used and the tests connect to your DB.
+
+2. **Use the default test DB**: if you do not set `DB_*` in `.env` or the shell, tests expect database **`osm_notes_api_test`** with user **`osm_notes_test_user`** and password **`osm_notes_test_pass`**. Create that DB and user, or export vars before running:
 
 ```bash
 export DB_HOST=localhost

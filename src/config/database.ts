@@ -11,8 +11,8 @@ let pool: Pool | null = null;
  * Database configuration interface
  */
 export interface DatabaseConfig {
-  host: string;
-  port: number;
+  host?: string;
+  port?: number;
   database: string;
   user: string;
   password?: string;
@@ -27,9 +27,10 @@ export interface DatabaseConfig {
  */
 function getDatabaseConfig(): DatabaseConfig {
   const password = process.env.DB_PASSWORD;
+  const host = process.env.DB_HOST;
+
+  // Build config. Omit host when empty so pg uses Unix socket (enables peer authentication).
   const config: DatabaseConfig = {
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432', 10),
     database: process.env.DB_NAME || 'osm_notes_dwh',
     user: process.env.DB_USER || 'postgres',
     max: parseInt(process.env.DB_MAX_CONNECTIONS || '20', 10),
@@ -37,7 +38,13 @@ function getDatabaseConfig(): DatabaseConfig {
     connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT || '10000', 10),
   };
 
-  // Only set password if provided (omit if empty/undefined)
+  if (host && host.length > 0) {
+    config.host = host;
+    config.port = parseInt(process.env.DB_PORT || '5432', 10);
+  }
+  // else: no host → pg uses default Unix socket; peer auth can be used if no password
+
+  // Only set password if provided (omit if empty/undefined; allows peer auth when using socket)
   if (password && password.length > 0) {
     config.password = password;
   }

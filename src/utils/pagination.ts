@@ -49,8 +49,8 @@ export function setPaginationHeaders(
   // Generate Link header (RFC 5988)
   const links: string[] = [];
 
-  // First page
-  if (page > 1) {
+  // First page (include when multiple pages so clients always have a first link)
+  if (total_pages > 1) {
     links.push(`<${baseUrl}${buildQueryString(1)}>; rel="first"`);
   }
 
