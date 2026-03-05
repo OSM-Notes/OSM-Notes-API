@@ -4,7 +4,7 @@
 // Load .env from project root (npm test runs from repo root) so local DB credentials
 // are used. Set DB_NAME, DB_USER, DB_PASSWORD (and optionally DB_HOST, DB_PORT) in .env
 // to use your local database; otherwise the defaults below apply.
-require('dotenv').config();
+import 'dotenv/config';
 
 // Set test environment variables (defaults only when not already set)
 process.env.NODE_ENV = 'test';
