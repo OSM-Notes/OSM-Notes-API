@@ -66,9 +66,11 @@ export async function advancedSearchNotes(
       paramIndex++;
     }
 
-    // User ID filter
+    // User ID filter (notes have no id_user in Ingestion; filter by opener/commenter in note_comments)
     if (filters.user_id !== undefined) {
-      conditions.push(`n.id_user = $${paramIndex}`);
+      conditions.push(
+        `EXISTS (SELECT 1 FROM public.note_comments nc_f WHERE nc_f.note_id = n.note_id AND nc_f.id_user = $${paramIndex})`
+      );
       params.push(filters.user_id);
       paramIndex++;
     }
@@ -98,14 +100,15 @@ export async function advancedSearchNotes(
       }
     }
 
-    // Text search in comments
+    // Text search in comment bodies (Ingestion: text is in note_comments_text.body)
     let textSearchJoin = '';
     if (filters.text) {
       textSearchJoin = `
         INNER JOIN public.note_comments nc_search ON n.note_id = nc_search.note_id
+        INNER JOIN public.note_comments_text nct_search ON nct_search.note_id = nc_search.note_id AND nct_search.sequence_action = nc_search.sequence_action
       `;
       const searchPattern = `%${filters.text.trim()}%`;
-      conditions.push(`nc_search.text ILIKE $${paramIndex}`);
+      conditions.push(`nct_search.body ILIKE $${paramIndex}`);
       params.push(searchPattern);
       paramIndex++;
     }
@@ -113,7 +116,7 @@ export async function advancedSearchNotes(
     // Combine conditions with operator
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(` ${operator} `)}` : '';
 
-    // Build main query
+    // Build main query (id_user from first comment - Ingestion schema has no id_user on notes)
     const query = `
       SELECT DISTINCT
         n.note_id,
@@ -122,14 +125,14 @@ export async function advancedSearchNotes(
         n.status,
         n.created_at,
         n.closed_at,
-        n.id_user,
+        (SELECT nc1.id_user FROM public.note_comments nc1 WHERE nc1.note_id = n.note_id ORDER BY nc1.sequence_action ASC NULLS LAST LIMIT 1) AS id_user,
         n.id_country,
-        COUNT(DISTINCT nc.comment_id) as comments_count
+        COUNT(DISTINCT nc.id) as comments_count
       FROM public.notes n
       LEFT JOIN public.note_comments nc ON n.note_id = nc.note_id
       ${textSearchJoin}
       ${whereClause}
-      GROUP BY n.note_id, n.latitude, n.longitude, n.status, n.created_at, n.closed_at, n.id_user, n.id_country
+      GROUP BY n.note_id, n.latitude, n.longitude, n.status, n.created_at, n.closed_at, n.id_country
       ORDER BY n.created_at DESC
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `;
@@ -142,19 +145,21 @@ export async function advancedSearchNotes(
     let countParams: unknown[];
 
     if (filters.text) {
-      // If text search is used, we need to join with comments for count too
-      const countConditions = conditions.filter((c) => !c.includes('nc_search.text'));
+      // If text search is used, we need to join with comment text for count too (Ingestion: body in note_comments_text)
+      const countConditions = conditions.filter((c) => !c.includes('nct_search.body'));
       const countWhereClause =
         countConditions.length > 0
           ? `WHERE ${countConditions.join(` ${operator} `)} AND EXISTS (
-              SELECT 1 FROM public.note_comments nc_count 
-              WHERE nc_count.note_id = n.note_id 
-              AND nc_count.text ILIKE $${countConditions.length + 1}
+              SELECT 1 FROM public.note_comments nc_count
+              INNER JOIN public.note_comments_text nct_count ON nct_count.note_id = nc_count.note_id AND nct_count.sequence_action = nc_count.sequence_action
+              WHERE nc_count.note_id = n.note_id
+              AND nct_count.body ILIKE $${countConditions.length + 1}
             )`
           : `WHERE EXISTS (
-              SELECT 1 FROM public.note_comments nc_count 
-              WHERE nc_count.note_id = n.note_id 
-              AND nc_count.text ILIKE $1
+              SELECT 1 FROM public.note_comments nc_count
+              INNER JOIN public.note_comments_text nct_count ON nct_count.note_id = nc_count.note_id AND nct_count.sequence_action = nc_count.sequence_action
+              WHERE nc_count.note_id = n.note_id
+              AND nct_count.body ILIKE $1
             )`;
 
       countQuery = `
@@ -165,8 +170,7 @@ export async function advancedSearchNotes(
 
       if (countConditions.length > 0) {
         countParams = params.slice(0, -2).filter((_, idx) => {
-          // Remove the text search param and keep others
-          const textParamIndex = conditions.findIndex((c) => c.includes('nc_search.text'));
+          const textParamIndex = conditions.findIndex((c) => c.includes('nct_search.body'));
           return idx !== textParamIndex;
         });
         const searchPattern = `%${filters.text.trim()}%`;

@@ -62,13 +62,13 @@ export async function getNoteById(noteId: number): Promise<Note> {
         n.status,
         n.created_at,
         n.closed_at,
-        n.id_user,
+        (SELECT nc1.id_user FROM public.note_comments nc1 WHERE nc1.note_id = n.note_id ORDER BY nc1.sequence_action ASC NULLS LAST LIMIT 1) AS id_user,
         n.id_country,
-        COUNT(DISTINCT nc.comment_id) as comments_count
+        COUNT(DISTINCT nc.id) as comments_count
       FROM public.notes n
       LEFT JOIN public.note_comments nc ON n.note_id = nc.note_id
       WHERE n.note_id = $1
-      GROUP BY n.note_id, n.latitude, n.longitude, n.status, n.created_at, n.closed_at, n.id_user, n.id_country
+      GROUP BY n.note_id, n.latitude, n.longitude, n.status, n.created_at, n.closed_at, n.id_country
     `;
 
     logger.debug('Executing query to get note by ID', { noteId });
@@ -125,18 +125,18 @@ export async function getNoteComments(noteId: number): Promise<NoteComment[]> {
   try {
     const query = `
       SELECT
-        nc.comment_id,
+        nc.id AS comment_id,
         nc.note_id,
-        nc.user_id,
+        nc.id_user AS user_id,
         u.username,
-        nc.action,
+        nc.event AS action,
         nc.created_at,
-        nct.text
+        nct.body AS text
       FROM public.note_comments nc
-      LEFT JOIN public.users u ON nc.user_id = u.user_id
-      LEFT JOIN public.note_comments_text nct ON nc.comment_id = nct.comment_id
+      LEFT JOIN public.users u ON nc.id_user = u.user_id
+      LEFT JOIN public.note_comments_text nct ON nct.note_id = nc.note_id AND nct.sequence_action = nc.sequence_action
       WHERE nc.note_id = $1
-      ORDER BY nc.created_at ASC
+      ORDER BY nc.sequence_action ASC NULLS LAST, nc.created_at ASC
     `;
 
     logger.debug('Executing query to get note comments', { noteId });
@@ -201,7 +201,9 @@ export async function searchNotes(filters: SearchFilters): Promise<SearchResult<
     }
 
     if (filters.user_id !== undefined) {
-      conditions.push(`n.id_user = $${paramIndex}`);
+      conditions.push(
+        `EXISTS (SELECT 1 FROM public.note_comments nc_f WHERE nc_f.note_id = n.note_id AND nc_f.id_user = $${paramIndex})`
+      );
       params.push(filters.user_id);
       paramIndex++;
     }
@@ -232,7 +234,7 @@ export async function searchNotes(filters: SearchFilters): Promise<SearchResult<
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-    // Build main query
+    // Build main query (id_user from first comment - Ingestion schema has no id_user on notes)
     const query = `
       SELECT
         n.note_id,
@@ -241,13 +243,13 @@ export async function searchNotes(filters: SearchFilters): Promise<SearchResult<
         n.status,
         n.created_at,
         n.closed_at,
-        n.id_user,
+        (SELECT nc1.id_user FROM public.note_comments nc1 WHERE nc1.note_id = n.note_id ORDER BY nc1.sequence_action ASC NULLS LAST LIMIT 1) AS id_user,
         n.id_country,
-        COUNT(DISTINCT nc.comment_id) as comments_count
+        COUNT(DISTINCT nc.id) as comments_count
       FROM public.notes n
       LEFT JOIN public.note_comments nc ON n.note_id = nc.note_id
       ${whereClause}
-      GROUP BY n.note_id, n.latitude, n.longitude, n.status, n.created_at, n.closed_at, n.id_user, n.id_country
+      GROUP BY n.note_id, n.latitude, n.longitude, n.status, n.created_at, n.closed_at, n.id_country
       ORDER BY n.created_at DESC
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `;

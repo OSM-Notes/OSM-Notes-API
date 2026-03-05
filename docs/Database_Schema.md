@@ -52,7 +52,7 @@ The API requires two schemas:
 
 Stores OSM notes data.
 
-**Required Columns** (schema matches OSM-Notes-Ingestion):
+**Required Columns** (schema matches OSM-Notes-Ingestion; `notes` has no `id_user` column):
 ```sql
 CREATE TABLE IF NOT EXISTS public.notes (
   note_id INTEGER PRIMARY KEY,
@@ -61,7 +61,6 @@ CREATE TABLE IF NOT EXISTS public.notes (
   status VARCHAR(20) NOT NULL,  -- 'open', 'closed', 'hidden'
   created_at TIMESTAMP NOT NULL,
   closed_at TIMESTAMP NULL,
-  id_user INTEGER NULL,
   id_country INTEGER NULL
 );
 ```
@@ -73,65 +72,67 @@ CREATE TABLE IF NOT EXISTS public.notes (
 - `status`: Note status ('open', 'closed', 'hidden')
 - `created_at`: When the note was created
 - `closed_at`: When the note was closed (NULL if still open)
-- `id_user`: OSM user ID who created the note (nullable)
 - `id_country`: Country ID where the note is located (nullable)
 
-**Indexes** (created by `scripts/create_indexes.sql`):
+The API returns `id_user` in the note response by deriving it from the first comment (opener) in `note_comments`.
+
+**Indexes** (created by Ingestion or `scripts/create_indexes.sql`):
 - Primary key on `note_id` (automatic)
 - Index on `status`
 - Index on `id_country`
-- Index on `id_user`
 - Index on `created_at DESC`
 - Composite indexes for common filter combinations
 
 ### Table: `public.note_comments`
 
-Stores comments on notes.
+Stores comments on notes (schema matches OSM-Notes-Ingestion: `id`, `id_user`, `event`).
 
-**Required Columns**:
+**Required Columns** (Ingestion naming):
 ```sql
+-- Ingestion: id, note_id, sequence_action, event, created_at, id_user
+-- API maps: id AS comment_id, id_user AS user_id, event AS action
 CREATE TABLE IF NOT EXISTS public.note_comments (
-  comment_id INTEGER PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   note_id INTEGER NOT NULL,
-  user_id INTEGER NULL,
-  action VARCHAR(50) NOT NULL,  -- 'opened', 'closed', 'commented', 'reopened', 'hidden'
+  sequence_action INTEGER,
+  event note_event_enum NOT NULL,  -- 'opened', 'closed', 'commented', 'reopened', 'hidden'
   created_at TIMESTAMP NOT NULL,
+  id_user INTEGER NULL,
   FOREIGN KEY (note_id) REFERENCES public.notes(note_id) ON DELETE CASCADE
 );
 ```
 
 **Column Descriptions**:
-- `comment_id`: Primary key, unique comment identifier
+- `id`: Primary key (API exposes as `comment_id`)
 - `note_id`: Foreign key to `notes.note_id`
-- `user_id`: OSM user ID who made the comment (nullable)
-- `action`: Type of action ('opened', 'closed', 'commented', 'reopened', 'hidden')
+- `sequence_action`: Comment order (API uses for ordering; first = opener)
+- `event`: Type of action (API exposes as `action`: 'opened', 'closed', 'commented', 'reopened', 'hidden')
 - `created_at`: When the comment was created
+- `id_user`: OSM user ID who made the comment (API exposes as `user_id`)
 
-**Indexes**:
-- Primary key on `comment_id` (automatic)
-- Index on `note_id` (critical for JOINs)
-- Index on `created_at` (for ORDER BY)
-- Composite index on `(note_id, created_at)` (for queries with ORDER BY)
+**Indexes** (created by Ingestion):
+- Primary key on `id`, index on `note_id`, index on `id_user`, etc.
 
 ### Table: `public.note_comments_text`
 
-Stores the text content of comments (separate table for large text).
+Stores the text content of comments (Ingestion: `note_id`, `sequence_action`, `body`; join with `note_comments` on `note_id` + `sequence_action`).
 
-**Required Columns**:
+**Required Columns** (Ingestion naming):
 ```sql
 CREATE TABLE IF NOT EXISTS public.note_comments_text (
-  comment_id INTEGER PRIMARY KEY,
-  text TEXT NULL,
-  FOREIGN KEY (comment_id) REFERENCES public.note_comments(comment_id) ON DELETE CASCADE
+  id SERIAL PRIMARY KEY,
+  note_id INTEGER NOT NULL,
+  sequence_action INTEGER,
+  body TEXT NULL
 );
 ```
 
 **Column Descriptions**:
-- `comment_id`: Primary key, foreign key to `note_comments.comment_id`
-- `text`: Comment text content (nullable, can be empty)
+- `id`: Primary key
+- `note_id`, `sequence_action`: Join with `note_comments` to get comment text (API exposes `body` as `text`)
 
 **Indexes**:
-- Primary key on `comment_id` (automatic)
+- Primary key on `id`, index on `note_id`
 
 ### Table: `public.users` (Optional)
 
