@@ -4,11 +4,23 @@
 # Simulates the GitHub Actions workflow to test changes locally
 # Author: Andres Gomez (AngocA)
 #
+# Optionally populate the integration test DB first (requires sibling OSM-Notes-Analytics):
+#   ./scripts/run_ci_tests.sh --with-db-setup
+# or: RUN_INTEGRATION_SETUP=1 ./scripts/run_ci_tests.sh
+#
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+RUN_DB_SETUP=false
+for arg in "$@"; do
+    if [[ "${arg}" == "--with-db-setup" ]]; then
+        RUN_DB_SETUP=true
+        break
+    fi
+done
+[[ "${RUN_INTEGRATION_SETUP:-}" == "1" ]] && RUN_DB_SETUP=true
 
 # Colors
 readonly RED='\033[0;31m'
@@ -151,8 +163,7 @@ if command -v psql > /dev/null 2>&1; then
     if pg_isready -h localhost -p 5432 > /dev/null 2>&1; then
         print_message "${GREEN}" "✓ PostgreSQL is running"
 
-        # Setup test database
-        print_message "${BLUE}" "Setting up test database..."
+        # Integration tests use osm_notes_api_test (see tests/setup.ts)
         export DB_HOST=localhost
         export DB_PORT=5432
         export DB_NAME=osm_notes_api_test
@@ -162,8 +173,24 @@ if command -v psql > /dev/null 2>&1; then
         export REDIS_PORT=6379
         export NODE_ENV=test
 
-        # Try to create test database (may fail if it exists, which is OK)
-        PGPASSWORD="${DB_PASSWORD}" psql -h localhost -U "${DB_USER}" -d postgres -c "CREATE DATABASE ${DB_NAME};" 2>/dev/null || true
+        # Optional: populate osm_notes_api_test via sibling OSM-Notes-Analytics pipeline (Ingestion + ETL)
+        if [[ "${RUN_DB_SETUP}" == "true" ]]; then
+            if [[ -f "${PROJECT_ROOT}/scripts/setup_integration_test_db.sh" ]]; then
+                print_message "${BLUE}" "Populating integration test DB (osm_notes_api_test) via OSM-Notes-Analytics..."
+                if "${PROJECT_ROOT}/scripts/setup_integration_test_db.sh"; then
+                    print_message "${GREEN}" "✓ Integration test DB populated"
+                else
+                    print_message "${RED}" "✗ setup_integration_test_db.sh failed"
+                    exit 1
+                fi
+            else
+                print_message "${YELLOW}" "⚠ setup_integration_test_db.sh not found, skipping DB setup"
+            fi
+        else
+            # Ensure test database exists (may be empty)
+            print_message "${BLUE}" "Using test database: ${DB_NAME}"
+            PGPASSWORD="${DB_PASSWORD}" psql -h localhost -U "${DB_USER}" -d postgres -c "CREATE DATABASE ${DB_NAME};" 2>/dev/null || true
+        fi
 
         # Run integration tests
         print_message "${BLUE}" "Running integration tests..."

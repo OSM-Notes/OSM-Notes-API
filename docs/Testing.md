@@ -51,16 +51,24 @@ npm run test:coverage
 npm run test:watch
 ```
 
-**Note**: Integration tests require a running PostgreSQL database. Configure environment variables before running:
+**Note**: Integration tests use the database **`osm_notes_api_test`** (see `tests/setup.ts`). Configure environment variables before running:
 
 ```bash
 export DB_HOST=localhost
-export DB_NAME=osm_notes_dwh
-export DB_USER=your_user
-export DB_PASSWORD=your_password
+export DB_NAME=osm_notes_api_test
+export DB_USER=osm_notes_test_user
+export DB_PASSWORD=osm_notes_test_pass
 export DB_PORT=5432
 export DB_SSL=false
 ```
+
+**Optional — populate test DB with real pipeline data**: To fill `osm_notes_api_test` with `public.notes` and `dwh.*` (Ingestion + ETL), run the sibling project's script (requires OSM-Notes-Analytics and OSM-Notes-Ingestion at the same filesystem level as OSM-Notes-API):
+
+```bash
+./scripts/setup_integration_test_db.sh
+```
+
+Or run the full CI flow with DB setup: `./scripts/run_ci_tests.sh --with-db-setup`
 
 ### 2. Manual Testing with curl
 
@@ -359,6 +367,17 @@ curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
 - [ ] GET /api/v1/users/:user_id
 - [ ] GET /api/v1/countries/:country_id
 - [ ] GET /api/v1/analytics/global
+
+## Integration tests and database schema
+
+**Unit tests** mock the database pool. They do not run real SQL, so they do not validate that column names in the code match the actual database (e.g. `user_id` vs `id_user` in `public.notes`). They only verify service behaviour given mocked rows.
+
+**Integration tests** call the real API against a real database (e.g. `osm_notes_api_test`). For notes endpoints they allow both 200 and 500 so that tests do not fail when the DB is unavailable or empty. As a result, a wrong schema (e.g. table with `id_user` instead of `user_id`) can produce 500 in production even if integration tests pass.
+
+To avoid schema mismatches:
+
+1. **Match the schema to Ingestion**: The API expects `public.notes` to follow OSM-Notes-Ingestion schema with columns `id_user` and `id_country` (see [Database Schema](Database_Schema.md)).
+2. **Test DB setup**: If you run integration tests with a real DB, create or migrate the test database so that `public.notes` uses `user_id` and `country_id`. Then integration tests that get 200 will assert the response shape (e.g. `id_user`, `id_country` on note objects).
 
 ## Troubleshooting
 
