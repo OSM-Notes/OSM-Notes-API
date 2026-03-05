@@ -317,6 +317,121 @@ describe('Notes Endpoints', () => {
       expect([200, 500]).toContain(response.status);
     });
 
+    it('should accept user_id filter', async () => {
+      const response = await request(app)
+        .get('/api/v1/notes?user_id=12345')
+        .set('User-Agent', validUserAgent);
+
+      expect([200, 500]).toContain(response.status);
+      if (response.status === 200) {
+        const body = response.body as SearchNotesResponse;
+        expect(body).toHaveProperty('data');
+        expect(Array.isArray(body.data)).toBe(true);
+      }
+    });
+
+    it('should accept date_from filter', async () => {
+      const response = await request(app)
+        .get('/api/v1/notes?date_from=2024-01-01')
+        .set('User-Agent', validUserAgent);
+
+      expect([200, 500]).toContain(response.status);
+      if (response.status === 200) {
+        const body = response.body as SearchNotesResponse;
+        expect(body).toHaveProperty('data');
+        expect(body).toHaveProperty('pagination');
+      }
+    });
+
+    it('should accept date_to filter', async () => {
+      const response = await request(app)
+        .get('/api/v1/notes?date_to=2024-12-31')
+        .set('User-Agent', validUserAgent);
+
+      expect([200, 500]).toContain(response.status);
+      if (response.status === 200) {
+        const body = response.body as SearchNotesResponse;
+        expect(body).toHaveProperty('data');
+        expect(body).toHaveProperty('pagination');
+      }
+    });
+
+    it('should accept date range (date_from and date_to)', async () => {
+      const response = await request(app)
+        .get('/api/v1/notes?date_from=2024-01-01&date_to=2024-12-31')
+        .set('User-Agent', validUserAgent);
+
+      expect([200, 500]).toContain(response.status);
+      if (response.status === 200) {
+        const body = response.body as SearchNotesResponse;
+        expect(body).toHaveProperty('data');
+        expect(body).toHaveProperty('pagination');
+      }
+    });
+
+    it('should accept bbox filter', async () => {
+      const response = await request(app)
+        .get('/api/v1/notes?bbox=-74.1,4.5,-74.0,4.7')
+        .set('User-Agent', validUserAgent);
+
+      expect([200, 500]).toContain(response.status);
+      if (response.status === 200) {
+        const body = response.body as SearchNotesResponse;
+        expect(body).toHaveProperty('data');
+        expect(body).toHaveProperty('pagination');
+      }
+    });
+
+    it('should return 400 for invalid date_from format', async () => {
+      const response = await request(app)
+        .get('/api/v1/notes?date_from=2024/01/01')
+        .set('User-Agent', validUserAgent);
+
+      expect(response.status).toBe(400);
+    });
+
+    it('should return 400 for invalid bbox format', async () => {
+      const response = await request(app)
+        .get('/api/v1/notes?bbox=1,2,3')
+        .set('User-Agent', validUserAgent);
+
+      expect(response.status).toBe(400);
+    });
+
+    it('should accept hashtag filter (requires dwh)', async () => {
+      const response = await request(app)
+        .get('/api/v1/notes?hashtag=fixme')
+        .set('User-Agent', validUserAgent);
+
+      expect([200, 500]).toContain(response.status);
+      if (response.status === 200) {
+        const body = response.body as SearchNotesResponse;
+        expect(body).toHaveProperty('data');
+        expect(body).toHaveProperty('pagination');
+      }
+    });
+
+    it('should accept hashtag with # prefix', async () => {
+      const response = await request(app)
+        .get('/api/v1/notes?hashtag=%23fixme')
+        .set('User-Agent', validUserAgent);
+
+      expect([200, 500]).toContain(response.status);
+    });
+
+    it('should accept application filter (requires dwh)', async () => {
+      const response = await request(app)
+        .get('/api/v1/notes?application=JOSM')
+        .set('User-Agent', validUserAgent);
+
+      expect([200, 500]).toContain(response.status);
+      if (response.status === 200) {
+        const body = response.body as SearchNotesResponse;
+        expect(body).toHaveProperty('data');
+        expect(body).toHaveProperty('pagination');
+      }
+    });
+
     it('should return 400 for invalid page number', async () => {
       const response = await request(app)
         .get('/api/v1/notes?page=0')

@@ -487,6 +487,115 @@ describe('noteService', () => {
       }
     });
 
+    it('should filter by hashtag (dwh.datamartUsers / datamartCountries)', async () => {
+      const mockNotes: Note[] = [
+        {
+          note_id: 1,
+          latitude: 4.6097,
+          longitude: -74.0817,
+          status: 'open' as NoteStatus,
+          created_at: new Date('2024-01-15T10:30:00Z'),
+          closed_at: null,
+          id_user: 12345,
+          id_country: 42,
+          comments_count: 0,
+        },
+      ];
+
+      mockQuery.mockResolvedValueOnce({
+        rows: mockNotes,
+        rowCount: 1,
+      });
+
+      mockQuery.mockResolvedValueOnce({
+        rows: [{ count: '1' }],
+        rowCount: 1,
+      });
+
+      const filters: SearchFilters = {
+        hashtag: 'fixme',
+        page: 1,
+        limit: 20,
+      };
+
+      const result = await noteService.searchNotes(filters);
+
+      expect(result.data).toHaveLength(1);
+      const firstCall = mockQuery.mock.calls[0] as [string, unknown[]] | undefined;
+      expect(firstCall).toBeDefined();
+      if (firstCall) {
+        const [query, params] = firstCall;
+        expect(query).toContain('datamartUsers');
+        expect(query).toContain('datamartCountries');
+        expect(query).toContain('hashtags');
+        expect(query).toContain('jsonb_array_elements_text');
+        expect(params).toEqual(expect.arrayContaining(['fixme']));
+      }
+    });
+
+    it('should normalize hashtag by stripping leading #', async () => {
+      mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 });
+      mockQuery.mockResolvedValueOnce({ rows: [{ count: '0' }], rowCount: 1 });
+
+      await noteService.searchNotes({
+        hashtag: '#fixme',
+        page: 1,
+        limit: 20,
+      });
+
+      const firstCall = mockQuery.mock.calls[0] as [string, unknown[]] | undefined;
+      expect(firstCall).toBeDefined();
+      if (firstCall) {
+        const [, params] = firstCall;
+        expect(params).toContain('fixme');
+      }
+    });
+
+    it('should filter by application (dwh.datamartUsers.applications_used)', async () => {
+      const mockNotes: Note[] = [
+        {
+          note_id: 1,
+          latitude: 4.6097,
+          longitude: -74.0817,
+          status: 'open' as NoteStatus,
+          created_at: new Date('2024-01-15T10:30:00Z'),
+          closed_at: null,
+          id_user: 12345,
+          id_country: 42,
+          comments_count: 0,
+        },
+      ];
+
+      mockQuery.mockResolvedValueOnce({
+        rows: mockNotes,
+        rowCount: 1,
+      });
+
+      mockQuery.mockResolvedValueOnce({
+        rows: [{ count: '1' }],
+        rowCount: 1,
+      });
+
+      const filters: SearchFilters = {
+        application: 'JOSM',
+        page: 1,
+        limit: 20,
+      };
+
+      const result = await noteService.searchNotes(filters);
+
+      expect(result.data).toHaveLength(1);
+      const firstCall = mockQuery.mock.calls[0] as [string, unknown[]] | undefined;
+      expect(firstCall).toBeDefined();
+      if (firstCall) {
+        const [query, params] = firstCall;
+        expect(query).toContain('datamartUsers');
+        expect(query).toContain('applications_used');
+        expect(query).toContain('jsonb_array_elements_text');
+        expect(params).toEqual(expect.arrayContaining(['JOSM']));
+      }
+    });
+
     it('should handle pagination correctly', async () => {
       const mockNotes: Note[] = Array(20)
         .fill(null)

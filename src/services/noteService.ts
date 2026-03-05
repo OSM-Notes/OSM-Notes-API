@@ -232,6 +232,40 @@ export async function searchNotes(filters: SearchFilters): Promise<SearchResult<
       }
     }
 
+    // Hashtag filter: note opener (user) or note country has this hashtag in dwh (requires dwh schema)
+    if (filters.hashtag && filters.hashtag.trim().length > 0) {
+      const cleanHashtag = filters.hashtag.trim().replace(/^#/, '');
+      conditions.push(`(
+        EXISTS (
+          SELECT 1 FROM dwh.datamartUsers du
+          WHERE du.user_id = (SELECT nc1.id_user FROM public.note_comments nc1 WHERE nc1.note_id = n.note_id ORDER BY nc1.sequence_action ASC NULLS LAST LIMIT 1)
+          AND du.hashtags IS NOT NULL AND jsonb_typeof(du.hashtags) = 'array'
+          AND $${paramIndex} = ANY(SELECT jsonb_array_elements_text(du.hashtags))
+        )
+        OR EXISTS (
+          SELECT 1 FROM dwh.datamartCountries dc
+          WHERE dc.country_id = n.id_country
+          AND dc.hashtags IS NOT NULL AND jsonb_typeof(dc.hashtags) = 'array'
+          AND $${paramIndex} = ANY(SELECT jsonb_array_elements_text(dc.hashtags))
+        )
+      )`);
+      params.push(cleanHashtag);
+      paramIndex++;
+    }
+
+    // Application filter: note opener (user) has this application in dwh.datamartUsers.applications_used (requires dwh schema)
+    if (filters.application && filters.application.trim().length > 0) {
+      const application = filters.application.trim();
+      conditions.push(`EXISTS (
+        SELECT 1 FROM dwh.datamartUsers du
+        WHERE du.user_id = (SELECT nc1.id_user FROM public.note_comments nc1 WHERE nc1.note_id = n.note_id ORDER BY nc1.sequence_action ASC NULLS LAST LIMIT 1)
+        AND du.applications_used IS NOT NULL AND jsonb_typeof(du.applications_used) = 'array'
+        AND $${paramIndex} = ANY(SELECT jsonb_array_elements_text(du.applications_used))
+      )`);
+      params.push(application);
+      paramIndex++;
+    }
+
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     // Build main query (id_user from first comment - Ingestion schema has no id_user on notes)

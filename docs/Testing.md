@@ -368,6 +368,39 @@ curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
 - [ ] GET /api/v1/countries/:country_id
 - [ ] GET /api/v1/analytics/global
 
+## API options and test coverage
+
+The following table summarises which API options are covered by tests. **Unit tests** exercise service logic with a mocked DB; **integration tests** call the real HTTP API (and may hit a real DB).
+
+### GET /api/v1/notes (search)
+
+| Option        | Unit (noteService) | Unit (advancedSearch) | Integration (notes.test) | Integration (advancedSearch.test) |
+|---------------|--------------------|------------------------|--------------------------|-----------------------------------|
+| (no filters)  | ✓                  | ✓                      | ✓                        | —                                 |
+| `country`      | ✓                  | ✓                      | ✓                        | —                                 |
+| `status`      | ✓ (combined)       | ✓                      | ✓, invalid status 400    | —                                 |
+| `user_id`      | ✓                  | ✓                      | ✓                        | —                                 |
+| `date_from`   | ✓                  | ✓                      | ✓                        | ✓ (with date_to)                  |
+| `date_to`      | ✓                  | ✓                      | ✓                        | ✓                                 |
+| `bbox`        | ✓ (valid/invalid)  | —                      | ✓                        | ✓                                 |
+| `text`        | —                  | ✓                      | —                        | ✓                                 |
+| `operator`    | —                  | ✓ (AND, OR)            | —                        | ✓ (AND, OR, invalid)              |
+| `page` / `limit` | ✓               | ✓                      | ✓, invalid 400           | ✓                                 |
+| `hashtag`     | ✓                  | —                      | ✓                        | —                                 |
+| `application` | ✓                  | —                      | ✓                        | —                                 |
+
+Note: `hashtag` and `application` are implemented only in the **standard search** (not in advanced search). They require the **dwh** schema: `hashtag` filters notes whose opener user or country has that hashtag in `dwh.datamartUsers.hashtags` / `dwh.datamartCountries.hashtags`; `application` filters by `dwh.datamartUsers.applications_used`. If dwh is missing or empty, the request may return 200 with empty data or 500.
+
+### Other endpoints
+
+- **GET /api/v1/notes/:id**, **GET /api/v1/notes/:id/comments**: unit (getNoteById, getNoteComments) and integration (notes.test) with valid/invalid ID, User-Agent, rate limit.
+- **Analytics (trends, global)**: unit (trendsService, analyticsService) and integration (trends.test, analytics.test).
+- **Hashtags, comparison, rankings, search (users/countries), users, countries, health, etc.**: each has unit and/or integration tests; see the corresponding `tests/unit` and `tests/integration` files.
+
+**Validation**: Integration tests also assert 400 for invalid `date_from` format and invalid `bbox` format (e.g. `bbox=1,2,3`).
+
+---
+
 ## Integration tests and database schema
 
 **Unit tests** mock the database pool. They do not run real SQL, so they do not validate that column names in the code match the actual database (e.g. `user_id` vs `id_user` in `public.notes`). They only verify service behaviour given mocked rows.

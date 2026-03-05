@@ -159,6 +159,8 @@ CREATE TABLE IF NOT EXISTS public.users (
 
 The `dwh` schema contains pre-aggregated analytics data. This schema is typically only available in production (`osm_notes_dwh`). For local testing, endpoints that use this schema will return 404 or 500 errors.
 
+**GET /notes filters**: The query parameters `hashtag` and `application` are implemented by joining with `dwh.datamartUsers` and (for hashtag) `dwh.datamartCountries`. If the dwh schema or these tables are missing, requests using these filters may return 500 or empty results.
+
 ### Table: `dwh.datamartUsers`
 
 Pre-aggregated user analytics.
