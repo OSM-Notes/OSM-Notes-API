@@ -1,5 +1,10 @@
 /**
- * Integration tests for notes endpoints
+ * Integration tests for notes endpoints.
+ *
+ * These tests use a real database (DB_NAME, e.g. osm_notes_api_test). They accept 200, 404, or 500
+ * for GET /notes/:id and 200 or 500 for GET /notes because the test DB may be empty or unavailable.
+ * The schema for public.notes follows OSM-Notes-Ingestion (id_user, id_country). See docs/Database_Schema.md.
+ * Unit tests mock the pool and do not validate real SQL column names.
  */
 
 import request from 'supertest';
@@ -174,6 +179,13 @@ describe('Notes Endpoints', () => {
         expect(body).toHaveProperty('data');
         expect(body).toHaveProperty('pagination');
         expect(Array.isArray(body.data)).toBe(true);
+        // When DB returns data, validate note shape (id_user/id_country come from user_id/country_id in DB)
+        if (body.data.length > 0) {
+          const note = body.data[0];
+          expect(note).toHaveProperty('note_id');
+          expect(note).toHaveProperty('id_user');
+          expect(note).toHaveProperty('id_country');
+        }
       }
     });
 

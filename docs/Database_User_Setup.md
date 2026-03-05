@@ -97,6 +97,30 @@ psql -h $DB_HOST -U osm_notes_api_user -d osm_notes_dwh \
 # Expected: ERROR: permission denied for table datamartUsers
 ```
 
+## Grant permissions on `dwh` schema (required for API)
+
+The API reads from the Analytics data warehouse in the `dwh` schema. **The database user used by the API must have these permissions**, or the health check will show `database: down` and analytics endpoints will return 500.
+
+If the user was created by OSM-Notes-Analytics (e.g. `osm_notes_analytics_user`) or created manually without schema access, run as a PostgreSQL superuser (replace `your_api_db_user` and `your_dwh_database` with your actual `DB_USER` and `DB_NAME` from `.env`):
+
+```bash
+psql -h 127.0.0.1 -d your_dwh_database -U postgres -c "
+  GRANT USAGE ON SCHEMA dwh TO your_api_db_user;
+  GRANT SELECT ON ALL TABLES IN SCHEMA dwh TO your_api_db_user;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA dwh GRANT SELECT ON TABLES TO your_api_db_user;
+"
+```
+
+Example for user `osm_notes_analytics_user` and database `notes_dwh`:
+
+```bash
+psql -h 127.0.0.1 -d notes_dwh -U postgres -c "
+  GRANT USAGE ON SCHEMA dwh TO osm_notes_analytics_user;
+  GRANT SELECT ON ALL TABLES IN SCHEMA dwh TO osm_notes_analytics_user;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA dwh GRANT SELECT ON TABLES TO osm_notes_analytics_user;
+"
+```
+
 ## Manual Creation (Alternative)
 
 If you prefer to create the user manually:

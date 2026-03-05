@@ -213,7 +213,31 @@ RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=50
 ```
 
-### 3. Verify Configuration
+### 3. Grant database permissions to the API user
+
+The API user (the one set in `DB_USER`) must have **read access to the `dwh` schema**. Without it, the health check will show `database: down` and analytics endpoints will return 500.
+
+Connect as a PostgreSQL superuser (e.g. `postgres`) and run (replace `YOUR_API_DB_USER` with your actual `DB_USER`, e.g. `osm_notes_analytics_user`; replace `notes_dwh` with your `DB_NAME` if different):
+
+```bash
+psql -h 127.0.0.1 -d notes_dwh -U postgres -c "
+  GRANT USAGE ON SCHEMA dwh TO YOUR_API_DB_USER;
+  GRANT SELECT ON ALL TABLES IN SCHEMA dwh TO YOUR_API_DB_USER;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA dwh GRANT SELECT ON TABLES TO YOUR_API_DB_USER;
+"
+```
+
+Example for user `osm_notes_analytics_user` and database `notes_dwh`:
+
+```bash
+psql -h 127.0.0.1 -d notes_dwh -U postgres -c "
+  GRANT USAGE ON SCHEMA dwh TO osm_notes_analytics_user;
+  GRANT SELECT ON ALL TABLES IN SCHEMA dwh TO osm_notes_analytics_user;
+  ALTER DEFAULT PRIVILEGES IN SCHEMA dwh GRANT SELECT ON TABLES TO osm_notes_analytics_user;
+"
+```
+
+### 4. Verify Configuration
 
 ```bash
 # Test database connection
@@ -350,10 +374,9 @@ sudo systemctl status postgresql
 # Test connection
 psql -h localhost -U analytics_user -d osm_notes_dwh
 
-# Check user permissions
-psql -U postgres -c "\du analytics_user"
-psql -d osm_notes_dwh -U postgres -c "GRANT USAGE ON SCHEMA dwh TO analytics_user;"
-psql -d osm_notes_dwh -U postgres -c "GRANT SELECT ON ALL TABLES IN SCHEMA dwh TO analytics_user;"
+# If health shows database down, grant dwh permissions (see "Grant database permissions" above).
+# Example for user osm_notes_analytics_user:
+# psql -h 127.0.0.1 -d notes_dwh -U postgres -c "GRANT USAGE ON SCHEMA dwh TO osm_notes_analytics_user; GRANT SELECT ON ALL TABLES IN SCHEMA dwh TO osm_notes_analytics_user;"
 ```
 
 ### Redis Connection Issues
@@ -412,12 +435,15 @@ export NODE_ENV=production
 ### 2. Start Production Server
 
 ```bash
-# Start production server
+# Start production server (default port 3000)
 npm start
+
+# Or use a different port (e.g. when 3000 is in use)
+PORT=3010 npm start
 
 # Or use PM2 for process management
 npm install -g pm2
-pm2 start dist/index.js --name osm-notes-api
+pm2 start dist/index.js --name osm-notes-api -- --port 3010
 pm2 save
 pm2 startup
 ```

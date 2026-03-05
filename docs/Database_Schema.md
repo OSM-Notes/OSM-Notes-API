@@ -52,7 +52,7 @@ The API requires two schemas:
 
 Stores OSM notes data.
 
-**Required Columns**:
+**Required Columns** (schema matches OSM-Notes-Ingestion):
 ```sql
 CREATE TABLE IF NOT EXISTS public.notes (
   note_id INTEGER PRIMARY KEY,

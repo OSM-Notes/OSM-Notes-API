@@ -134,14 +134,17 @@ export DB_PASSWORD=your_test_password
 ### 6. Start Application
 
 ```bash
-# Production
+# Production (default port 3000)
 npm start
+
+# Use a different port (e.g. when 3000 is in use)
+PORT=3010 npm start
 
 # Development (with hot reload)
 npm run dev
 ```
 
-The API will be available at `http://localhost:3000`
+The API will be available at `http://localhost:3000` (or `http://localhost:3010` if you set `PORT=3010`).
 
 ## Docker Installation
 
