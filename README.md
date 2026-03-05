@@ -150,6 +150,8 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 - Swagger UI: `http://localhost:3000/docs`
 - OpenAPI JSON: `http://localhost:3000/docs/json`
 
+The OpenAPI 3.0 spec is loaded from file (see [OpenAPI spec](docs/OpenAPI_Spec.md)). **OSM-Notes-Common** is included as a git submodule at `lib/osm-common`; the canonical spec is at `lib/osm-common/schemas/openapi/notes-api-v1.yaml`. A fallback copy exists under `openapi/` in this repo.
+
 See [docs/USAGE.md](docs/Usage.md) for complete usage guide.
 
 ## Recommended Reading Path

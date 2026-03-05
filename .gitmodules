@@ -1,0 +1,3 @@
+[submodule "lib/osm-common"]
+	path = lib/osm-common
+	url = https://github.com/OSM-Notes/OSM-Notes-Common.git

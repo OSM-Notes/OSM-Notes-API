@@ -759,6 +759,10 @@ http://localhost:3000/docs/json
 https://notes-api.osm.lat/docs/json
 ```
 
+### Spec source
+
+The OpenAPI 3.0 spec is loaded from a YAML file. The canonical version is maintained in **OSM-Notes-Common** (`schemas/openapi/notes-api-v1.yaml`). See [OpenAPI Spec](OpenAPI_Spec.md) for resolution order and syncing with Common.
+
 ---
 
 ## Additional Resources

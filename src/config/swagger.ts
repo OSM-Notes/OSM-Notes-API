@@ -1,314 +1,100 @@
 /**
  * Swagger/OpenAPI configuration
+ * Loads the API spec from file (canonical: OSM-Notes-Common schemas/openapi/notes-api-v1.yaml).
  */
 
-import swaggerJsdoc from 'swagger-jsdoc';
+import fs from 'fs';
+import path from 'path';
+import yaml from 'js-yaml';
 import { getAppConfig } from './app';
 
-const config = getAppConfig();
+/** Project root (one level up from dist when compiled, or from src when using ts-node/Jest). */
+function getProjectRoot(): string {
+  const dir = __dirname;
+  // When compiled: dist/config -> project root is ../..
+  if (dir.includes('dist')) {
+    return path.resolve(dir, '..', '..');
+  }
+  // Jest and ts-node: prefer process.cwd() (project root) so openapi/ is found
+  const cwd = process.cwd();
+  if (fs.existsSync(path.join(cwd, 'openapi', 'notes-api-v1.yaml'))) return cwd;
+  if (fs.existsSync(path.join(cwd, 'lib', 'osm-common', 'schemas', 'openapi', 'notes-api-v1.yaml')))
+    return cwd;
+  // Fallback: relative to this file (src/config -> ../..)
+  return path.resolve(dir, '..', '..');
+}
 
 /**
- * Swagger definition options
+ * Resolve path to the OpenAPI spec file.
+ * Order: OPENAPI_SPEC_PATH env, then OSM-Notes-Common submodule, then local openapi/.
  */
-const swaggerDefinition = {
-  openapi: '3.0.0',
-  info: {
-    title: 'OSM Notes API',
-    version: process.env.npm_package_version || '0.1.0',
-    description:
-      'REST API for OSM Notes Analytics and Ingestion. Provides programmatic access to user profiles, country analytics, notes, and real-time metrics.',
-    contact: {
-      name: 'OSM Notes Team',
-    },
-    license: {
-      name: 'MIT',
-      url: 'https://opensource.org/licenses/MIT',
-    },
-  },
-  servers: [
-    {
+function resolveSpecPath(): string {
+  const root = getProjectRoot();
+  const envPath = process.env.OPENAPI_SPEC_PATH;
+  if (envPath) {
+    const absolute = path.isAbsolute(envPath) ? envPath : path.resolve(root, envPath);
+    if (fs.existsSync(absolute)) return absolute;
+  }
+  const commonPath = path.join(
+    root,
+    'lib',
+    'osm-common',
+    'schemas',
+    'openapi',
+    'notes-api-v1.yaml'
+  );
+  if (fs.existsSync(commonPath)) return commonPath;
+  const localPath = path.join(root, 'openapi', 'notes-api-v1.yaml');
+  if (fs.existsSync(localPath)) return localPath;
+  throw new Error(
+    'OpenAPI spec not found. Set OPENAPI_SPEC_PATH or add openapi/notes-api-v1.yaml (or OSM-Notes-Common submodule at lib/osm-common/schemas/openapi/).'
+  );
+}
+
+/**
+ * Load and parse the OpenAPI spec (YAML or JSON).
+ */
+function loadSpec(): Record<string, unknown> {
+  const specPath = resolveSpecPath();
+  const content = fs.readFileSync(specPath, 'utf8');
+  const ext = path.extname(specPath).toLowerCase();
+  if (ext === '.json') {
+    return JSON.parse(content) as Record<string, unknown>;
+  }
+  return yaml.load(content) as Record<string, unknown>;
+}
+
+/**
+ * Get the Swagger/OpenAPI specification object.
+ * Optionally patches servers[0].url with the current port for development.
+ */
+export function getSwaggerSpec(): Record<string, unknown> {
+  const spec = loadSpec();
+  const config = getAppConfig();
+  const servers = spec.servers as Array<{ url: string; description?: string }> | undefined;
+  if (servers && servers.length > 0 && config.port) {
+    servers[0] = {
+      ...servers[0],
       url: `http://localhost:${config.port}`,
-      description: 'Development server',
-    },
-    {
-      url: 'https://notes-api.osm.lat',
-      description: 'Production server',
-    },
-  ],
-  components: {
-    securitySchemes: {
-      UserAgent: {
-        type: 'apiKey',
-        in: 'header',
-        name: 'User-Agent',
-        description:
-          'User-Agent header required for all requests. Format: AppName/Version (Contact)',
-      },
-    },
-    schemas: {
-      Error: {
-        type: 'object',
-        properties: {
-          error: {
-            type: 'string',
-            description: 'Error type name',
-            example: 'Bad Request',
-          },
-          message: {
-            type: 'string',
-            description: 'Human-readable error message',
-            example: 'Invalid note ID',
-          },
-          statusCode: {
-            type: 'integer',
-            description: 'HTTP status code',
-            example: 400,
-          },
-        },
-        required: ['error', 'message', 'statusCode'],
-      },
-      Note: {
-        type: 'object',
-        properties: {
-          note_id: {
-            type: 'integer',
-            description: 'OSM note ID',
-            example: 12345,
-          },
-          latitude: {
-            type: 'number',
-            format: 'float',
-            description: 'Latitude coordinate',
-            example: 4.6097,
-          },
-          longitude: {
-            type: 'number',
-            format: 'float',
-            description: 'Longitude coordinate',
-            example: -74.0817,
-          },
-          status: {
-            type: 'string',
-            enum: ['open', 'closed', 'reopened'],
-            description: 'Note status',
-            example: 'open',
-          },
-          created_at: {
-            type: 'string',
-            format: 'date-time',
-            description: 'Creation timestamp',
-            example: '2024-01-15T10:30:00Z',
-          },
-          closed_at: {
-            type: 'string',
-            format: 'date-time',
-            nullable: true,
-            description: 'Closing timestamp',
-            example: null,
-          },
-          id_user: {
-            type: 'integer',
-            nullable: true,
-            description: 'User ID who created the note',
-            example: 67890,
-          },
-          id_country: {
-            type: 'integer',
-            nullable: true,
-            description: 'Country ID',
-            example: 42,
-          },
-          comments_count: {
-            type: 'integer',
-            description: 'Number of comments',
-            example: 3,
-          },
-        },
-        required: ['note_id', 'latitude', 'longitude', 'status', 'created_at'],
-      },
-      NoteComment: {
-        type: 'object',
-        properties: {
-          comment_id: {
-            type: 'integer',
-            example: 1,
-          },
-          note_id: {
-            type: 'integer',
-            example: 12345,
-          },
-          user_id: {
-            type: 'integer',
-            nullable: true,
-            example: 67890,
-          },
-          username: {
-            type: 'string',
-            nullable: true,
-            example: 'test_user',
-          },
-          action: {
-            type: 'string',
-            example: 'opened',
-          },
-          created_at: {
-            type: 'string',
-            format: 'date-time',
-            example: '2024-01-15T10:30:00Z',
-          },
-          text: {
-            type: 'string',
-            nullable: true,
-            example: 'This is a test note',
-          },
-        },
-      },
-      UserProfile: {
-        type: 'object',
-        properties: {
-          dimension_user_id: {
-            type: 'integer',
-            example: 123,
-          },
-          user_id: {
-            type: 'integer',
-            example: 12345,
-          },
-          username: {
-            type: 'string',
-            nullable: true,
-            example: 'test_user',
-          },
-          history_whole_open: {
-            type: 'integer',
-            example: 100,
-          },
-          history_whole_closed: {
-            type: 'integer',
-            example: 50,
-          },
-          history_whole_commented: {
-            type: 'integer',
-            example: 75,
-          },
-          avg_days_to_resolution: {
-            type: 'number',
-            format: 'float',
-            nullable: true,
-            example: 5.5,
-          },
-          resolution_rate: {
-            type: 'number',
-            format: 'float',
-            nullable: true,
-            example: 50.0,
-          },
-        },
-      },
-      CountryProfile: {
-        type: 'object',
-        properties: {
-          dimension_country_id: {
-            type: 'integer',
-            example: 45,
-          },
-          country_id: {
-            type: 'integer',
-            example: 42,
-          },
-          country_name: {
-            type: 'string',
-            nullable: true,
-            example: 'Colombia',
-          },
-          iso_alpha2: {
-            type: 'string',
-            nullable: true,
-            example: 'CO',
-          },
-          history_whole_open: {
-            type: 'integer',
-            example: 1000,
-          },
-          history_whole_closed: {
-            type: 'integer',
-            example: 800,
-          },
-          resolution_rate: {
-            type: 'number',
-            format: 'float',
-            nullable: true,
-            example: 80.0,
-          },
-        },
-      },
-      GlobalAnalytics: {
-        type: 'object',
-        properties: {
-          dimension_global_id: {
-            type: 'integer',
-            example: 1,
-          },
-          history_whole_open: {
-            type: 'integer',
-            example: 1000000,
-          },
-          history_whole_closed: {
-            type: 'integer',
-            example: 800000,
-          },
-          currently_open_count: {
-            type: 'integer',
-            nullable: true,
-            example: 200000,
-          },
-          resolution_rate: {
-            type: 'number',
-            format: 'float',
-            nullable: true,
-            example: 80.0,
-          },
-        },
-      },
-      Pagination: {
-        type: 'object',
-        properties: {
-          page: {
-            type: 'integer',
-            example: 1,
-          },
-          limit: {
-            type: 'integer',
-            example: 20,
-          },
-          total: {
-            type: 'integer',
-            example: 250,
-          },
-          total_pages: {
-            type: 'integer',
-            example: 13,
-          },
-        },
-      },
-    },
-  },
-  security: [
-    {
-      UserAgent: [],
-    },
-  ],
-};
+      description: servers[0].description || 'Development server',
+    };
+  }
+  if (process.env.npm_package_version && spec.info && typeof spec.info === 'object') {
+    (spec.info as Record<string, unknown>).version = process.env.npm_package_version;
+  }
+  return spec;
+}
+
+/** Cached spec for Swagger UI and /docs/json (lazy-loaded). */
+let cachedSpec: Record<string, unknown> | null = null;
 
 /**
- * Swagger options
+ * Swagger specification for use by swagger-ui-express.
+ * Uses cached spec so file is read once.
  */
-const swaggerOptions: swaggerJsdoc.Options = {
-  definition: swaggerDefinition,
-  apis: ['./src/routes/*.ts', './src/controllers/*.ts'],
-};
-
-/**
- * Generate Swagger specification
- */
-export const swaggerSpec = swaggerJsdoc(swaggerOptions);
+export const swaggerSpec = ((): Record<string, unknown> => {
+  if (!cachedSpec) {
+    cachedSpec = getSwaggerSpec();
+  }
+  return cachedSpec;
+})();
