@@ -6,7 +6,7 @@
 import { getDatabasePool } from '../config/database';
 import { logger } from '../utils/logger';
 import { ApiError } from '../middleware/errorHandler';
-import { UserProfile } from '../types';
+import { UserProfile, UserListParams, SearchResult } from '../types';
 
 /**
  * Database row type for user query result
@@ -148,6 +148,101 @@ export async function getUserProfile(userId: number): Promise<UserProfile> {
       error: error instanceof Error ? error.message : String(error),
     });
 
+    throw new ApiError(500, 'Internal server error');
+  }
+}
+
+/**
+ * List users with pagination
+ * @param params - List parameters (page, limit, sort, order)
+ * @returns Paginated list of users
+ */
+export async function listUsers(params: UserListParams): Promise<SearchResult<UserProfile>> {
+  const pool = getDatabasePool();
+  const page = params.page || 1;
+  const limit = Math.min(params.limit || 20, 100);
+  const offset = (page - 1) * limit;
+  const sortField = params.sort || 'user_id';
+  const sortOrder = params.order === 'asc' ? 'ASC' : 'DESC';
+
+  const allowedSortFields = [
+    'user_id',
+    'username',
+    'history_whole_open',
+    'history_whole_closed',
+    'resolution_rate',
+  ];
+  const safeSort = allowedSortFields.includes(sortField) ? sortField : 'user_id';
+
+  try {
+    const countQuery = 'SELECT COUNT(*) as total FROM dwh.datamartUsers';
+    const countResult = await pool.query<{ total: string }>(countQuery);
+    const total = parseInt(countResult.rows[0].total, 10);
+
+    const query = `
+      SELECT
+        dimension_user_id,
+        user_id,
+        username,
+        history_whole_open,
+        history_whole_closed,
+        history_whole_commented,
+        avg_days_to_resolution,
+        resolution_rate
+      FROM dwh.datamartUsers
+      ORDER BY ${safeSort} ${sortOrder}
+      LIMIT $1 OFFSET $2
+    `;
+
+    logger.debug('Listing users', { page, limit, sort: safeSort, order: sortOrder });
+
+    const result = await pool.query<UserRow>(query, [limit, offset]);
+
+    const users: UserProfile[] = result.rows.map((row) => ({
+      dimension_user_id: row.dimension_user_id,
+      user_id: row.user_id,
+      username: row.username,
+      history_whole_open:
+        typeof row.history_whole_open === 'string'
+          ? parseInt(row.history_whole_open, 10)
+          : row.history_whole_open,
+      history_whole_closed:
+        typeof row.history_whole_closed === 'string'
+          ? parseInt(row.history_whole_closed, 10)
+          : row.history_whole_closed,
+      history_whole_commented:
+        typeof row.history_whole_commented === 'string'
+          ? parseInt(row.history_whole_commented, 10)
+          : row.history_whole_commented,
+      avg_days_to_resolution:
+        row.avg_days_to_resolution === null
+          ? null
+          : typeof row.avg_days_to_resolution === 'string'
+            ? parseFloat(row.avg_days_to_resolution)
+            : row.avg_days_to_resolution,
+      resolution_rate:
+        row.resolution_rate === null
+          ? null
+          : typeof row.resolution_rate === 'string'
+            ? parseFloat(row.resolution_rate)
+            : row.resolution_rate,
+      user_response_time: null,
+      days_since_last_action: null,
+    }));
+
+    return {
+      data: users,
+      pagination: {
+        page,
+        limit,
+        total,
+        total_pages: Math.ceil(total / limit),
+      },
+    };
+  } catch (error) {
+    logger.error('Error listing users', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     throw new ApiError(500, 'Internal server error');
   }
 }

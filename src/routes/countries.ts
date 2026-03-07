@@ -31,6 +31,17 @@ function cacheHandler(
 }
 
 /**
+ * @route   GET /notes-api/v1/countries
+ * @desc    List all countries with pagination
+ * @access  Public
+ */
+router.get(
+  '/',
+  cacheHandler(cacheMiddleware({ ttl: 300 })),
+  asyncHandler(countriesController.listCountries)
+);
+
+/**
  * @route   GET /notes-api/v1/countries/rankings
  * @desc    Get country rankings by metric
  * @access  Public

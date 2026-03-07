@@ -31,6 +31,17 @@ function cacheHandler(
 }
 
 /**
+ * @route   GET /notes-api/v1/users
+ * @desc    List all users with pagination
+ * @access  Public
+ */
+router.get(
+  '/',
+  cacheHandler(cacheMiddleware({ ttl: 300 })),
+  asyncHandler(usersController.listUsers)
+);
+
+/**
  * @route   GET /notes-api/v1/users/rankings
  * @desc    Get user rankings by metric
  * @access  Public

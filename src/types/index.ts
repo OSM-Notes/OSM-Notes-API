@@ -154,6 +154,31 @@ export interface GlobalAnalytics {
 }
 
 /**
+ * Parameters for listing users
+ */
+export interface UserListParams {
+  page?: number;
+  limit?: number;
+  sort?: 'user_id' | 'username' | 'history_whole_open' | 'history_whole_closed' | 'resolution_rate';
+  order?: 'asc' | 'desc';
+}
+
+/**
+ * Parameters for listing countries
+ */
+export interface CountryListParams {
+  page?: number;
+  limit?: number;
+  sort?:
+    | 'country_id'
+    | 'country_name'
+    | 'history_whole_open'
+    | 'history_whole_closed'
+    | 'resolution_rate';
+  order?: 'asc' | 'desc';
+}
+
+/**
  * Valid metrics for user rankings
  */
 export type UserRankingMetric =
