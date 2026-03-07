@@ -721,7 +721,8 @@ paths:
           name: sort
           schema:
             type: string
-            enum: [country_id, country_name, history_whole_open, history_whole_closed, resolution_rate]
+            enum:
+              [country_id, country_name, history_whole_open, history_whole_closed, resolution_rate]
             default: country_name
           description: Sort field
         - in: query
