@@ -409,7 +409,9 @@ paths:
           name: after
           schema:
             type: string
-          description: Opaque cursor for keyset pagination (from previous response next_cursor). When set, cursor-based pagination is used and page is ignored.
+          description:
+            Opaque cursor for keyset pagination (from previous response next_cursor). When set,
+            cursor-based pagination is used and page is ignored.
         - in: query
           name: text
           schema:
