@@ -14,162 +14,162 @@ status: "active"
 ---
 
 
-# Propuesta de API REST para OSM Notes Analytics e Ingestion
+# REST API Proposal for OSM Notes Analytics and Ingestion
 
-**Documento de Análisis y Propuesta**  
-**Fecha**: 2025-12-14  
-**Versión**: 1.0
-
----
-
-## Tabla de Contenidos
-
-1. [Resumen Ejecutivo](#resumen-ejecutivo)
-2. [Análisis de Necesidad](#análisis-de-necesidad)
-3. [Estado Actual del Sistema](#estado-actual-del-sistema)
-4. [Comparación con OSM API 0.6](#comparación-con-osm-api-06)
-5. [Propuesta de API](#propuesta-de-api)
-6. [Casos de Uso](#casos-de-uso)
-7. [Arquitectura Técnica](#arquitectura-técnica)
-8. [Tecnologías Recomendadas](#tecnologías-recomendadas)
-9. [Documentación de la API](#documentación-de-la-api)
-10. [Pruebas y Calidad](#pruebas-y-calidad)
-11. [Autenticación y Seguridad](#autenticación-y-seguridad)
-12. [Monitoreo y Observabilidad](#monitoreo-y-observabilidad)
-13. [Análisis de Costo-Beneficio](#análisis-de-costo-beneficio)
-14. [Plan de Implementación](#plan-de-implementación)
-15. [Riesgos y Mitigaciones](#riesgos-y-mitigaciones)
-16. [Conclusiones y Recomendaciones](#conclusiones-y-recomendaciones)
+**Analysis and Proposal Document**  
+**Date**: 2025-12-14  
+**Version**: 1.0
 
 ---
 
-## Resumen Ejecutivo
+## Table of Contents
 
-### ¿Vale la Pena Implementar una API?
-
-**Respuesta Corta**: **SÍ, pero con un enfoque incremental y bien planificado.**
-
-### Recomendación Principal
-
-Implementar una API REST que unifique el acceso a los datos de **OSM-Notes-Ingestion** y **OSM-Notes-Analytics**, ofreciendo funcionalidades avanzadas que van más allá de la API estándar de OSM 0.6, enfocadas en:
-
-- **Perfiles de usuario** con métricas avanzadas
-- **Perfiles de países/comunidades** con análisis de salud
-- **Búsquedas y filtros avanzados** (hashtags, fechas, aplicaciones)
-- **Analíticas en tiempo real** y tendencias históricas
-- **Comparaciones y rankings** entre usuarios y países
-
-### Beneficios Clave
-
-1. **Acceso Programático**: Permite integraciones con otras herramientas y aplicaciones
-2. **Flexibilidad**: Consultas dinámicas sin necesidad de exportar JSON completos
-3. **Escalabilidad**: Mejor que servir archivos JSON estáticos para consultas frecuentes
-4. **Extensibilidad**: Base para futuras funcionalidades (webhooks, streaming, etc.)
-5. **Estandarización**: API REST estándar facilita adopción por desarrolladores
-
-### Inversión Estimada
-
-- **Fase 1 (MVP)**: 2-3 semanas (endpoints básicos)
-- **Fase 2 (Completa)**: 4-6 semanas adicionales (funcionalidades avanzadas)
-- **Mantenimiento**: Bajo (reutiliza infraestructura existente)
+1. [Executive Summary](#executive-summary)
+2. [Needs Analysis](#needs-analysis)
+3. [Current System State](#current-system-state)
+4. [Comparison with OSM API 0.6](#comparison-with-osm-api-06)
+5. [API Proposal](#api-proposal)
+6. [Use Cases](#use-cases)
+7. [Technical Architecture](#technical-architecture)
+8. [Recommended Technologies](#recommended-technologies)
+9. [API Documentation](#api-documentation)
+10. [Testing and Quality](#testing-and-quality)
+11. [Authentication and Security](#authentication-and-security)
+12. [Monitoring and Observability](#monitoring-and-observability)
+13. [Cost-Benefit Analysis](#cost-benefit-analysis)
+14. [Implementation Plan](#implementation-plan)
+15. [Risks and Mitigations](#risks-and-mitigations)
+16. [Conclusions and Recommendations](#conclusions-and-recommendations)
 
 ---
 
-## Análisis de Necesidad
+## Executive Summary
 
-### Problemas Actuales
+### Is It Worth Implementing an API?
 
-#### 1. Acceso Limitado a Datos
+**Short Answer**: **YES, but with an incremental and well-planned approach.**
 
-**Situación Actual**:
-- Los datos están disponibles solo a través de:
-  - Consultas SQL directas (requiere acceso a base de datos)
-  - Archivos JSON estáticos (exportados periódicamente)
-  - Scripts Bash (para operaciones internas)
+### Main Recommendation
 
-**Problema**:
-- No hay acceso programático estándar
-- Difícil integrar con otras aplicaciones
-- Los JSON estáticos no permiten consultas dinámicas
-- Requiere conocimiento de SQL para consultas personalizadas
+Implement a REST API that unifies access to data from **OSM-Notes-Ingestion** and **OSM-Notes-Analytics**, offering advanced features beyond the standard OSM 0.6 API, focused on:
 
-#### 2. Falta de Funcionalidades Avanzadas
+- **User profiles** with advanced metrics
+- **Country/community profiles** with health analysis
+- **Advanced search and filters** (hashtags, dates, applications)
+- **Real-time analytics** and historical trends
+- **Comparisons and rankings** between users and countries
 
-**Lo que falta**:
-- Búsqueda por múltiples criterios simultáneos
-- Filtros complejos (fechas, rangos, combinaciones)
-- Paginación eficiente
-- Ordenamiento dinámico
-- Agregaciones en tiempo real
-- Comparaciones entre entidades
+### Key Benefits
 
-#### 3. Limitaciones de la API OSM 0.6
+1. **Programmatic Access**: Enables integration with other tools and applications
+2. **Flexibility**: Dynamic queries without exporting full JSON datasets
+3. **Scalability**: Better than serving static JSON files for frequent queries
+4. **Extensibility**: Foundation for future features (webhooks, streaming, etc.)
+5. **Standardisation**: Standard REST API eases developer adoption
 
-La API estándar de OSM 0.6 ofrece:
-- ✅ Lectura/escritura de notas básicas
-- ✅ Búsqueda por área geográfica
-- ✅ Búsqueda por usuario
-- ❌ **NO ofrece analíticas**
-- ❌ **NO ofrece métricas agregadas**
-- ❌ **NO ofrece perfiles de usuario**
-- ❌ **NO ofrece perfiles de países**
-- ❌ **NO ofrece rankings o comparaciones**
-- ❌ **NO ofrece filtros por hashtags**
-- ❌ **NO ofrece análisis temporal avanzado**
+### Estimated Effort
 
-### Oportunidades
-
-1. **Desarrolladores Externos**: API permitiría crear herramientas y visualizaciones personalizadas
-2. **Integraciones**: Conectarse con otras plataformas (GitHub, Slack, etc.)
-3. **Aplicaciones Móviles**: API REST es ideal para apps móviles
-4. **Dashboards Dinámicos**: Consultas en tiempo real sin regenerar JSON
-5. **Investigación**: Acceso estructurado para análisis académicos
+- **Phase 1 (MVP)**: 2–3 weeks (basic endpoints)
+- **Phase 2 (Full)**: 4–6 additional weeks (advanced features)
+- **Maintenance**: Low (reuses existing infrastructure)
 
 ---
 
-## Estado Actual del Sistema
+## Needs Analysis
+
+### Current Problems
+
+#### 1. Limited Data Access
+
+**Current Situation**:
+- Data is only available through:
+  - Direct SQL queries (requires database access)
+  - Static JSON files (exported periodically)
+  - Bash scripts (for internal operations)
+
+**Problem**:
+- No standard programmatic access
+- Hard to integrate with other applications
+- Static JSON does not allow dynamic queries
+- Requires SQL knowledge for custom queries
+
+#### 2. Lack of Advanced Features
+
+**What is missing**:
+- Search by multiple criteria at once
+- Complex filters (dates, ranges, combinations)
+- Efficient pagination
+- Dynamic sorting
+- Real-time aggregations
+- Entity comparisons
+
+#### 3. OSM API 0.6 Limitations
+
+The standard OSM 0.6 API offers:
+- ✅ Basic note read/write
+- ✅ Geographic area search
+- ✅ User search
+- ❌ **Does NOT offer analytics**
+- ❌ **Does NOT offer aggregated metrics**
+- ❌ **Does NOT offer user profiles**
+- ❌ **Does NOT offer country profiles**
+- ❌ **Does NOT offer rankings or comparisons**
+- ❌ **Does NOT offer hashtag filters**
+- ❌ **Does NOT offer advanced temporal analysis**
+
+### Opportunities
+
+1. **External Developers**: API would enable custom tools and visualisations
+2. **Integrations**: Connect with other platforms (GitHub, Slack, etc.)
+3. **Mobile Applications**: REST API is ideal for mobile apps
+4. **Dynamic Dashboards**: Real-time queries without regenerating JSON
+5. **Research**: Structured access for academic analysis
+
+---
+
+## Current System State
 
 ### OSM-Notes-Ingestion
 
-**Funcionalidades**:
-- Descarga notas desde OSM Planet y API
-- Sincronización en tiempo real (cada 15 minutos)
-- Almacenamiento en tablas base PostgreSQL
-- Publicación de capa WMS
-- **NO tiene API REST**
+**Features**:
+- Downloads notes from OSM Planet and API
+- Real-time sync (every 15 minutes)
+- PostgreSQL base tables storage
+- WMS layer publishing
+- **No REST API**
 
-**Datos Disponibles**:
-- Tablas: `notes`, `note_comments`, `note_comments_text`, `users`, `countries`
-- Datos históricos desde 2013
-- Actualización continua
+**Available Data**:
+- Tables: `notes`, `note_comments`, `note_comments_text`, `users`, `countries`
+- Historical data since 2013
+- Continuous updates
 
 ### OSM-Notes-Analytics
 
-**Funcionalidades**:
-- ETL que transforma datos base en star schema
-- Data warehouse con 70+ métricas por usuario/país
-- Datamarts pre-computados
-- Exportación a JSON estática
-- **NO tiene API REST** (mencionado como "Future" en documentación)
+**Features**:
+- ETL that transforms base data into star schema
+- Data warehouse with 70+ metrics per user/country
+- Pre-computed datamarts
+- Static JSON export
+- **No REST API** (mentioned as "Future" in documentation)
 
-**Datos Disponibles**:
-- `dwh.datamartUsers`: 78+ métricas por usuario
-- `dwh.datamartCountries`: 77+ métricas por país
-- `dwh.datamartGlobal`: Métricas globales
-- `dwh.facts`: Datos detallados a nivel de nota
-- Dimensiones: usuarios, países, fechas, aplicaciones, hashtags, etc.
+**Available Data**:
+- `dwh.datamartUsers`: 78+ metrics per user
+- `dwh.datamartCountries`: 77+ metrics per country
+- `dwh.datamartGlobal`: Global metrics
+- `dwh.facts`: Note-level detailed data
+- Dimensions: users, countries, dates, applications, hashtags, etc.
 
 ### OSM-Notes-Viewer
 
-**Funcionalidades**:
-- Consume archivos JSON estáticos
-- Visualizaciones web interactivas
-- Perfiles de usuario y país
-- **NO requiere API** (usa JSON estático)
+**Features**:
+- Consumes static JSON files
+- Interactive web visualisations
+- User and country profiles
+- **Does not require API** (uses static JSON)
 
-### Gap Identificado
+### Identified Gap
 
-**Lo que falta**:
+**What is missing**:
 
 ```mermaid
 flowchart TD
@@ -177,7 +177,7 @@ flowchart TD
     
     ANALYTICS[OSM-Notes-Analytics<br/>ETL + DWH]
     
-    MISSING[❌ API REST FALTA<br/>Acceso programático]
+    MISSING[❌ REST API MISSING<br/>Programmatic access]
     
     VIEWER[OSM-Notes-Viewer<br/>Consumidor actual: JSON]
     
@@ -193,103 +193,103 @@ flowchart TD
 
 ---
 
-## Comparación con OSM API 0.6
+## Comparison with OSM API 0.6
 
-### OSM API 0.6 - Funcionalidades
+### OSM API 0.6 – Features
 
-| Funcionalidad | OSM API 0.6 | Propuesta API |
-|---------------|-------------|---------------|
-| **Lectura de notas** | ✅ Básica | ✅ Avanzada con filtros |
-| **Escritura de notas** | ✅ Completa | ❌ No incluida (fuera de alcance) |
-| **Búsqueda geográfica** | ✅ Por bbox | ✅ Por bbox + país + región |
-| **Búsqueda por usuario** | ✅ Básica | ✅ Avanzada con métricas |
-| **Búsqueda por fecha** | ✅ Limitada | ✅ Rango flexible |
-| **Analíticas** | ❌ No | ✅ Completa (70+ métricas) |
-| **Perfiles de usuario** | ❌ No | ✅ Completo (78+ métricas) |
-| **Perfiles de países** | ❌ No | ✅ Completo (77+ métricas) |
-| **Rankings** | ❌ No | ✅ Por múltiples criterios |
-| **Comparaciones** | ❌ No | ✅ Entre usuarios/países |
-| **Filtros por hashtag** | ❌ No | ✅ Completo |
-| **Análisis temporal** | ❌ No | ✅ Por año/mes/día/hora |
-| **Métricas de resolución** | ❌ No | ✅ Tiempo promedio, tasa, etc. |
-| **Análisis de aplicaciones** | ❌ No | ✅ Uso por app/versión |
-| **Health scores** | ❌ No | ✅ Para países/comunidades |
-| **Tendencias históricas** | ❌ No | ✅ Por año/mes desde 2013 |
+| Feature | OSM API 0.6 | Proposed API |
+|---------|-------------|--------------|
+| **Note read** | ✅ Basic | ✅ Advanced with filters |
+| **Note write** | ✅ Full | ❌ Not in scope |
+| **Geographic search** | ✅ By bbox | ✅ By bbox + country + region |
+| **User search** | ✅ Basic | ✅ Advanced with metrics |
+| **Date search** | ✅ Limited | ✅ Flexible range |
+| **Analytics** | ❌ No | ✅ Full (70+ metrics) |
+| **User profiles** | ❌ No | ✅ Full (78+ metrics) |
+| **Country profiles** | ❌ No | ✅ Full (77+ metrics) |
+| **Rankings** | ❌ No | ✅ Multiple criteria |
+| **Comparisons** | ❌ No | ✅ Between users/countries |
+| **Hashtag filters** | ❌ No | ✅ Full |
+| **Temporal analysis** | ❌ No | ✅ By year/month/day/hour |
+| **Resolution metrics** | ❌ No | ✅ Avg time, rate, etc. |
+| **Application analysis** | ❌ No | ✅ Usage by app/version |
+| **Health scores** | ❌ No | ✅ For countries/communities |
+| **Historical trends** | ❌ No | ✅ By year/month since 2013 |
 
-### Ventajas de la Propuesta
+### Advantages of the Proposal
 
-1. **Más Funcionalidades**: 15+ funcionalidades adicionales vs OSM API 0.6
-2. **Enfoque en Analíticas**: Especializado en métricas y análisis
-3. **Datos Pre-computados**: Respuestas rápidas usando datamarts
-4. **Flexibilidad**: Filtros y consultas complejas
-5. **Extensibilidad**: Fácil agregar nuevas métricas
+1. **More features**: 15+ additional features vs OSM API 0.6
+2. **Analytics focus**: Specialised in metrics and analysis
+3. **Pre-computed data**: Fast responses using datamarts
+4. **Flexibility**: Complex filters and queries
+5. **Extensibility**: Easy to add new metrics
 
-### Desventajas
+### Disadvantages
 
-1. **Solo Lectura**: No permite escribir/modificar notas (por diseño)
-2. **Dependencia de ETL**: Datos pueden tener latencia (15 minutos)
-3. **Complejidad**: Más endpoints y parámetros que OSM API 0.6
+1. **Read-only**: Does not allow writing/editing notes (by design)
+2. **ETL dependency**: Data may have latency (15 minutes)
+3. **Complexity**: More endpoints and parameters than OSM API 0.6
 
 ---
 
-## Propuesta de API
+## API Proposal
 
-### Principios de Diseño
+### Design Principles
 
-1. **RESTful**: Sigue estándares REST
-2. **JSON**: Todas las respuestas en JSON
-3. **Versionado**: `/notes-api/v1/` para compatibilidad futura
-4. **Paginación**: Todas las listas paginadas
-5. **Filtros**: Parámetros de query estándar
-6. **Documentación**: OpenAPI/Swagger
-7. **Rate Limiting**: Protección contra abuso
-8. **Caching**: Headers HTTP estándar
+1. **RESTful**: Follows REST standards
+2. **JSON**: All responses in JSON
+3. **Versioning**: `/notes-api/v1/` for future compatibility
+4. **Pagination**: All lists paginated
+5. **Filters**: Standard query parameters
+6. **Documentation**: OpenAPI/Swagger
+7. **Rate limiting**: Abuse protection
+8. **Caching**: Standard HTTP headers
 
-### Estructura de Endpoints
+### Endpoint Structure
 
 ```mermaid
 graph TD
     ROOT[/notes-api/v1/]
     
     subgraph Users["/users"]
-        U1[GET /users<br/>Lista de usuarios paginada]
-        U2[GET /users/user_id<br/>Perfil completo de usuario]
-        U3[GET /users/user_id/notes<br/>Notas del usuario]
-        U4[GET /users/user_id/stats<br/>Estadísticas del usuario]
-        U5[GET /users/rankings<br/>Rankings de usuarios]
+        U1[GET /users<br/>Paginated user list]
+        U2[GET /users/user_id<br/>Full user profile]
+        U3[GET /users/user_id/notes<br/>User notes]
+        U4[GET /users/user_id/stats<br/>User statistics]
+        U5[GET /users/rankings<br/>User rankings]
     end
     
     subgraph Countries["/countries"]
-        C1[GET /countries<br/>Lista de países paginada]
-        C2[GET /countries/country_id<br/>Perfil completo de país]
-        C3[GET /countries/country_id/notes<br/>Notas del país]
-        C4[GET /countries/country_id/users<br/>Usuarios activos]
-        C5[GET /countries/rankings<br/>Rankings de países]
+        C1[GET /countries<br/>Paginated country list]
+        C2[GET /countries/country_id<br/>Full country profile]
+        C3[GET /countries/country_id/notes<br/>Country notes]
+        C4[GET /countries/country_id/users<br/>Active users]
+        C5[GET /countries/rankings<br/>Country rankings]
     end
     
     subgraph Notes["/notes"]
-        N1[GET /notes<br/>Búsqueda de notas]
-        N2[GET /notes/note_id<br/>Detalle de nota]
-        N3[GET /notes/note_id/comments<br/>Comentarios de nota]
-        N4[GET /notes/note_id/history<br/>Historial de nota]
+        N1[GET /notes<br/>Note search]
+        N2[GET /notes/note_id<br/>Note details]
+        N3[GET /notes/note_id/comments<br/>Note comments]
+        N4[GET /notes/note_id/history<br/>Note history]
     end
     
     subgraph Analytics["/analytics"]
-        A1[GET /analytics/global<br/>Estadísticas globales]
-        A2[GET /analytics/trends<br/>Tendencias temporales]
-        A3[GET /analytics/comparison<br/>Comparaciones]
+        A1[GET /analytics/global<br/>Global statistics]
+        A2[GET /analytics/trends<br/>Temporal trends]
+        A3[GET /analytics/comparison<br/>Comparisons]
         A4[GET /analytics/health<br/>Health scores]
     end
     
     subgraph Search["/search"]
-        S1[GET /search/users<br/>Búsqueda avanzada de usuarios]
-        S2[GET /search/countries<br/>Búsqueda avanzada de países]
-        S3[GET /search/notes<br/>Búsqueda avanzada de notas]
+        S1[GET /search/users<br/>Advanced user search]
+        S2[GET /search/countries<br/>Advanced country search]
+        S3[GET /search/notes<br/>Advanced note search]
     end
     
     subgraph Hashtags["/hashtags"]
-        H1[GET /hashtags<br/>Lista de hashtags]
-        H2[GET /hashtags/hashtag<br/>Estadísticas de hashtag]
+        H1[GET /hashtags<br/>Hashtag list]
+        H2[GET /hashtags/hashtag<br/>Hashtag statistics]
     end
     
     ROOT --> Users
@@ -336,7 +336,7 @@ graph TD
     style Search fill:#FFB6C1
     style Hashtags fill:#F0E68C
 ```
-        H3[GET /hashtags/hashtag/notes<br/>Notas con hashtag]
+        H3[GET /hashtags/hashtag/notes<br/>Notes with hashtag]
     end
     
     ROOT --> Users
@@ -385,15 +385,15 @@ graph TD
     style Hashtags fill:#F0E68C
 ```
 
-### Ejemplos de Endpoints Clave
+### Key Endpoint Examples
 
-#### 1. Perfil de Usuario
+#### 1. User Profile
 
 ```http
 GET /notes-api/v1/users/12345
 ```
 
-**Respuesta**:
+**Response**:
 ```json
 {
   "user_id": 12345,
@@ -429,8 +429,8 @@ GET /notes-api/v1/users/12345
   "hashtags": ["#MapColombia", "#MissingMaps"],
   "date_starting_creating_notes": "2020-01-15",
   "date_starting_solving_notes": "2020-02-01",
-  "last_year_activity": "0101010101...", // 365 caracteres
-  "working_hours_of_week_opening": [/* 168 números */],
+  "last_year_activity": "0101010101...", // 365 characters
+  "working_hours_of_week_opening": [/* 168 numbers */],
   "activity_by_year": {
     "2020": {"open": 10, "closed": 5},
     "2021": {"open": 20, "closed": 15},
@@ -608,7 +608,7 @@ GET /notes-api/v1/search/notes?country=42&status=open&hashtag=#MapColombia&date_
 }
 ```
 
-### Características Avanzadas
+### Advanced Features
 
 #### 1. Filtros Múltiples
 
@@ -637,7 +637,7 @@ GET /notes-api/v1/analytics/aggregate?group_by=country&metric=avg_days_to_resolu
 
 ---
 
-## Casos de Uso
+## Use Cases
 
 ### 1. Dashboard Dinámico
 
@@ -721,9 +721,9 @@ const notes = await fetch('/notes-api/v1/hashtags/#MapColombia2025/notes?status=
 
 ---
 
-## Arquitectura Técnica
+## Technical Architecture
 
-### Arquitectura Propuesta
+### Proposed Architecture
 
 ```mermaid
 flowchart TD
@@ -745,7 +745,7 @@ flowchart TD
     style DB fill:#E0F6FF
 ```
 
-### Flujo de Datos
+### Data Flow
 
 1. **Cliente** hace request HTTP a API
 2. **API Gateway** valida, rate limiting, caching
@@ -758,7 +758,7 @@ flowchart TD
 4. **PostgreSQL** ejecuta query (usa datamarts para velocidad)
 5. **API Server** retorna JSON al cliente
 
-### Estrategia de Caching
+### Caching Strategy
 
 **Niveles de Cache**:
 
@@ -797,7 +797,7 @@ flowchart TD
 - Redis para tracking
 - Headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
 
-### Seguridad
+### Security
 
 1. **HTTPS**: Obligatorio
 2. **CORS**: Configurado para dominios permitidos
@@ -811,7 +811,7 @@ flowchart TD
 
 ---
 
-## Tecnologías Recomendadas
+## Recommended Technologies
 
 ### Opción 1: Node.js + Express (Recomendada)
 
@@ -901,7 +901,7 @@ api/
 - **Cache**: Redis
 - **Rate Limiting**: tollbooth
 
-### Recomendación Final
+### Final Recommendation
 
 **Node.js + Express** por:
 1. Facilidad de desarrollo
@@ -910,7 +910,7 @@ api/
 4. Fácil mantenimiento
 5. Integración natural con el ecosistema existente (JSON exports)
 
-### Base de Datos
+### Database
 
 **PostgreSQL** (ya existe):
 - ✅ Ya está en uso
@@ -921,7 +921,7 @@ api/
 
 **No se requiere cambio de base de datos**.
 
-### Infraestructura
+### Infrastructure
 
 **Deployment Options**:
 
@@ -952,9 +952,9 @@ api/
 
 ---
 
-## Documentación de la API
+## API Documentation
 
-### Estándar de Documentación
+### Documentation Standard
 
 **Recomendación**: **OpenAPI 3.0 (Swagger)**
 
@@ -966,7 +966,7 @@ api/
 - ✅ Validación de requests/responses
 - ✅ Integración con herramientas de testing
 
-### Herramientas Recomendadas
+### Recommended Tools
 
 #### 1. Swagger UI (Interfaz de Documentación)
 
@@ -1006,7 +1006,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 - Permite pruebas automatizadas
 - Integración con CI/CD
 
-### Dónde Publicar la Documentación
+### Where to Publish Documentation
 
 #### Opción 1: Subdominio Dedicado (Recomendada)
 
@@ -1070,7 +1070,7 @@ npm run docs:build
 npm run docs:deploy
 ```
 
-### Estructura de Documentación
+### Documentation Structure
 
 ```
 docs/
@@ -1093,7 +1093,7 @@ docs/
     └── errors.md             # Códigos de error
 ```
 
-### Generación Automática
+### Automatic Generation
 
 **Opción 1: Desde Código (Recomendada)**
 
@@ -1169,7 +1169,7 @@ paths:
       # ...
 ```
 
-### Contenido Mínimo de Documentación
+### Minimum Documentation Content
 
 1. **Getting Started**:
    - Cómo obtener API key (si aplica)
@@ -1203,7 +1203,7 @@ paths:
    - Cambios breaking
    - Deprecaciones
 
-### Herramientas de Validación
+### Validation Tools
 
 **Swagger Validator**: Validar que el OpenAPI spec es correcto
 ```bash
@@ -1250,7 +1250,7 @@ jobs:
           publish_dir: ./docs/dist
 ```
 
-### Ejemplo de Documentación Pública
+### Public Documentation Example
 
 **URL de Ejemplo**: `https://api-docs.osm-notes.org`
 
@@ -1271,13 +1271,13 @@ jobs:
 
 ---
 
-## Pruebas y Calidad
+## Testing and Quality
 
-### Estrategia de Pruebas
+### Testing Strategy
 
 **Principio**: Todos los componentes deben tener pruebas que validen su funcionamiento.
 
-### Tipos de Pruebas
+### Types of Tests
 
 #### 1. Pruebas Unitarias
 
@@ -1455,7 +1455,7 @@ export default function () {
 - **npm audit / safety**: Dependencias vulnerables
 - **Snyk**: Análisis continuo
 
-### Estructura de Tests
+### Test Structure
 
 ```
 tests/
@@ -1486,7 +1486,7 @@ tests/
     └── mocks.ts
 ```
 
-### Base de Datos de Pruebas
+### Test Database
 
 **Estrategia**: Base de datos separada para tests
 
@@ -1554,7 +1554,7 @@ jobs:
       - run: k6 run tests/load/users.js
 ```
 
-### Métricas de Calidad
+### Quality Metrics
 
 **Cobertura de Código**:
 - Objetivo: 80%+
@@ -1568,7 +1568,7 @@ jobs:
 - P95 response time < 200ms (para endpoints de datamarts)
 - P95 response time < 500ms (para búsquedas complejas)
 
-### Pruebas Manuales
+### Manual Testing
 
 **Checklist Pre-Deploy**:
 - [ ] Todos los tests pasan
@@ -1581,9 +1581,9 @@ jobs:
 
 ---
 
-## Autenticación y Seguridad
+## Authentication and Security
 
-### Modelo de Autenticación
+### Authentication Model
 
 **Recomendación**: **API Keys + User-Agent Requerido**
 
@@ -1727,7 +1727,7 @@ export const searchLimiter = createRateLimiter(15 * 60 * 1000, 50); // 50 req/15
 export const analyticsLimiter = createRateLimiter(60 * 60 * 1000, 200); // 200 req/hour
 ```
 
-### Headers de Seguridad
+### Security Headers
 
 **Headers HTTP Recomendados**:
 ```typescript
@@ -1742,7 +1742,7 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
 }
 ```
 
-### Validación de Inputs
+### Input Validation
 
 **Todas las entradas deben ser validadas**:
 ```typescript
@@ -1773,7 +1773,7 @@ const userSearchSchema = Joi.object({
 router.get('/users', validate(userSearchSchema), searchUsers);
 ```
 
-### Protección SQL Injection
+### SQL Injection Protection
 
 **Siempre usar prepared statements**:
 ```typescript
@@ -1786,7 +1786,7 @@ const query = `SELECT * FROM users WHERE user_id = ${userId}`;
 const result = await db.query(query);
 ```
 
-### Logging de Seguridad
+### Security Logging
 
 **Registrar eventos de seguridad**:
 ```typescript
@@ -1810,9 +1810,9 @@ if (rateLimitExceeded) {
 
 ---
 
-## Monitoreo y Observabilidad
+## Monitoring and Observability
 
-### Elementos a Monitorear
+### What to Monitor
 
 #### 1. Métricas de Performance
 
@@ -1885,7 +1885,7 @@ if (rateLimitExceeded) {
 - Availability SLA (ej: 99.9%)
 - Error rate SLA (ej: < 0.1%)
 
-### Herramientas de Monitoreo
+### Monitoring Tools
 
 #### Opción 1: Prometheus + Grafana (Recomendada)
 
@@ -1995,7 +1995,7 @@ app.get('/metrics', async (req, res) => {
 
 ### Logging
 
-#### Estructura de Logs
+#### Log Structure
 
 **Formato**: JSON estructurado
 
@@ -2023,7 +2023,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 ```
 
-#### Información a Loggear
+#### Information to Log
 
 **Cada Request**:
 ```json
@@ -2089,7 +2089,7 @@ export function trackUserAgent(req: Request, res: Response, next: NextFunction) 
 
 ### Alertas
 
-#### Alertas Críticas
+#### Critical Alerts
 
 **Disponibilidad**:
 - API down por más de 1 minuto
@@ -2106,7 +2106,7 @@ export function trackUserAgent(req: Request, res: Response, next: NextFunction) 
 - Memoria > 90%
 - Disco > 90%
 
-#### Alertas de Negocio
+#### Business Alerts
 
 **Uso Anómalo**:
 - Aumento súbito de tráfico (> 200%)
@@ -2117,7 +2117,7 @@ export function trackUserAgent(req: Request, res: Response, next: NextFunction) 
 - Muchos requests bloqueados (> 100/hora)
 - Mismo User-Agent bloqueado repetidamente
 
-### Implementación de Monitoreo
+### Monitoring Implementation
 
 #### Setup Básico (Prometheus + Grafana)
 
@@ -2158,7 +2158,7 @@ scrape_configs:
 - Crear dashboards personalizados
 - Configurar alertas
 
-#### Métricas Personalizadas
+#### Custom Metrics
 
 **Tracking de User-Agents**:
 ```typescript
@@ -2188,7 +2188,7 @@ export const endpointUsage = new client.Counter({
 });
 ```
 
-### Dashboards Recomendados
+### Recommended Dashboards
 
 #### 1. Dashboard de API Health
 
@@ -2250,7 +2250,7 @@ router.get('/health', async (req, res) => {
 - Load balancer health checks
 - Monitoreo externo (UptimeRobot, Pingdom)
 
-### Costos Estimados
+### Estimated Costs
 
 | Herramienta | Costo Mensual |
 |-------------|---------------|
@@ -2263,9 +2263,9 @@ router.get('/health', async (req, res) => {
 
 ---
 
-## Análisis de Costo-Beneficio
+## Cost-Benefit Analysis
 
-### Costos
+### Costs
 
 #### Desarrollo (Una vez)
 
@@ -2278,7 +2278,7 @@ router.get('/health', async (req, res) => {
 | Documentación | 1 semana | - |
 | **Total** | **9 semanas** | **Tiempo del desarrollador** |
 
-#### Infraestructura (Recurrente)
+#### Infrastructure (Recurrente)
 
 | Componente | Costo Mensual Estimado |
 |------------|------------------------|
@@ -2298,9 +2298,9 @@ router.get('/health', async (req, res) => {
 | Monitoreo | Diario | 15 min/día |
 | **Total** | - | **10-15 horas/mes** |
 
-### Beneficios
+### Benefits
 
-#### Cuantitativos
+#### Quantitative
 
 1. **Reducción de Carga en Base de Datos**:
    - Cache reduce queries repetidas
@@ -2317,7 +2317,7 @@ router.get('/health', async (req, res) => {
    - Dashboards dinámicos
    - **Valor**: Alto potencial
 
-#### Cualitativos
+#### Qualitative
 
 1. **Accesibilidad**: Más fácil acceso a datos
 2. **Extensibilidad**: Base para futuras features
@@ -2325,7 +2325,7 @@ router.get('/health', async (req, res) => {
 4. **Comunidad**: Permite contribuciones externas
 5. **Innovación**: Facilita experimentación
 
-### ROI Estimado
+### Estimated ROI
 
 **Inversión Inicial**: 9 semanas desarrollo + setup infraestructura
 
@@ -2338,7 +2338,7 @@ router.get('/health', async (req, res) => {
 
 ---
 
-## Plan de Implementación
+## Implementation Plan
 
 ### Fase 1: MVP (3-4 semanas)
 
@@ -2428,7 +2428,7 @@ router.get('/health', async (req, res) => {
 - ✅ Deployment en producción
 - ✅ **Documentación de operaciones (runbook)**
 
-### Timeline Total
+### Total Timeline
 
 ```
 Semana 1-4:   Fase 1 (MVP + Documentación + Pruebas)
@@ -2443,9 +2443,9 @@ Total: 12 semanas (~3 meses)
 
 ---
 
-## Riesgos y Mitigaciones
+## Risks and Mitigations
 
-### Riesgos Técnicos
+### Technical Risks
 
 #### 1. Performance de Base de Datos
 
@@ -2479,7 +2479,7 @@ Total: 12 semanas (~3 meses)
 - Documentación de cambios
 - Deprecation warnings
 
-### Riesgos de Negocio
+### Business Risks
 
 #### 1. Bajo Uso
 
@@ -2513,7 +2513,7 @@ Total: 12 semanas (~3 meses)
 
 ---
 
-## Conclusiones y Recomendaciones
+## Conclusions and Recommendations
 
 ### ¿Vale la Pena?
 
@@ -2524,7 +2524,7 @@ Total: 12 semanas (~3 meses)
 3. **Reutilización**: Aprovechar datamarts existentes
 4. **Monitoreo**: Medir uso y ajustar
 
-### Recomendación Final
+### Final Recommendation
 
 **Implementar la API en fases**:
 
@@ -2532,7 +2532,7 @@ Total: 12 semanas (~3 meses)
 2. **Evaluación**: Medir uso, feedback, necesidades
 3. **Fase 2+**: Expandir según demanda real
 
-### Próximos Pasos
+### Next Steps
 
 Si decides implementar:
 
@@ -2569,11 +2569,11 @@ Si la API no es prioridad ahora, se puede mejorar el sistema de JSON exports:
 
 ---
 
-## Guía de Implementación Inicial
+## Initial Implementation Guide
 
 Esta sección proporciona los pasos específicos y archivos de ejemplo necesarios para que un desarrollador (o AI) pueda comenzar a implementar la API desde cero.
 
-### Prerrequisitos
+### Prerequisites
 
 - Node.js 18+ instalado
 - PostgreSQL 12+ con base de datos `osm_notes` configurada
@@ -3360,7 +3360,7 @@ curl -H "User-Agent: TestApp/1.0 (test@example.com)" http://localhost:3000/healt
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" http://localhost:3000/notes-api/v1/users/12345
 ```
 
-### Checklist de Implementación
+### Implementation Checklist
 
 **Setup Inicial**:
 - [ ] Proyecto creado y estructura de directorios
@@ -3393,7 +3393,7 @@ curl -H "User-Agent: TestApp/1.0 (test@example.com)" http://localhost:3000/notes
 - [ ] Métricas básicas funcionando
 - [ ] Endpoint `/metrics` accesible
 
-### Próximos Pasos
+### Next Steps
 
 Una vez completado el setup básico:
 
@@ -3406,7 +3406,7 @@ Una vez completado el setup básico:
 
 ---
 
-## Apéndices
+## Appendices
 
 ### A. Ejemplo de Implementación (Node.js)
 
