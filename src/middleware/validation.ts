@@ -32,6 +32,8 @@ export const searchFiltersSchema = Joi.object({
   operator: Joi.string().valid('AND', 'OR').default('AND').optional(),
   page: Joi.number().integer().min(1).default(1).optional(),
   limit: Joi.number().integer().min(1).max(100).default(20).optional(),
+  // Cursor pagination (keyset mode): if present, page is ignored
+  after: Joi.string().min(1).max(200).optional(),
 }).custom((value, helpers) => {
   // Validate date range: date_from should be before date_to
   const typedValue = value as {

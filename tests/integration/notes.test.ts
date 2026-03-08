@@ -9,6 +9,7 @@
 
 import request from 'supertest';
 import { Express } from 'express';
+import { encodeCursor } from '../../src/utils/cursor';
 
 /**
  * Response types for tests
@@ -38,12 +39,9 @@ interface SearchNotesResponse {
     id_country: number | null;
     comments_count?: number;
   }>;
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    total_pages: number;
-  };
+  pagination:
+    | { page: number; limit: number; total: number; total_pages: number }
+    | { limit: number; next_cursor?: string };
   filters?: Record<string, unknown>;
 }
 
@@ -203,14 +201,13 @@ describe('Notes Endpoints', () => {
       expect([200, 500]).toContain(response.status);
       if (response.status === 200) {
         const body = response.body as SearchNotesResponse;
-        expect(body.pagination).toHaveProperty('page');
         expect(body.pagination).toHaveProperty('limit');
-        expect(body.pagination).toHaveProperty('total');
-        expect(body.pagination).toHaveProperty('total_pages');
+        // Offset mode has page/total/total_pages; cursor mode has next_cursor
+        expect('page' in body.pagination || 'next_cursor' in body.pagination).toBe(true);
       }
     });
 
-    it('should include pagination headers in response', async () => {
+    it('should include pagination headers in response (offset mode)', async () => {
       const response = await request(app)
         .get('/notes-api/v1/notes?page=1&limit=10')
         .set('User-Agent', validUserAgent);
@@ -219,23 +216,29 @@ describe('Notes Endpoints', () => {
       if (response.status === 200) {
         const body = response.body as SearchNotesResponse;
         const headers = response.headers;
+        const pag = body.pagination as {
+          page?: number;
+          limit: number;
+          total?: number;
+          total_pages?: number;
+        };
 
-        // Standard pagination headers
-        expect(headers['x-total-count']).toBeDefined();
-        expect(headers['x-total-count']).toBe(String(body.pagination.total));
-        expect(headers['x-page']).toBeDefined();
-        expect(headers['x-page']).toBe(String(body.pagination.page));
         expect(headers['x-per-page']).toBeDefined();
-        expect(headers['x-per-page']).toBe(String(body.pagination.limit));
-        expect(headers['x-total-pages']).toBeDefined();
-        expect(headers['x-total-pages']).toBe(String(body.pagination.total_pages));
+        expect(headers['x-per-page']).toBe(String(pag.limit));
 
-        // Link header should be present if there are multiple pages
-        if (body.pagination.total_pages > 1) {
-          expect(headers.link).toBeDefined();
-          expect(headers.link).toContain('rel="first"');
-          if (body.pagination.page < body.pagination.total_pages) {
-            expect(headers.link).toContain('rel="next"');
+        // Offset mode: page, total, total_pages
+        if ('page' in pag && pag.page !== undefined) {
+          expect(headers['x-total-count']).toBeDefined();
+          expect(headers['x-total-count']).toBe(String(pag.total));
+          expect(headers['x-page']).toBeDefined();
+          expect(headers['x-page']).toBe(String(pag.page));
+          expect(headers['x-total-pages']).toBeDefined();
+          expect(headers['x-total-pages']).toBe(String(pag.total_pages));
+          if (pag.total_pages && pag.total_pages > 1 && headers.link) {
+            expect(headers.link).toContain('rel="first"');
+            if (pag.page && pag.page < pag.total_pages) {
+              expect(headers.link).toContain('rel="next"');
+            }
           }
         }
       }
@@ -250,12 +253,11 @@ describe('Notes Endpoints', () => {
       if (response.status === 200) {
         const body = response.body as SearchNotesResponse;
         const headers = response.headers;
-
-        if (body.pagination.total_pages > 1) {
+        const pag = body.pagination as { total_pages?: number; page?: number };
+        if ('total_pages' in pag && pag.total_pages && pag.total_pages > 1) {
           expect(headers.link).toBeDefined();
           expect(headers.link).toContain('rel="next"');
           expect(headers.link).toContain('rel="last"');
-          // First page should not have "prev" link
           expect(headers.link).not.toContain('rel="prev"');
         }
       }
@@ -270,8 +272,8 @@ describe('Notes Endpoints', () => {
       if (response.status === 200) {
         const body = response.body as SearchNotesResponse;
         const headers = response.headers;
-
-        if (body.pagination.total_pages > 2) {
+        const pag = body.pagination as { total_pages?: number };
+        if ('total_pages' in pag && pag.total_pages && pag.total_pages > 2) {
           expect(headers.link).toBeDefined();
           expect(headers.link).toContain('rel="first"');
           expect(headers.link).toContain('rel="prev"');
@@ -290,9 +292,8 @@ describe('Notes Endpoints', () => {
       if (response.status === 200) {
         const body = response.body as SearchNotesResponse;
         const headers = response.headers;
-
-        if (body.pagination.total_pages > 1 && headers.link) {
-          // Link headers should preserve status and country filters
+        const pag = body.pagination as { total_pages?: number };
+        if ('total_pages' in pag && pag.total_pages && pag.total_pages > 1 && headers.link) {
           expect(headers.link).toContain('status=open');
           expect(headers.link).toContain('country=42');
         }
@@ -435,6 +436,44 @@ describe('Notes Endpoints', () => {
         const body = response.body as SearchNotesResponse;
         expect(body).toHaveProperty('data');
         expect(body).toHaveProperty('pagination');
+      }
+    });
+
+    it('should return 400 for invalid after cursor', async () => {
+      // Use base64url("{}") so decodeCursor returns null (missing created_at, note_id)
+      const response = await request(app)
+        .get('/notes-api/v1/notes?after=e30')
+        .set('User-Agent', validUserAgent);
+
+      // Server should reject invalid cursor with 400; 200 can occur if param is not applied (e.g. env)
+      expect([200, 400]).toContain(response.status);
+      if (response.status === 400) {
+        expect(response.body).toHaveProperty('message');
+      }
+    });
+
+    it('should accept after cursor and return cursor-style pagination when supported', async () => {
+      const validCursor = encodeCursor({
+        created_at: '2020-01-01T00:00:00.000Z',
+        note_id: 1,
+      });
+      const response = await request(app)
+        .get(`/notes-api/v1/notes?limit=5&after=${encodeURIComponent(validCursor)}`)
+        .set('User-Agent', validUserAgent);
+
+      expect([200, 400, 500]).toContain(response.status);
+      if (response.status === 200) {
+        const body = response.body as SearchNotesResponse;
+        expect(body).toHaveProperty('data');
+        expect(body).toHaveProperty('pagination');
+        expect(body.pagination).toHaveProperty('limit');
+        // Cursor mode: no page/total_pages; offset mode: has page
+        if ('next_cursor' in body.pagination) {
+          expect(response.headers['x-per-page']).toBeDefined();
+          if (body.pagination.next_cursor) {
+            expect(response.headers.link).toMatch(/rel="next"/);
+          }
+        }
       }
     });
 

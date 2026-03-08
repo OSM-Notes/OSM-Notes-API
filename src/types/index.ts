@@ -49,6 +49,11 @@ export interface SearchFilters {
   bbox?: string; // Format: "min_lon,min_lat,max_lon,max_lat"
   page?: number;
   limit?: number;
+  /**
+   * Cursor for keyset pagination (opaque string from previous response's next_cursor).
+   * If present, cursor mode is used and `page` is ignored.
+   */
+  after?: string;
 }
 
 /**
@@ -66,7 +71,7 @@ export interface AdvancedSearchFilters extends Omit<SearchFilters, 'hashtag' | '
 }
 
 /**
- * Pagination metadata
+ * Pagination metadata (page/offset mode)
  */
 export interface Pagination {
   page: number;
@@ -76,11 +81,31 @@ export interface Pagination {
 }
 
 /**
- * Search result with pagination
+ * Cursor pagination metadata (keyset mode)
+ */
+export interface CursorPagination {
+  limit: number;
+  /** Opaque cursor to fetch the next page (use as `after` param). Absent if no more results. */
+  next_cursor?: string;
+  /** Total count (optional; may be omitted in cursor mode for performance). */
+  total?: number;
+}
+
+/**
+ * Search result with pagination (page/offset mode)
  */
 export interface SearchResult<T> {
   data: T[];
   pagination: Pagination;
+  filters?: Partial<SearchFilters>;
+}
+
+/**
+ * Search result with cursor pagination (keyset mode)
+ */
+export interface CursorSearchResult<T> {
+  data: T[];
+  pagination: CursorPagination;
   filters?: Partial<SearchFilters>;
 }
 

@@ -224,6 +224,17 @@ components:
           type: integer
           example: 13
 
+    CursorPagination:
+      type: object
+      description: Cursor-based (keyset) pagination; used when request includes after parameter
+      properties:
+        limit:
+          type: integer
+          example: 20
+        next_cursor:
+          type: string
+          description: Opaque cursor for the next page; omitted when there are no more results
+
     TrendEntry:
       type: object
       properties:
@@ -395,6 +406,11 @@ paths:
             default: 20
           description: Results per page
         - in: query
+          name: after
+          schema:
+            type: string
+          description: Opaque cursor for keyset pagination (from previous response next_cursor). When set, cursor-based pagination is used and page is ignored.
+        - in: query
           name: text
           schema:
             type: string
@@ -410,7 +426,9 @@ paths:
           description: Logical operator to combine filters
       responses:
         '200':
-          description: Search results with pagination
+          description: |
+            Search results with pagination. Without `after`, pagination uses page/offset (page, limit, total, total_pages).
+            With `after`, cursor-based pagination is used (limit, next_cursor; next_cursor omitted when no more results).
           content:
             application/json:
               schema:
@@ -421,11 +439,13 @@ paths:
                     items:
                       $ref: '#/components/schemas/Note'
                   pagination:
-                    $ref: '#/components/schemas/Pagination'
+                    oneOf:
+                      - $ref: '#/components/schemas/Pagination'
+                      - $ref: '#/components/schemas/CursorPagination'
                   filters:
                     type: object
         '400':
-          description: Invalid parameters
+          description: Invalid parameters (e.g. invalid after cursor)
           content:
             application/json:
               schema:

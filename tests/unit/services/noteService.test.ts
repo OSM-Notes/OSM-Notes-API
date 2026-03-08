@@ -6,8 +6,9 @@
 import { Pool } from 'pg';
 import { getDatabasePool } from '../../../src/config/database';
 import * as noteService from '../../../src/services/noteService';
-import { Note, NoteComment, SearchFilters, NoteStatus } from '../../../src/types';
+import { Note, NoteComment, SearchFilters, NoteStatus, Pagination } from '../../../src/types';
 import { ApiError } from '../../../src/middleware/errorHandler';
+import { encodeCursor } from '../../../src/utils/cursor';
 
 // Mock the database pool
 jest.mock('../../../src/config/database', () => ({
@@ -212,9 +213,10 @@ describe('noteService', () => {
       expect(result.data).toEqual(mockNotes);
       expect(result.data).toHaveLength(2);
       expect(result.pagination).toBeDefined();
-      expect(result.pagination.page).toBe(1);
-      expect(result.pagination.limit).toBe(20);
-      expect(result.pagination.total).toBe(2);
+      const pag = result.pagination as Pagination;
+      expect(pag.page).toBe(1);
+      expect(pag.limit).toBe(20);
+      expect(pag.total).toBe(2);
     });
 
     it('should filter by country', async () => {
@@ -629,8 +631,8 @@ describe('noteService', () => {
       const result = await noteService.searchNotes(filters);
 
       expect(result.data).toHaveLength(20);
-      expect(result.pagination.total).toBe(50);
-      expect(result.pagination.total_pages).toBe(3); // 50 / 20 = 2.5, rounded up = 3
+      expect((result.pagination as Pagination).total).toBe(50);
+      expect((result.pagination as Pagination).total_pages).toBe(3); // 50 / 20 = 2.5, rounded up = 3
     });
 
     it('should handle empty results', async () => {
@@ -653,8 +655,8 @@ describe('noteService', () => {
       const result = await noteService.searchNotes(filters);
 
       expect(result.data).toEqual([]);
-      expect(result.pagination.total).toBe(0);
-      expect(result.pagination.total_pages).toBe(0);
+      expect((result.pagination as Pagination).total).toBe(0);
+      expect((result.pagination as Pagination).total_pages).toBe(0);
     });
 
     it('should handle database errors and throw 500', async () => {
@@ -827,8 +829,8 @@ describe('noteService', () => {
 
       const result = await noteService.searchNotes(filters);
 
-      expect(result.pagination.total).toBe(42);
-      expect(result.pagination.total_pages).toBe(3); // 42 / 20 = 2.1, rounded up = 3
+      expect((result.pagination as Pagination).total).toBe(42);
+      expect((result.pagination as Pagination).total_pages).toBe(3); // 42 / 20 = 2.1, rounded up = 3
     });
 
     it('should handle null count from database', async () => {
@@ -850,10 +852,10 @@ describe('noteService', () => {
       const result = await noteService.searchNotes(filters);
 
       // When countRow.count is null, total will be null
-      expect(result.pagination.total).toBeNull();
+      expect((result.pagination as Pagination).total).toBeNull();
       // Math.ceil(null / limit) = Math.ceil(NaN) = NaN, but TypeScript may coerce to 0
       // The actual behavior depends on how Math.ceil handles NaN
-      expect(result.pagination.total_pages).toBeDefined();
+      expect((result.pagination as Pagination).total_pages).toBeDefined();
     });
 
     it('should handle missing count row', async () => {
@@ -877,8 +879,105 @@ describe('noteService', () => {
       // When countRow is undefined, the code uses countRow ? ... : 0
       // So if rows[0] is undefined, countRow is undefined and total should be 0
       // But if rows is empty array, countRow will be undefined
-      expect(result.pagination.total).toBe(0);
-      expect(result.pagination.total_pages).toBe(0);
+      expect((result.pagination as Pagination).total).toBe(0);
+      expect((result.pagination as Pagination).total_pages).toBe(0);
+    });
+
+    it('should throw ApiError 400 when after cursor is invalid (cursor mode)', async () => {
+      const filters: SearchFilters = { after: 'not-valid-base64json', limit: 10 };
+
+      await expect(noteService.searchNotes(filters)).rejects.toThrow(ApiError);
+      await expect(noteService.searchNotes(filters)).rejects.toThrow('Invalid cursor');
+
+      try {
+        await noteService.searchNotes(filters);
+      } catch (error) {
+        expect(error).toBeInstanceOf(ApiError);
+        if (error instanceof ApiError) {
+          expect(error.statusCode).toBe(400);
+        }
+      }
+    });
+
+    it('should return cursor pagination with next_cursor when full page (cursor mode)', async () => {
+      const validCursor = encodeCursor({
+        created_at: '2024-01-15T10:30:00.000Z',
+        note_id: 100,
+      });
+      const mockRows = [
+        {
+          note_id: 98,
+          latitude: 4.6,
+          longitude: -74.0,
+          status: 'open',
+          created_at: new Date('2024-01-14T10:00:00Z'),
+          closed_at: null,
+          id_user: 1,
+          id_country: 42,
+          comments_count: 0,
+        },
+        {
+          note_id: 97,
+          latitude: 4.61,
+          longitude: -74.01,
+          status: 'open',
+          created_at: new Date('2024-01-13T10:00:00Z'),
+          closed_at: null,
+          id_user: 2,
+          id_country: 42,
+          comments_count: 1,
+        },
+      ];
+
+      mockQuery.mockResolvedValueOnce({ rows: mockRows, rowCount: 2 });
+
+      const result = await noteService.searchNotes({
+        after: validCursor,
+        limit: 2,
+      });
+
+      expect(result.data).toHaveLength(2);
+      expect(result.pagination).toHaveProperty('limit', 2);
+      expect(result.pagination).toHaveProperty('next_cursor');
+      expect((result.pagination as { next_cursor?: string }).next_cursor).toBeDefined();
+      expect(result.pagination).not.toHaveProperty('page');
+      expect(mockQuery).toHaveBeenCalledTimes(1);
+      const [query] = mockQuery.mock.calls[0] as [string, unknown[]];
+      expect(query).toContain('created_at');
+      expect(query).toContain('note_id');
+      expect(query).not.toContain('OFFSET');
+    });
+
+    it('should return cursor pagination without next_cursor when partial page (cursor mode)', async () => {
+      const validCursor = encodeCursor({
+        created_at: '2024-01-15T10:30:00.000Z',
+        note_id: 100,
+      });
+      const mockRows = [
+        {
+          note_id: 99,
+          latitude: 4.6,
+          longitude: -74.0,
+          status: 'open',
+          created_at: new Date('2024-01-14T10:00:00Z'),
+          closed_at: null,
+          id_user: 1,
+          id_country: 42,
+          comments_count: 0,
+        },
+      ];
+
+      mockQuery.mockResolvedValueOnce({ rows: mockRows, rowCount: 1 });
+
+      const result = await noteService.searchNotes({
+        after: validCursor,
+        limit: 10,
+      });
+
+      expect(result.data).toHaveLength(1);
+      expect(result.pagination).toHaveProperty('limit', 10);
+      expect((result.pagination as { next_cursor?: string }).next_cursor).toBeUndefined();
+      expect(mockQuery).toHaveBeenCalledTimes(1);
     });
   });
 });

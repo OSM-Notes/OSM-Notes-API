@@ -4,7 +4,7 @@
  */
 
 import { Response } from 'express';
-import { Pagination } from '../types';
+import { Pagination, CursorPagination } from '../types';
 
 /**
  * Generate pagination headers for HTTP responses
@@ -72,5 +72,39 @@ export function setPaginationHeaders(
   // Set Link header if there are any links
   if (links.length > 0) {
     res.setHeader('Link', links.join(', '));
+  }
+}
+
+/**
+ * Set pagination headers for cursor-based (keyset) pagination.
+ * Sets X-Per-Page and Link rel="next" when next_cursor is present.
+ *
+ * @param res Express response object
+ * @param pagination Cursor pagination metadata
+ * @param baseUrl Base URL for generating next link (e.g., '/notes-api/v1/notes')
+ * @param queryParams Query parameters to preserve (including limit; exclude page and after)
+ */
+export function setCursorPaginationHeaders(
+  res: Response,
+  pagination: CursorPagination,
+  baseUrl: string,
+  queryParams: Record<string, string | number | undefined> = {}
+): void {
+  res.setHeader('X-Per-Page', pagination.limit.toString());
+
+  if (pagination.next_cursor) {
+    const params = new URLSearchParams();
+    Object.entries(queryParams).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && key !== 'page' && key !== 'after') {
+        params.append(key, String(value));
+      }
+    });
+    params.set('after', pagination.next_cursor);
+    if (pagination.limit !== 20) {
+      params.set('limit', pagination.limit.toString());
+    }
+    const queryString = params.toString();
+    const nextUrl = `${baseUrl}?${queryString}`;
+    res.setHeader('Link', `<${nextUrl}>; rel="next"`);
   }
 }

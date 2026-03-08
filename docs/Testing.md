@@ -390,8 +390,11 @@ The following table summarises which API options are covered by tests. **Unit te
 | `text`        | —                  | ✓                      | —                        | ✓                                 |
 | `operator`    | —                  | ✓ (AND, OR)            | —                        | ✓ (AND, OR, invalid)              |
 | `page` / `limit` | ✓               | ✓                      | ✓, invalid 400           | ✓                                 |
+| `after` (cursor) | ✓ (invalid 400, next_cursor) | — | ✓ (invalid 400, cursor response) | — |
 | `hashtag`     | ✓                  | —                      | ✓                        | —                                 |
 | `application` | ✓                  | —                      | ✓                        | —                                 |
+
+Note: When `after` is provided, cursor-based (keyset) pagination is used; `page` is ignored and the response includes `pagination.next_cursor` when there are more results. See [Pagination_Design.md](Pagination_Design.md).
 
 Note: `hashtag` and `application` are implemented only in the **standard search** (not in advanced search). They require the **dwh** schema: `hashtag` filters notes whose opener user or country has that hashtag in `dwh.datamartUsers.hashtags` / `dwh.datamartCountries.hashtags`; `application` filters by `dwh.datamartUsers.applications_used`. If dwh is missing or empty, the request may return 200 with empty data or 500.
 

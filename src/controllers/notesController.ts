@@ -8,9 +8,9 @@ import * as noteService from '../services/noteService';
 import * as advancedSearchService from '../services/advancedSearchService';
 import { logger } from '../utils/logger';
 import { ApiError } from '../middleware/errorHandler';
-import { SearchFilters, AdvancedSearchFilters } from '../types';
+import { SearchFilters, AdvancedSearchFilters, Pagination } from '../types';
 import { validateSearchFilters } from '../middleware/validation';
-import { setPaginationHeaders } from '../utils/pagination';
+import { setPaginationHeaders, setCursorPaginationHeaders } from '../utils/pagination';
 
 /**
  * @swagger
@@ -206,6 +206,11 @@ export async function getNoteComments(
  *           default: 20
  *         description: Results per page
  *       - in: query
+ *         name: after
+ *         schema:
+ *           type: string
+ *         description: Opaque cursor for keyset pagination (from previous response next_cursor). When set, page is ignored and cursor-based pagination is used.
+ *       - in: query
  *         name: text
  *         schema:
  *           type: string
@@ -315,6 +320,7 @@ export async function searchNotes(req: Request, res: Response, next: NextFunctio
         : undefined,
       application: getQueryString(req.query.application),
       bbox: getQueryString(req.query.bbox),
+      after: getQueryString(req.query.after),
       page: req.query.page ? parseInt(getQueryString(req.query.page) || '1', 10) : 1,
       limit: req.query.limit ? parseInt(getQueryString(req.query.limit) || '20', 10) : 20,
     };
@@ -323,8 +329,8 @@ export async function searchNotes(req: Request, res: Response, next: NextFunctio
 
     const result = await noteService.searchNotes(filters);
 
-    // Set pagination headers
-    setPaginationHeaders(res, result.pagination, '/notes-api/v1/notes', {
+    const baseUrl = '/notes-api/v1/notes';
+    const queryParams = {
       country: filters.country,
       status: filters.status,
       hashtag: filters.hashtag,
@@ -334,7 +340,13 @@ export async function searchNotes(req: Request, res: Response, next: NextFunctio
       application: filters.application,
       bbox: filters.bbox,
       limit: filters.limit,
-    });
+    };
+
+    if ('next_cursor' in result.pagination) {
+      setCursorPaginationHeaders(res, result.pagination, baseUrl, queryParams);
+    } else {
+      setPaginationHeaders(res, result.pagination as Pagination, baseUrl, queryParams);
+    }
 
     res.json(result);
   } catch (error) {

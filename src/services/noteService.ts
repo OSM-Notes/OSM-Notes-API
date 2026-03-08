@@ -3,10 +3,20 @@
  * Handles business logic for notes operations
  */
 
+import type { Pool } from 'pg';
 import { getDatabasePool } from '../config/database';
 import { logger } from '../utils/logger';
 import { ApiError } from '../middleware/errorHandler';
-import { Note, NoteComment, SearchFilters, SearchResult, Pagination } from '../types';
+import {
+  Note,
+  NoteComment,
+  SearchFilters,
+  SearchResult,
+  Pagination,
+  CursorSearchResult,
+  CursorPagination,
+} from '../types';
+import { decodeCursor, buildNextCursor, CursorData } from '../utils/cursor';
 
 /**
  * Database row type for note query result
@@ -170,102 +180,183 @@ export async function getNoteComments(noteId: number): Promise<NoteComment[]> {
 }
 
 /**
- * Search notes with filters
- * @param filters - Search filters
- * @returns Search result with notes and pagination
- * @throws ApiError with 500 if database error occurs
+ * Build WHERE conditions and params for note search (shared by offset and cursor mode).
  */
-export async function searchNotes(filters: SearchFilters): Promise<SearchResult<Note>> {
+function buildSearchConditions(
+  filters: SearchFilters,
+  cursor: CursorData | null
+): { conditions: string[]; params: unknown[]; paramIndex: number } {
+  const conditions: string[] = [];
+  const params: unknown[] = [];
+  let paramIndex = 1;
+
+  if (filters.country !== undefined) {
+    conditions.push(`n.id_country = $${paramIndex}`);
+    params.push(filters.country);
+    paramIndex++;
+  }
+  if (filters.status) {
+    conditions.push(`n.status = $${paramIndex}`);
+    params.push(filters.status);
+    paramIndex++;
+  }
+  if (filters.user_id !== undefined) {
+    conditions.push(
+      `EXISTS (SELECT 1 FROM public.note_comments nc_f WHERE nc_f.note_id = n.note_id AND nc_f.id_user = $${paramIndex})`
+    );
+    params.push(filters.user_id);
+    paramIndex++;
+  }
+  if (filters.date_from) {
+    conditions.push(`n.created_at >= $${paramIndex}`);
+    params.push(filters.date_from);
+    paramIndex++;
+  }
+  if (filters.date_to) {
+    conditions.push(`n.created_at <= $${paramIndex}`);
+    params.push(filters.date_to);
+    paramIndex++;
+  }
+  if (filters.bbox) {
+    const bboxParts = filters.bbox.split(',');
+    if (bboxParts.length === 4) {
+      const [minLon, minLat, maxLon, maxLat] = bboxParts.map(parseFloat);
+      conditions.push(`n.longitude >= $${paramIndex} AND n.longitude <= $${paramIndex + 1}`);
+      conditions.push(`n.latitude >= $${paramIndex + 2} AND n.latitude <= $${paramIndex + 3}`);
+      params.push(minLon, maxLon, minLat, maxLat);
+      paramIndex += 4;
+    }
+  }
+  if (filters.hashtag && filters.hashtag.trim().length > 0) {
+    const cleanHashtag = filters.hashtag.trim().replace(/^#/, '');
+    conditions.push(`(
+      EXISTS (
+        SELECT 1 FROM dwh.datamartUsers du
+        WHERE du.user_id = (SELECT nc1.id_user FROM public.note_comments nc1 WHERE nc1.note_id = n.note_id ORDER BY nc1.sequence_action ASC NULLS LAST LIMIT 1)
+        AND du.hashtags IS NOT NULL AND jsonb_typeof(du.hashtags) = 'array'
+        AND $${paramIndex} = ANY(SELECT jsonb_array_elements_text(du.hashtags))
+      )
+      OR EXISTS (
+        SELECT 1 FROM dwh.datamartCountries dc
+        WHERE dc.country_id = n.id_country
+        AND dc.hashtags IS NOT NULL AND jsonb_typeof(dc.hashtags) = 'array'
+        AND $${paramIndex} = ANY(SELECT jsonb_array_elements_text(dc.hashtags))
+      )
+    )`);
+    params.push(cleanHashtag);
+    paramIndex++;
+  }
+  if (filters.application && filters.application.trim().length > 0) {
+    const application = filters.application.trim();
+    conditions.push(`EXISTS (
+      SELECT 1 FROM dwh.datamartUsers du
+      WHERE du.user_id = (SELECT nc1.id_user FROM public.note_comments nc1 WHERE nc1.note_id = n.note_id ORDER BY nc1.sequence_action ASC NULLS LAST LIMIT 1)
+      AND du.applications_used IS NOT NULL AND jsonb_typeof(du.applications_used) = 'array'
+      AND $${paramIndex} = ANY(SELECT jsonb_array_elements_text(du.applications_used))
+    )`);
+    params.push(application);
+    paramIndex++;
+  }
+  if (cursor) {
+    conditions.push(
+      `(n.created_at < $${paramIndex}::timestamp OR (n.created_at = $${paramIndex}::timestamp AND n.note_id < $${paramIndex + 1}))`
+    );
+    params.push(cursor.created_at, cursor.note_id);
+    paramIndex += 2;
+  }
+  return { conditions, params, paramIndex };
+}
+
+/**
+ * Run keyset (cursor) pagination search. Uses same filters as searchNotes but no count query.
+ */
+async function runCursorSearch(
+  pool: Pool,
+  filters: SearchFilters,
+  limit: number,
+  decoded: CursorData
+): Promise<CursorSearchResult<Note>> {
+  const { conditions, params, paramIndex } = buildSearchConditions(filters, decoded);
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  const query = `
+    SELECT
+      n.note_id,
+      n.latitude,
+      n.longitude,
+      n.status,
+      n.created_at,
+      n.closed_at,
+      (SELECT nc1.id_user FROM public.note_comments nc1 WHERE nc1.note_id = n.note_id ORDER BY nc1.sequence_action ASC NULLS LAST LIMIT 1) AS id_user,
+      n.id_country,
+      COUNT(DISTINCT nc.id) as comments_count
+    FROM public.notes n
+    LEFT JOIN public.note_comments nc ON n.note_id = nc.note_id
+    ${whereClause}
+    GROUP BY n.note_id, n.latitude, n.longitude, n.status, n.created_at, n.closed_at, n.id_country
+    ORDER BY n.created_at DESC, n.note_id DESC
+    LIMIT $${paramIndex}
+  `;
+  const queryParams = [...params, limit];
+
+  const dataResult = await pool.query<NoteRow>(query, queryParams);
+  const notes: Note[] = dataResult.rows.map((row) => ({
+    note_id: row.note_id,
+    latitude: typeof row.latitude === 'string' ? parseFloat(row.latitude) : row.latitude,
+    longitude: typeof row.longitude === 'string' ? parseFloat(row.longitude) : row.longitude,
+    status: row.status as Note['status'],
+    created_at: row.created_at,
+    closed_at: row.closed_at,
+    id_user: row.id_user,
+    id_country: row.id_country,
+    comments_count:
+      typeof row.comments_count === 'string'
+        ? parseInt(row.comments_count, 10)
+        : row.comments_count || 0,
+  }));
+
+  const next_cursor = buildNextCursor(notes, limit);
+  const pagination: CursorPagination = { limit, next_cursor };
+
+  logger.debug('Cursor search notes completed', {
+    filters,
+    resultsCount: notes.length,
+    hasNext: !!next_cursor,
+  });
+
+  return { data: notes, pagination, filters };
+}
+
+/**
+ * Search notes with filters (supports page/offset and cursor-based pagination).
+ * When `filters.after` is set, cursor mode is used and `page` is ignored.
+ *
+ * @param filters - Search filters
+ * @returns Search result with notes and pagination (offset or cursor)
+ * @throws ApiError with 400 if cursor is invalid, 500 if database error occurs
+ */
+export async function searchNotes(
+  filters: SearchFilters
+): Promise<SearchResult<Note> | CursorSearchResult<Note>> {
   const pool = getDatabasePool();
 
   try {
-    const page = filters.page || 1;
     const limit = Math.min(filters.limit || 20, 100); // Max 100 per page
+
+    // Cursor mode: validate cursor and use keyset pagination
+    if (filters.after !== undefined && filters.after.trim() !== '') {
+      const decoded = decodeCursor(filters.after.trim());
+      if (!decoded) {
+        throw new ApiError(400, 'Invalid cursor');
+      }
+      return runCursorSearch(pool, filters, limit, decoded);
+    }
+
+    // Page/offset mode
+    const page = filters.page || 1;
     const offset = (page - 1) * limit;
 
-    // Build WHERE clause
-    const conditions: string[] = [];
-    const params: unknown[] = [];
-    let paramIndex = 1;
-
-    if (filters.country !== undefined) {
-      conditions.push(`n.id_country = $${paramIndex}`);
-      params.push(filters.country);
-      paramIndex++;
-    }
-
-    if (filters.status) {
-      conditions.push(`n.status = $${paramIndex}`);
-      params.push(filters.status);
-      paramIndex++;
-    }
-
-    if (filters.user_id !== undefined) {
-      conditions.push(
-        `EXISTS (SELECT 1 FROM public.note_comments nc_f WHERE nc_f.note_id = n.note_id AND nc_f.id_user = $${paramIndex})`
-      );
-      params.push(filters.user_id);
-      paramIndex++;
-    }
-
-    if (filters.date_from) {
-      conditions.push(`n.created_at >= $${paramIndex}`);
-      params.push(filters.date_from);
-      paramIndex++;
-    }
-
-    if (filters.date_to) {
-      conditions.push(`n.created_at <= $${paramIndex}`);
-      params.push(filters.date_to);
-      paramIndex++;
-    }
-
-    // Bounding box filter
-    if (filters.bbox) {
-      const bboxParts = filters.bbox.split(',');
-      if (bboxParts.length === 4) {
-        const [minLon, minLat, maxLon, maxLat] = bboxParts.map(parseFloat);
-        conditions.push(`n.longitude >= $${paramIndex} AND n.longitude <= $${paramIndex + 1}`);
-        conditions.push(`n.latitude >= $${paramIndex + 2} AND n.latitude <= $${paramIndex + 3}`);
-        params.push(minLon, maxLon, minLat, maxLat);
-        paramIndex += 4;
-      }
-    }
-
-    // Hashtag filter: note opener (user) or note country has this hashtag in dwh (requires dwh schema)
-    if (filters.hashtag && filters.hashtag.trim().length > 0) {
-      const cleanHashtag = filters.hashtag.trim().replace(/^#/, '');
-      conditions.push(`(
-        EXISTS (
-          SELECT 1 FROM dwh.datamartUsers du
-          WHERE du.user_id = (SELECT nc1.id_user FROM public.note_comments nc1 WHERE nc1.note_id = n.note_id ORDER BY nc1.sequence_action ASC NULLS LAST LIMIT 1)
-          AND du.hashtags IS NOT NULL AND jsonb_typeof(du.hashtags) = 'array'
-          AND $${paramIndex} = ANY(SELECT jsonb_array_elements_text(du.hashtags))
-        )
-        OR EXISTS (
-          SELECT 1 FROM dwh.datamartCountries dc
-          WHERE dc.country_id = n.id_country
-          AND dc.hashtags IS NOT NULL AND jsonb_typeof(dc.hashtags) = 'array'
-          AND $${paramIndex} = ANY(SELECT jsonb_array_elements_text(dc.hashtags))
-        )
-      )`);
-      params.push(cleanHashtag);
-      paramIndex++;
-    }
-
-    // Application filter: note opener (user) has this application in dwh.datamartUsers.applications_used (requires dwh schema)
-    if (filters.application && filters.application.trim().length > 0) {
-      const application = filters.application.trim();
-      conditions.push(`EXISTS (
-        SELECT 1 FROM dwh.datamartUsers du
-        WHERE du.user_id = (SELECT nc1.id_user FROM public.note_comments nc1 WHERE nc1.note_id = n.note_id ORDER BY nc1.sequence_action ASC NULLS LAST LIMIT 1)
-        AND du.applications_used IS NOT NULL AND jsonb_typeof(du.applications_used) = 'array'
-        AND $${paramIndex} = ANY(SELECT jsonb_array_elements_text(du.applications_used))
-      )`);
-      params.push(application);
-      paramIndex++;
-    }
-
+    const { conditions, params, paramIndex } = buildSearchConditions(filters, null);
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     // Build main query (id_user from first comment - Ingestion schema has no id_user on notes)
@@ -346,6 +437,9 @@ export async function searchNotes(filters: SearchFilters): Promise<SearchResult<
       filters,
     };
   } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
     logger.error('Error searching notes', {
       filters,
       error: error instanceof Error ? error.message : String(error),
