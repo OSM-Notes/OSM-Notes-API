@@ -312,6 +312,9 @@ curl -H "User-Agent: Monitor/1.0 (ops@example.com)" http://localhost:3010/health
 
 # Version headers
 curl -sI http://localhost:3010/health | grep -i x-api
+
+# Metrics (for monitoring verification)
+curl -s http://localhost:3010/metrics | head -5
 ```
 
 #### Update Deployment
@@ -472,8 +475,8 @@ sudo certbot --nginx -d notes-api.osm.lat
 If monitoring stack is needed:
 
 ```bash
-# Start monitoring services
-docker compose -f docker/docker-compose.yml --profile monitoring up -d
+# From project root (same repo; API may be running via host-db compose)
+docker compose -f docker/docker-compose.yml --profile monitoring up -d prometheus grafana
 
 # Access Prometheus
 # http://192.168.0.7:9090
@@ -483,7 +486,73 @@ docker compose -f docker/docker-compose.yml --profile monitoring up -d
 # Default credentials: admin / admin (change on first login)
 ```
 
-See [docs/MONITORING.md](Monitoring.md) for detailed monitoring setup.
+**Servidor 192.168.0.7**: En este host suelen estar ocupados el puerto **3000** (Node, Terranote) y el **3001** (uvicorn, Terranote). Además hay una **Grafana en systemd** (`grafana-server.service`). Para levantar la Grafana de este proyecto sin conflicto, usa otro puerto (p. ej. `GRAFANA_PORT=3002`). Si prefieres usar la Grafana ya instalada, añade en ella un datasource de tipo Prometheus apuntando al Prometheus que scrapea la API (puerto 9090).
+
+**Comprobar qué usa cada puerto** (en el servidor):
+
+```bash
+# Qué proceso escucha en 3001 y 3000
+sudo ss -tlnp | grep -E ':3000|:3001'
+# o
+sudo lsof -i :3000 -i :3001
+```
+
+Si 3001 está ocupado, usa otro puerto para esta Grafana (p. ej. 3002):
+
+```bash
+GRAFANA_PORT=3002 docker compose -f docker/docker-compose.yml --profile monitoring up -d prometheus grafana
+# Acceso: http://192.168.0.7:3002
+```
+
+**When the API runs with host-db** (port 3010 on the host), Prometheus must scrape the host. The repo’s `docker/prometheus/prometheus.yml` already has target `host.docker.internal:3010` and the compose adds `extra_hosts` for Prometheus. See [docs/Monitoring.md](Monitoring.md) for details.
+
+### Cómo monitorear la API con Prometheus (pasos)
+
+Supón que la API ya corre con host-db en el puerto **3010**. Para monitorearla con Prometheus (y opcionalmente Grafana):
+
+1. **Levantar solo Prometheus y Grafana** (desde el mismo repo, sin tocar la API en host-db):
+   ```bash
+   cd /opt/osm-notes-api
+   docker compose -f docker/docker-compose.yml --profile monitoring up -d prometheus grafana
+   ```
+   Se levantan solo los contenedores de Prometheus y Grafana; la API sigue en el compose host-db.
+
+2. **Comprobar que Prometheus scrapea la API**
+   - Abre **http://192.168.0.7:9090** (o tu servidor).
+   - **Status** → **Targets**.
+   - El job **osm-notes-api** debe estar **UP** (target `host.docker.internal:3010`). Si está DOWN, revisa que la API responda: `curl -s http://localhost:3010/metrics | head -5`.
+
+3. **Ver métricas en Prometheus**
+   - **Graph** → en la query escribe `http_requests_total` o `up{job="osm-notes-api"}` → **Execute**. Debe haber series.
+
+4. **Grafana (opcional)**
+   - **http://192.168.0.7:3001** → usuario `admin`, contraseña `admin` (o `GRAFANA_PASSWORD`).
+   - **Connections** → **Data sources** → Prometheus ya está configurado. **Save & test**.
+   - **Dashboards** → usa o crea dashboards que usen esas métricas (p. ej. solicitudes/segundo, latencia, errores). Ver [docs/Monitoring.md](Monitoring.md) para dashboards incluidos.
+
+5. **Persistencia**
+   - Prometheus y Grafana usan volúmenes; si haces `docker compose ... down` sin `-v`, los datos se mantienen. Para que arranquen con el sistema puedes usar un servicio systemd o un cron que ejecute el `docker compose ... up -d` al inicio.
+
+### Qué revisar si ya tienes Prometheus y Grafana
+
+1. **Prometheus – target de la API en UP**
+   - Abre `http://<servidor>:9090` → **Status** → **Targets**.
+   - Debe aparecer el job `osm-notes-api` (o el que scrapee `/metrics`) con estado **UP**.
+   - Si está **DOWN**, comprueba que el target sea la URL correcta de la API (con host-db suele ser `host.docker.internal:3010` o `<ip-del-host>:3010`).
+
+2. **Prometheus – que haya métricas**
+   - En Prometheus: **Graph** → consulta `http_requests_total` (o `up{job="osm-notes-api"}`) → **Execute**. Debe devolver series si la API está siendo scrapeada.
+
+3. **Grafana – datasource**
+   - **Connections** (o **Configuration**) → **Data sources** → **Prometheus** debe estar en verde y probar bien (“Save & test”).
+
+4. **Grafana – dashboards**
+   - **Dashboards** → abre el dashboard de la API (p. ej. “API Overview” o “Rate Limiting”). Debe haber gráficos con datos recientes (genera algo de tráfico a la API si está en cero).
+
+5. **Alertas (opcional)**
+   - Las reglas están en `docker/prometheus/alerts.yml`. En Prometheus → **Status** → **Rules** verifica que no haya errores de carga.
+
+See [docs/Monitoring.md](Monitoring.md) for detailed monitoring setup.
 
 ## Post-Deployment Verification
 
@@ -521,7 +590,19 @@ docker compose -f docker/docker-compose.yml logs api | grep -i error
 pm2 logs osm-notes-api --lines 100 | grep -i error
 ```
 
-### 4. Performance
+### 4. Monitoring (metrics endpoint)
+
+The API exposes Prometheus metrics at `/metrics`. Verifying it responds confirms the monitoring pipeline can scrape the API (no User-Agent required):
+
+```bash
+# Replace 3010 with your PORT if different (host-db compose)
+curl -s http://localhost:3010/metrics | head -30
+# Expect: Prometheus-style lines (e.g. # HELP, # TYPE, http_requests_total)
+```
+
+If you use the full stack with the monitoring profile (Prometheus + Grafana), also confirm Prometheus is scraping: open `http://<server>:9090`, check Status → Targets, and ensure the API target is UP. See [docs/Monitoring.md](Monitoring.md) for details.
+
+### 5. Performance
 
 ```bash
 # Check response times
