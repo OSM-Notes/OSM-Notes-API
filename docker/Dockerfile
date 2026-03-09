@@ -9,13 +9,12 @@ WORKDIR /app
 # Copy package files (ensure package-lock.json is included)
 COPY package.json package-lock.json* ./
 
-# Install dependencies
-# Use npm ci if package-lock.json exists, otherwise use npm install
+# Install dependencies (--ignore-scripts skips prepare/husky, not needed in container)
 RUN if [ -f package-lock.json ]; then \
-      npm ci --omit=dev && npm cache clean --force; \
+      npm ci --omit=dev --ignore-scripts && npm cache clean --force; \
     else \
       echo "Warning: package-lock.json not found, using npm install"; \
-      npm install --omit=dev && npm cache clean --force; \
+      npm install --omit=dev --ignore-scripts && npm cache clean --force; \
     fi
 
 # Copy source code
@@ -36,13 +35,12 @@ RUN addgroup -g 1001 -S nodejs && \
 # Copy package files (ensure package-lock.json is included)
 COPY package.json package-lock.json* ./
 
-# Install only production dependencies
-# Use npm ci if package-lock.json exists, otherwise use npm install
+# Install only production dependencies (--ignore-scripts skips prepare/husky)
 RUN if [ -f package-lock.json ]; then \
-      npm ci --omit=dev && npm cache clean --force; \
+      npm ci --omit=dev --ignore-scripts && npm cache clean --force; \
     else \
       echo "Warning: package-lock.json not found, using npm install"; \
-      npm install --omit=dev && npm cache clean --force; \
+      npm install --omit=dev --ignore-scripts && npm cache clean --force; \
     fi
 
 # Copy built application from builder

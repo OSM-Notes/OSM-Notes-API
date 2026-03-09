@@ -6,11 +6,15 @@ To run the API as a system service on the server (e.g. 192.168.0.7):
 
 ### 1. Build the app
 
+Use `--omit=dev` (not `--production`) and `--ignore-scripts` so the `prepare` script (husky) does not run—husky is a dev dependency and is not installed in production.
+
 ```bash
 cd /home/notes/OSM-Notes-API   # or your install path
-npm ci --production
+npm ci --omit=dev --ignore-scripts
 npm run build
 ```
+
+**Node**: The app supports Node 18+. If you see an `EBADENGINE` warning for a dependency, it is from a dev-only package; production install skips it. For a clean install, Node 20+ is recommended.
 
 ### 2. Install the unit file
 

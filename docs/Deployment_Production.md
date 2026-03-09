@@ -304,9 +304,9 @@ docker logs -f osm-notes-api
 A unit file is provided so the API runs as a system service and survives reboots:
 
 ```bash
-# Build first
+# Build first (--ignore-scripts avoids prepare/husky failing when dev deps are omitted)
 cd /home/notes/OSM-Notes-API   # or your install path
-npm ci --production
+npm ci --omit=dev --ignore-scripts
 npm run build
 
 # Install unit file
@@ -336,8 +336,8 @@ See [deploy/README.md](../deploy/README.md) for details and log commands (`journ
 # Install PM2 globally
 sudo npm install -g pm2
 
-# Build application
-npm install --production
+# Build application (--ignore-scripts avoids prepare/husky when using --omit=dev)
+npm ci --omit=dev --ignore-scripts
 npm run build
 
 # Start with PM2 (set PORT in .env or here)
