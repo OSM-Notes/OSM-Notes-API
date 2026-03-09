@@ -46,7 +46,8 @@ RUN if [ -f package-lock.json ]; then \
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
 
-# Copy necessary files
+# Copy OpenAPI spec (required at runtime for /docs and /docs/json)
+COPY --from=builder /app/openapi ./openapi
 COPY --from=builder /app/.env.example ./.env.example
 
 # Change ownership
