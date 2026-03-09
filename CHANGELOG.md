@@ -7,6 +7,32 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Paginated list endpoints**: `GET /notes-api/v1/users` and `GET /notes-api/v1/countries` with
+  `page`, `limit`, `sort`, and `order` query parameters (completes API proposal scope).
+- **OSM API 0.6 compatibility layer** at `/api/0.6/notes`: read-only endpoints matching
+  api.openstreetmap.org for notes (bbox, search, get by id); responses in OSM-style GeoJSON.
+- **OpenAPI spec from file**: Specification loaded from YAML file; canonical source in
+  OSM-Notes-Common repo, with submodule at `lib/osm-common` and local fallback at `openapi/`.
+- **OSM-Notes-Common as Git submodule** at `lib/osm-common` for shared schemas (e.g. OpenAPI).
+- **Documentation**: `docs/API_Proposal_Status.md` (proposal implementation status),
+  `docs/OSM_06_Notes_Compat.md` (OSM 0.6 notes compat and write-proxy recommendation),
+  `docs/OpenAPI_Spec.md` (where the spec lives and how to sync with Common).
+
+### Changed
+
+- **API base path**: Project API base path changed from `/api/v1` to `/notes-api/v1`; OSM
+  compatibility remains under `/api/0.6/notes`.
+- **OpenAPI tooling**: Replaced swagger-jsdoc with file-based spec; added `js-yaml` for YAML
+  loading; spec path configurable via `OPENAPI_SPEC_PATH`.
+- **Pagination**: `Link` header now always includes `rel="first"` when `total_pages > 1` (including
+  on page 1).
+- **Database config**: Optional `DB_HOST`/`DB_PORT` to allow Unix socket connection and peer
+  authentication when omitted.
+- **API proposal**: `docs/API_Proposal.md` archived to `docs/archive/`; current API reference is
+  `docs/API.md` and the OpenAPI spec.
+
 ## [2026-01-26] - Recent Updates and Improvements
 
 ### Added
