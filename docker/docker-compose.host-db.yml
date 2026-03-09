@@ -1,14 +1,27 @@
-# Run only the API container, using PostgreSQL and Redis on the host.
-# Use when DB and Redis are already running on the server (e.g. notes_dwh, system Redis).
+# API + Redis in Docker, PostgreSQL on the host.
+# Use when DB (notes_dwh) runs on the host and you want Redis in a container (no need to change host Redis).
 #
 # Usage (from project root; --env-file .env loads .env from project root):
 #   docker compose -f docker/docker-compose.host-db.yml --env-file .env up -d --build
 #
-# Requires .env with DB_* and REDIS_* (DB_HOST is overridden to host.docker.internal).
-# Redis: set REDIS_HOST_DOCKER=disabled in .env to disable Redis (in-memory rate limiting) if
-# host Redis is not reachable from the container (e.g. bound to 127.0.0.1 only).
+# - DB: host via host.docker.internal (requires .env DB_*).
+# - Redis: by default the "redis" service in this compose (dedicated to the API). Override in .env:
+#   REDIS_HOST_DOCKER=host.docker.internal  → use Redis on the host (must listen on 0.0.0.0 or 172.17.0.1)
+#   REDIS_HOST_DOCKER=disabled             → no Redis (in-memory rate limiting)
 
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: osm-notes-api-redis
+    restart: unless-stopped
+    # No port published to host; only the api service needs access
+    command: redis-server --appendonly no
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   api:
     build:
       context: ..
@@ -21,7 +34,6 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-production}
       - PORT=3000
-      # Reach host from inside container (Linux: host.docker.internal needs extra_hosts below)
       - DB_HOST=host.docker.internal
       - DB_PORT=${DB_PORT:-5432}
       - DB_NAME=${DB_NAME:-notes_dwh}
@@ -29,12 +41,16 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_SSL=${DB_SSL:-true}
       - DB_SSL_REJECT_UNAUTHORIZED=${DB_SSL_REJECT_UNAUTHORIZED:-false}
-      - REDIS_HOST=${REDIS_HOST_DOCKER:-host.docker.internal}
-      - REDIS_PORT=${REDIS_PORT:-6379}
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      # Default: use Redis container in this stack. Use REDIS_HOST_DOCKER=host.docker.internal for host Redis, or =disabled for no Redis.
+      - REDIS_HOST=${REDIS_HOST_DOCKER:-redis}
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
       - LOG_LEVEL=${LOG_LEVEL:-info}
     extra_hosts:
       - 'host.docker.internal:host-gateway'
+    depends_on:
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test:

@@ -252,20 +252,54 @@ docker compose -f docker/docker-compose.host-db.yml logs -f api
 
 #### Redis when using Docker (host-db)
 
-The API container connects to the host’s Redis via `host.docker.internal`. If Redis on the host only listens on `127.0.0.1`, the container will get `ECONNREFUSED 172.17.0.1:6379`.
+This compose starts a **Redis container** for the API by default. The host’s Redis is not used and does not need to be changed.
 
-**Option A – Make Redis reachable from the container**  
-On the host, configure Redis to listen on all interfaces (e.g. in `redis.conf`: `bind 0.0.0.0`), restart Redis, and ensure the host firewall allows access to port 6379 from the Docker bridge if needed.
+- **Default:** API uses the `redis` service in this stack (Redis in Docker). No host Redis config needed.
+- **Use host Redis instead:** set in `.env`: `REDIS_HOST_DOCKER=host.docker.internal` and ensure host Redis listens on `0.0.0.0` or `172.17.0.1` (see Option B below).
+- **No Redis:** set in `.env`: `REDIS_HOST_DOCKER=disabled`. The API uses in-memory rate limiting; you can stop the Redis container to save resources: `docker compose -f docker/docker-compose.host-db.yml stop redis`.
 
-**Option B – Disable Redis in the container**  
-To use in-memory rate limiting and avoid Redis from the container, add to `.env`:
+**Option A – Default: Redis in Docker (recommended)**  
+Just run the stack; the API uses the Redis container. No host Redis configuration required.
+
+**Option B – Use Redis on the host instead**
+
+1. **Edit Redis config** (on the host). Config is often `/etc/redis/redis.conf` or `/etc/redis.conf`:
+   ```bash
+   sudo nano /etc/redis/redis.conf
+   ```
+2. **Set `bind`** so Redis listens on an interface reachable from Docker. Either:
+   - `bind 0.0.0.0` — listen on all interfaces (simplest; restrict with firewall if needed), or
+   - `bind 127.0.0.1 172.17.0.1` — localhost plus Docker bridge (if 172.17.0.1 is your host’s Docker bridge).
+3. **Optional: password.** If you use `requirepass yourpassword`, set in `.env`:
+   ```env
+   REDIS_PASSWORD=yourpassword
+   ```
+4. **Restart Redis:**
+   ```bash
+   sudo systemctl restart redis-server
+   # or: sudo systemctl restart redis
+   ```
+5. **Allow port 6379** from Docker bridge if you use a firewall (e.g. UFW):
+   ```bash
+   sudo ufw allow from 172.17.0.0/16 to any port 6379
+   sudo ufw status
+   ```
+6. **Use host Redis from the container:** in `.env` set `REDIS_HOST_DOCKER=host.docker.internal`, then:
+   ```bash
+   docker compose -f docker/docker-compose.host-db.yml --env-file .env up -d
+   ```
+   Check logs: you should see "Using Redis store for rate limiting" and no `ECONNREFUSED`. Health will show `"redis": { "status": "up" }`.
+
+**Option C – Disable Redis**  
+To use in-memory rate limiting, add to `.env`:
 
 ```env
 REDIS_HOST_DOCKER=disabled
 ```
 
 Then recreate the stack:  
-`docker compose -f docker/docker-compose.host-db.yml --env-file .env up -d`.
+`docker compose -f docker/docker-compose.host-db.yml --env-file .env up -d`.  
+Optionally stop the Redis container: `docker compose -f docker/docker-compose.host-db.yml stop redis`.
 
 #### Verify Deployment
 
