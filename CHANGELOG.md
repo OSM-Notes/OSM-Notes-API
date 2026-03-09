@@ -9,6 +9,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Production deployment**: API deployed on server 192.168.0.7 using Docker Compose
+  (`docker-compose.host-db.yml`): API and Redis in containers, PostgreSQL on host; health and
+  version headers verified; optional Redis-in-Docker so host Redis config is not required.
 - **Paginated list endpoints**: `GET /notes-api/v1/users` and `GET /notes-api/v1/countries` with
   `page`, `limit`, `sort`, and `order` query parameters (completes API proposal scope).
 - **OSM API 0.6 compatibility layer** at `/api/0.6/notes`: read-only endpoints matching

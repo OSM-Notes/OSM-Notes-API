@@ -74,9 +74,19 @@ function parseUserAgent(userAgent: string): UserAgentInfo | null {
  * User-Agent validation middleware
  * Validates User-Agent header format and extracts information
  */
+/**
+ * Paths that do not require User-Agent validation.
+ * - /health: load balancers and Docker healthchecks often send no or generic User-Agent.
+ * - /docs, /openapi.json, /swagger.json: public API documentation; tools and browsers
+ *   rarely send the strict format. Requiring it would block discovery and docs access
+ *   with little security gain (spec content is public; rate limiting still applies).
+ */
+const NO_USER_AGENT_PATHS = ['/health', '/docs', '/openapi.json', '/swagger.json'];
+
 export function validateUserAgent(req: Request, res: Response, next: NextFunction): void {
-  // Skip validation for health checks (Docker, load balancers, k8s often do not send User-Agent)
-  if (req.path === '/health') {
+  const path = (req.path || req.url?.split('?')[0] || '').replace(/\/+$/, '') || '/';
+  const pathNorm = path.startsWith('/') ? path : `/${path}`;
+  if (NO_USER_AGENT_PATHS.includes(pathNorm) || pathNorm.startsWith('/docs/')) {
     return next();
   }
 

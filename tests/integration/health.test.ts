@@ -81,4 +81,27 @@ describe('Health Check Endpoint', () => {
       expect(response.headers['x-api-name']).toBe('osm-notes-api');
     });
   });
+
+  describe('API docs and OpenAPI spec (standard URLs, no User-Agent required)', () => {
+    it('GET /docs should return 200 or 301 (redirect to /docs/)', async () => {
+      const response = await request(app).get('/docs');
+      expect([200, 301]).toContain(response.status);
+    });
+
+    it('GET /openapi.json should return 200 and OpenAPI JSON', async () => {
+      const response = await request(app).get('/openapi.json');
+      expect(response.status).toBe(200);
+      expect(response.headers['content-type']).toMatch(/application\/json/);
+      expect(response.body).toHaveProperty('openapi');
+      expect(response.body).toHaveProperty('info');
+    });
+
+    it('GET /swagger.json should return 200 and same spec as openapi.json', async () => {
+      const response = await request(app).get('/swagger.json');
+      expect(response.status).toBe(200);
+      expect(response.headers['content-type']).toMatch(/application\/json/);
+      expect(response.body).toHaveProperty('openapi');
+      expect(response.body).toHaveProperty('info');
+    });
+  });
 });

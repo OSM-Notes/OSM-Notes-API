@@ -331,6 +331,7 @@ See [docs/RUNBOOK.md](docs/Runbook.md) for complete operations procedures.
 ### Operations & Deployment
 - [Deployment Guide](docs/Deployment.md) - Production deployment instructions
 - [Production Deployment (192.168.0.7)](docs/Deployment_Production.md) - Specific guide for production server
+- [Deploying Behind Cloudflare (notes-api.osm.lat)](docs/Deployment_Cloudflare.md) - DNS, proxy, and optional Tunnel setup
 - [Operations Runbook](docs/Runbook.md) - Operational procedures and runbook
 - [Troubleshooting](docs/Troubleshooting.md) - Common issues and solutions
 - [CI/CD Guide](docs/CI_CD.md) - Continuous Integration and Deployment
