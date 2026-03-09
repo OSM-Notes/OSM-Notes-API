@@ -20,6 +20,7 @@ import { logger } from './utils/logger';
 import routes from './routes';
 import docsRouter from './routes/docs';
 import metricsRouter from './routes/metrics';
+import { getSwaggerSpec } from './config/swagger';
 
 /**
  * Create and configure Express application
@@ -102,8 +103,16 @@ function createApp(): Express {
   // Metrics middleware (must be after rate limiting to track all requests)
   app.use(metricsMiddleware);
 
-  // API Documentation (Swagger) - excluded from User-Agent validation for easier access
+  // API Documentation (Swagger) - no User-Agent required for /docs, /openapi.json, /swagger.json
   app.use('/docs', docsRouter);
+  app.get('/openapi.json', (_req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.json(getSwaggerSpec());
+  });
+  app.get('/swagger.json', (_req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.json(getSwaggerSpec());
+  });
 
   // Routes
   app.use('/', routes);

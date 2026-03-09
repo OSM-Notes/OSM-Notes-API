@@ -19,8 +19,16 @@ So you can run without Common by keeping the local `openapi/notes-api-v1.yaml`, 
 
 ## Serving the spec
 
-- **Swagger UI**: `GET /docs` (interactive docs).
-- **Raw spec (JSON)**: `GET /docs/json` (spec as JSON for tools or clients).
+Standard URLs (no User-Agent required):
+
+| URL | Description |
+|-----|-------------|
+| `GET /docs` | Swagger UI (interactive docs). |
+| `GET /docs/json` | OpenAPI spec as JSON (same as below). |
+| `GET /openapi.json` | OpenAPI spec as JSON (common convention). |
+| `GET /swagger.json` | OpenAPI spec as JSON (common convention). |
+
+Examples: `https://notes-api.osm.lat/docs`, `https://notes-api.osm.lat/openapi.json`, `https://notes-api.osm.lat/swagger.json`.
 
 ## Syncing with OSM-Notes-Common
 
