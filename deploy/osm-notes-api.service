@@ -1,0 +1,32 @@
+# Systemd unit for OSM Notes API
+# Copy to /etc/systemd/system/ and adjust paths/user.
+# Usage:
+#   sudo cp deploy/osm-notes-api.service /etc/systemd/system/
+#   sudo nano /etc/systemd/system/osm-notes-api.service  # set WorkingDirectory, User, PORT
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable osm-notes-api
+#   sudo systemctl start osm-notes-api
+
+[Unit]
+Description=OSM Notes API
+Documentation=https://github.com/OSM-Notes/OSM-Notes-API
+After=network.target postgresql.service redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=notes
+Group=maptimebogota
+WorkingDirectory=/home/notes/OSM-Notes-API
+Environment=NODE_ENV=production
+Environment=PORT=3010
+EnvironmentFile=/home/notes/OSM-Notes-API/.env
+ExecStart=/usr/bin/node dist/index.js
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=osm-notes-api
+
+[Install]
+WantedBy=multi-user.target

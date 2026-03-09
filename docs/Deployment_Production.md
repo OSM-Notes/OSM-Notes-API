@@ -299,7 +299,38 @@ docker run -d \
 docker logs -f osm-notes-api
 ```
 
-### Method 3: PM2 (Node.js Direct)
+### Method 3: Systemd (recommended for single-instance, e.g. port 3010)
+
+A unit file is provided so the API runs as a system service and survives reboots:
+
+```bash
+# Build first
+cd /home/notes/OSM-Notes-API   # or your install path
+npm ci --production
+npm run build
+
+# Install unit file
+sudo cp deploy/osm-notes-api.service /etc/systemd/system/
+# Edit if User, WorkingDirectory, or PORT differ (default: User=notes, PORT=3010)
+sudo nano /etc/systemd/system/osm-notes-api.service
+
+# Enable and start
+sudo systemctl daemon-reload
+sudo systemctl enable osm-notes-api
+sudo systemctl start osm-notes-api
+sudo systemctl status osm-notes-api
+```
+
+Verify:
+
+```bash
+curl -s -H "User-Agent: Test/1.0 (a@b.com)" http://127.0.0.1:3010/health
+curl -s -H "User-Agent: Test/1.0 (a@b.com)" "http://127.0.0.1:3010/notes-api/v1/notes?limit=2"
+```
+
+See [deploy/README.md](../deploy/README.md) for details and log commands (`journalctl -u osm-notes-api -f`).
+
+### Method 4: PM2 (Node.js Direct)
 
 ```bash
 # Install PM2 globally
@@ -309,8 +340,8 @@ sudo npm install -g pm2
 npm install --production
 npm run build
 
-# Start with PM2
-pm2 start dist/index.js --name osm-notes-api --env production
+# Start with PM2 (set PORT in .env or here)
+PORT=3010 pm2 start dist/index.js --name osm-notes-api --env production
 
 # Save PM2 configuration
 pm2 save
