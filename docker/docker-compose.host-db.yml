@@ -1,8 +1,8 @@
 # Run only the API container, using PostgreSQL and Redis on the host.
 # Use when DB and Redis are already running on the server (e.g. notes_dwh, system Redis).
 #
-# Usage:
-#   docker compose -f docker/docker-compose.host-db.yml up -d --build
+# Usage (from project root; --env-file .env loads .env from project root):
+#   docker compose -f docker/docker-compose.host-db.yml --env-file .env up -d --build
 #
 # Requires .env with DB_* and REDIS_* (DB_HOST/REDIS_HOST are overridden to host.docker.internal).
 

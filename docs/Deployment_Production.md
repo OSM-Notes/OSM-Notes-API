@@ -228,75 +228,65 @@ redis-cli -h $REDIS_HOST -p $REDIS_PORT -a $REDIS_PASSWORD ping
 
 ## Deployment
 
-### Method 1: Docker Compose v2 (Recommended)
+**Note**: The server uses Docker Compose v2 (plugin), use `docker compose` (not `docker-compose`). On this server, **PostgreSQL (Analytics/Ingestion) and Redis run on the host**, not in containers—so the recommended Docker option is **API only** with `docker-compose.host-db.yml`.
 
-**Note**: The server uses Docker Compose v2 (plugin), use `docker compose` (not `docker-compose`).
+### Method 1: Docker Compose – API only, host DB/Redis (Recommended for this server)
+
+Use when PostgreSQL and Redis already run on the host (e.g. `notes_dwh`, system Redis). Only the API runs in a container; it connects to the host via `host.docker.internal`.
 
 #### Initial Deployment
-
-```bash
-# Navigate to application directory
-cd /opt/osm-notes-api
-
-# Build and start services
-docker compose -f docker/docker-compose.yml up -d
-
-# Check status
-docker compose -f docker/docker-compose.yml ps
-
-# View logs
-docker compose -f docker/docker-compose.yml logs -f api
-```
-
-#### Verify Deployment
-
-```bash
-# Health check
-curl -H "User-Agent: Monitor/1.0 (ops@example.com)" \
-     http://localhost:3000/health
-
-# Expected response:
-# {
-#   "status": "healthy",
-#   "timestamp": "...",
-#   "database": { "status": "up", ... },
-#   "redis": { "status": "up", ... }
-# }
-
-# Test API endpoint
-curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/notes-api/v1/analytics/global
-```
-
-#### Update Deployment
-
-```bash
-# Pull latest code
-cd /opt/osm-notes-api
-git pull origin main
-
-# Rebuild and restart
-docker compose -f docker/docker-compose.yml up -d --build
-
-# Verify
-curl -H "User-Agent: Monitor/1.0 (ops@example.com)" \
-     http://localhost:3000/health
-```
-
-#### API only with host PostgreSQL and Redis
-
-When PostgreSQL and Redis already run on the host (e.g. `notes_dwh`, system Redis), run only the API container and point it at the host:
 
 ```bash
 cd /opt/osm-notes-api
 
 # Ensure .env has DB_PASSWORD (use double quotes if password contains #)
-# DB_HOST/REDIS_HOST are overridden to host.docker.internal by this compose
+# --env-file .env loads variables from project root (Compose otherwise looks in docker/)
+docker compose -f docker/docker-compose.host-db.yml --env-file .env up -d --build
 
-docker compose -f docker/docker-compose.host-db.yml up -d --build
+# Check status
+docker compose -f docker/docker-compose.host-db.yml ps
+
+# View logs
+docker compose -f docker/docker-compose.host-db.yml logs -f api
 ```
 
-The API will connect to the host via `host.docker.internal` (requires Docker 20.10+ with `host-gateway`). Port defaults to `${PORT:-3010}:3000`.
+#### Verify Deployment
+
+```bash
+# Health check (port from .env PORT, default 3010)
+curl -H "User-Agent: Monitor/1.0 (ops@example.com)" \
+     http://localhost:3010/health
+
+# Version headers
+curl -sI -H "User-Agent: Test/1.0 (a@b.com)" http://localhost:3010/health | grep -i x-api
+```
+
+#### Update Deployment
+
+```bash
+cd /opt/osm-notes-api
+git pull origin main
+
+docker compose -f docker/docker-compose.host-db.yml --env-file .env up -d --build
+
+curl -H "User-Agent: Monitor/1.0 (ops@example.com)" http://localhost:3010/health
+```
+
+To remove leftover postgres/redis containers from a previous full-stack run:  
+`docker compose -f docker/docker-compose.host-db.yml down --remove-orphans`
+
+Requires Docker 20.10+ (for `host-gateway`). Port mapping: `${PORT:-3010}:3000`.
+
+### Alternative: Docker Compose full stack (API + Postgres + Redis in containers)
+
+Use only if you want the API, PostgreSQL, and Redis **all in containers** (e.g. testing or a environment without a host DB). Not for this server when Analytics/Ingestion DB and Redis are on the host.
+
+```bash
+cd /opt/osm-notes-api
+# Requires .env with DB_PASSWORD set (used by the postgres container)
+docker compose -f docker/docker-compose.yml up -d --build
+docker compose -f docker/docker-compose.yml ps
+```
 
 ### Method 2: Docker Standalone
 
