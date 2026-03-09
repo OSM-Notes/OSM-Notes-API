@@ -9,12 +9,12 @@ WORKDIR /app
 # Copy package files (ensure package-lock.json is included)
 COPY package.json package-lock.json* ./
 
-# Install dependencies (--ignore-scripts skips prepare/husky, not needed in container)
+# Install all dependencies including dev (need TypeScript to build); --ignore-scripts skips prepare/husky
 RUN if [ -f package-lock.json ]; then \
-      npm ci --omit=dev --ignore-scripts && npm cache clean --force; \
+      npm ci --ignore-scripts && npm cache clean --force; \
     else \
       echo "Warning: package-lock.json not found, using npm install"; \
-      npm install --omit=dev --ignore-scripts && npm cache clean --force; \
+      npm install --ignore-scripts && npm cache clean --force; \
     fi
 
 # Copy source code
