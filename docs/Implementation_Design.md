@@ -3492,13 +3492,13 @@ jobs:
   - [x] Establecer objetivos de performance (SLOs definidos)
   - [x] Configurar alertas de performance (ya configuradas en Prometheus)
 
-- [ ] **41. Deployment en Producción**
-  - [ ] Configurar servidor (192.168.0.7)
-  - [ ] Deploy con Docker Compose
-  - [ ] Verificar health checks
-  - [ ] Verificar monitoreo
-  - [ ] Documentar proceso de deployment
-  - [ ] Actualizar CHANGELOG.md con release v1.0.0
+- [x] **41. Deployment en Producción**
+  - [x] Configurar servidor (192.168.0.7)
+  - [x] Deploy con Docker Compose (host-db: API + Redis en contenedor, PostgreSQL en host)
+  - [x] Verificar health checks
+  - [x] Verificar monitoreo
+  - [x] Documentar proceso de deployment (`docs/Deployment_Production.md`)
+  - [ ] Actualizar CHANGELOG.md con release v1.0.0 (cuando se etiquete)
 
 **Entregables Fase 4**:
 - ✅ API optimizada (scripts de optimización creados, cache implementado)
@@ -3506,7 +3506,7 @@ jobs:
 - ✅ Documentación completa
 - ✅ CI/CD funcionando
 - ✅ Runbook de operaciones
-- ⏳ API en producción (pendiente deployment en servidor 192.168.0.7)
+- ✅ API en producción (desplegada en 192.168.0.7 con Docker Compose host-db)
 
 ---
 
