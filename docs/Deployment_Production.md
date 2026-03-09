@@ -143,6 +143,8 @@ REDIS_DB=0
 METRICS_PORT=9090
 ```
 
+**Password with special characters**: If the password contains `#`, use **double quotes** in `.env` so the rest is not treated as a comment. Single quotes may be included in the value by some parsers.
+
 **Security Notes**:
 - Use strong, unique passwords
 - Never commit `.env` file to git
@@ -280,6 +282,21 @@ docker compose -f docker/docker-compose.yml up -d --build
 curl -H "User-Agent: Monitor/1.0 (ops@example.com)" \
      http://localhost:3000/health
 ```
+
+#### API only with host PostgreSQL and Redis
+
+When PostgreSQL and Redis already run on the host (e.g. `notes_dwh`, system Redis), run only the API container and point it at the host:
+
+```bash
+cd /opt/osm-notes-api
+
+# Ensure .env has DB_PASSWORD (use double quotes if password contains #)
+# DB_HOST/REDIS_HOST are overridden to host.docker.internal by this compose
+
+docker compose -f docker/docker-compose.host-db.yml up -d --build
+```
+
+The API will connect to the host via `host.docker.internal` (requires Docker 20.10+ with `host-gateway`). Port defaults to `${PORT:-3010}:3000`.
 
 ### Method 2: Docker Standalone
 

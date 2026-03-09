@@ -1,0 +1,48 @@
+# Run only the API container, using PostgreSQL and Redis on the host.
+# Use when DB and Redis are already running on the server (e.g. notes_dwh, system Redis).
+#
+# Usage:
+#   docker compose -f docker/docker-compose.host-db.yml up -d --build
+#
+# Requires .env with DB_* and REDIS_* (DB_HOST/REDIS_HOST are overridden to host.docker.internal).
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: osm-notes-api
+    ports:
+      - '${PORT:-3010}:3000'
+    env_file:
+      - ../.env
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=3000
+      # Reach host from inside container (Linux: host.docker.internal needs extra_hosts below)
+      - DB_HOST=host.docker.internal
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${DB_NAME:-notes_dwh}
+      - DB_USER=${DB_USER:-osm_notes_analytics_user}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_SSL=${DB_SSL:-true}
+      - DB_SSL_REJECT_UNAUTHORIZED=${DB_SSL_REJECT_UNAUTHORIZED:-false}
+      - REDIS_HOST=host.docker.internal
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
