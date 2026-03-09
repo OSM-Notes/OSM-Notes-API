@@ -27,8 +27,8 @@ const envSchema = Joi.object({
   DB_IDLE_TIMEOUT: Joi.number().integer().min(1000).default(30000),
   DB_CONNECTION_TIMEOUT: Joi.number().integer().min(1000).default(10000),
 
-  // Redis
-  REDIS_HOST: Joi.string().allow('').default('localhost'),
+  // Redis (use 'disabled' or 'off' to disable Redis, e.g. in Docker when host Redis is unreachable)
+  REDIS_HOST: Joi.string().allow('', 'disabled', 'off').default('localhost'),
   REDIS_PORT: Joi.number().integer().min(1).max(65535).default(6379),
   REDIS_PASSWORD: Joi.string().allow('').default(''),
   REDIS_DB: Joi.number().integer().min(0).max(15).default(0),

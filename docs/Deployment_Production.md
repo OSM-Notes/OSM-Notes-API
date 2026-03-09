@@ -250,15 +250,34 @@ docker compose -f docker/docker-compose.host-db.yml ps
 docker compose -f docker/docker-compose.host-db.yml logs -f api
 ```
 
+#### Redis when using Docker (host-db)
+
+The API container connects to the host’s Redis via `host.docker.internal`. If Redis on the host only listens on `127.0.0.1`, the container will get `ECONNREFUSED 172.17.0.1:6379`.
+
+**Option A – Make Redis reachable from the container**  
+On the host, configure Redis to listen on all interfaces (e.g. in `redis.conf`: `bind 0.0.0.0`), restart Redis, and ensure the host firewall allows access to port 6379 from the Docker bridge if needed.
+
+**Option B – Disable Redis in the container**  
+To use in-memory rate limiting and avoid Redis from the container, add to `.env`:
+
+```env
+REDIS_HOST_DOCKER=disabled
+```
+
+Then recreate the stack:  
+`docker compose -f docker/docker-compose.host-db.yml --env-file .env up -d`.
+
 #### Verify Deployment
 
 ```bash
-# Health check (port from .env PORT, default 3010)
-curl -H "User-Agent: Monitor/1.0 (ops@example.com)" \
-     http://localhost:3010/health
+# Health check (port from .env PORT, default 3010; /health does not require User-Agent)
+curl -s http://localhost:3010/health
+
+# With User-Agent (required for other API routes)
+curl -H "User-Agent: Monitor/1.0 (ops@example.com)" http://localhost:3010/health
 
 # Version headers
-curl -sI -H "User-Agent: Test/1.0 (a@b.com)" http://localhost:3010/health | grep -i x-api
+curl -sI http://localhost:3010/health | grep -i x-api
 ```
 
 #### Update Deployment

@@ -35,8 +35,8 @@ async function testRedisHealth(): Promise<{
   const startTime = Date.now();
 
   try {
-    const redisHost = process.env.REDIS_HOST;
-    if (!redisHost || redisHost === '') {
+    const redisHost = (process.env.REDIS_HOST || '').trim().toLowerCase();
+    if (!redisHost || redisHost === '' || redisHost === 'disabled' || redisHost === 'off') {
       return { status: 'not_configured' };
     }
 

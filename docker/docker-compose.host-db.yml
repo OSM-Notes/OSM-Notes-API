@@ -4,7 +4,9 @@
 # Usage (from project root; --env-file .env loads .env from project root):
 #   docker compose -f docker/docker-compose.host-db.yml --env-file .env up -d --build
 #
-# Requires .env with DB_* and REDIS_* (DB_HOST/REDIS_HOST are overridden to host.docker.internal).
+# Requires .env with DB_* and REDIS_* (DB_HOST is overridden to host.docker.internal).
+# Redis: set REDIS_HOST_DOCKER=disabled in .env to disable Redis (in-memory rate limiting) if
+# host Redis is not reachable from the container (e.g. bound to 127.0.0.1 only).
 
 services:
   api:
@@ -27,7 +29,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_SSL=${DB_SSL:-true}
       - DB_SSL_REJECT_UNAUTHORIZED=${DB_SSL_REJECT_UNAUTHORIZED:-false}
-      - REDIS_HOST=host.docker.internal
+      - REDIS_HOST=${REDIS_HOST_DOCKER:-host.docker.internal}
       - REDIS_PORT=${REDIS_PORT:-6379}
       - REDIS_PASSWORD=${REDIS_PASSWORD:-}
       - LOG_LEVEL=${LOG_LEVEL:-info}

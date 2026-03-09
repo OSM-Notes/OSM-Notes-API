@@ -18,8 +18,9 @@ export function getRedisClient(): RedisClientType | null {
 
   const env = getEnv();
 
-  // If Redis is not configured, return null (graceful degradation)
-  if (!env.REDIS_HOST || env.REDIS_HOST === '') {
+  // If Redis is not configured or explicitly disabled, return null (graceful degradation)
+  const host = (env.REDIS_HOST || '').trim().toLowerCase();
+  if (!host || host === '' || host === 'disabled' || host === 'off') {
     logger.warn('Redis not configured, rate limiting will use in-memory store');
     return null;
   }

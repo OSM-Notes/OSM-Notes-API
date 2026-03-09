@@ -75,6 +75,11 @@ function parseUserAgent(userAgent: string): UserAgentInfo | null {
  * Validates User-Agent header format and extracts information
  */
 export function validateUserAgent(req: Request, res: Response, next: NextFunction): void {
+  // Skip validation for health checks (Docker, load balancers, k8s often do not send User-Agent)
+  if (req.path === '/health') {
+    return next();
+  }
+
   const userAgent = req.get('User-Agent');
 
   if (!userAgent) {

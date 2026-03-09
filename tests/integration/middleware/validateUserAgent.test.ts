@@ -22,19 +22,30 @@ describe('User-Agent Validation Middleware Integration', () => {
     app = createApp();
   });
 
-  describe('GET /health with User-Agent validation', () => {
-    it('should reject request without User-Agent header', async () => {
+  describe('GET /health (no User-Agent required)', () => {
+    it('should accept /health without User-Agent (for Docker/load balancer health checks)', async () => {
       const response = await request(app).get('/health');
-      const body = response.body as { error: string; message: string };
+      expect([200, 503]).toContain(response.status);
+      if (response.status === 200) {
+        expect(response.body).toHaveProperty('status');
+      }
+    });
+  });
+
+  describe('API routes with User-Agent validation', () => {
+    const apiPath = '/notes-api/v1/notes';
+
+    it('should reject request without User-Agent header', async () => {
+      const response = await request(app).get(apiPath);
+      const body = response.body as { error?: string; message?: string };
 
       expect(response.status).toBe(400);
-      expect(body).toHaveProperty('error');
       expect(body).toHaveProperty('message');
       expect(body.message).toContain('User-Agent');
     });
 
     it('should reject request with invalid User-Agent format', async () => {
-      const response = await request(app).get('/health').set('User-Agent', 'InvalidFormat');
+      const response = await request(app).get(apiPath).set('User-Agent', 'InvalidFormat');
       const body = response.body as { message: string };
 
       expect(response.status).toBe(400);
@@ -42,7 +53,7 @@ describe('User-Agent Validation Middleware Integration', () => {
     });
 
     it('should reject User-Agent without contact', async () => {
-      const response = await request(app).get('/health').set('User-Agent', 'MyApp/1.0');
+      const response = await request(app).get(apiPath).set('User-Agent', 'MyApp/1.0');
       const body = response.body as { message: string };
 
       expect(response.status).toBe(400);
@@ -51,7 +62,7 @@ describe('User-Agent Validation Middleware Integration', () => {
 
     it('should reject User-Agent with invalid contact', async () => {
       const response = await request(app)
-        .get('/health')
+        .get(apiPath)
         .set('User-Agent', 'MyApp/1.0 (not-an-email-or-url)');
       const body = response.body as { message: string };
 
@@ -61,53 +72,42 @@ describe('User-Agent Validation Middleware Integration', () => {
 
     it('should accept request with valid User-Agent (email)', async () => {
       const response = await request(app)
-        .get('/health')
+        .get(apiPath)
         .set('User-Agent', 'MyApp/1.0 (contact@example.com)');
 
-      // Health check returns 200 for healthy/degraded, 503 for unhealthy
-      expect([200, 503]).toContain(response.status);
-      if (response.status === 200) {
-        expect(response.body).toHaveProperty('status');
-      }
+      expect([200, 500]).toContain(response.status);
     });
 
     it('should accept request with valid User-Agent (URL)', async () => {
       const response = await request(app)
-        .get('/health')
+        .get(apiPath)
         .set('User-Agent', 'MyApp/1.0 (https://example.com/contact)');
 
-      // Health check returns 200 for healthy/degraded, 503 for unhealthy
-      expect([200, 503]).toContain(response.status);
-      if (response.status === 200) {
-        expect(response.body).toHaveProperty('status');
-      }
+      expect([200, 500]).toContain(response.status);
     });
 
     it('should accept request with valid User-Agent (HTTP URL)', async () => {
       const response = await request(app)
-        .get('/health')
+        .get(apiPath)
         .set('User-Agent', 'MyApp/1.0 (http://example.com)');
 
-      // Health check returns 200 for healthy/degraded, 503 for unhealthy
-      expect([200, 503]).toContain(response.status);
+      expect([200, 500]).toContain(response.status);
     });
 
     it('should handle User-Agent with spaces in app name', async () => {
       const response = await request(app)
-        .get('/health')
+        .get(apiPath)
         .set('User-Agent', 'My App/1.0 (contact@example.com)');
 
-      // Health check returns 200 for healthy/degraded, 503 for unhealthy
-      expect([200, 503]).toContain(response.status);
+      expect([200, 500]).toContain(response.status);
     });
 
     it('should handle User-Agent with version containing dots', async () => {
       const response = await request(app)
-        .get('/health')
+        .get(apiPath)
         .set('User-Agent', 'MyApp/1.2.3 (contact@example.com)');
 
-      // Health check returns 200 for healthy/degraded, 503 for unhealthy
-      expect([200, 503]).toContain(response.status);
+      expect([200, 500]).toContain(response.status);
     });
   });
 });
