@@ -72,5 +72,13 @@ describe('Health Check Endpoint', () => {
       };
       expect(['healthy', 'degraded', 'unhealthy']).toContain(body.status);
     });
+
+    it('should include X-API-Version and X-API-Name headers on every response', async () => {
+      const response = await request(app).get('/health').set('User-Agent', validUserAgent);
+      expect(response.headers['x-api-version']).toBeDefined();
+      expect(response.headers['x-api-name']).toBeDefined();
+      expect(response.headers['x-api-version']).toMatch(/^\d+\.\d+\.\d+/);
+      expect(response.headers['x-api-name']).toBe('osm-notes-api');
+    });
   });
 });

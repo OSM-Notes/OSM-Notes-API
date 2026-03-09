@@ -110,6 +110,15 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      http://localhost:3000/health
 ```
 
+**Check deployed version** (every response includes these headers):
+
+```bash
+curl -sI -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     http://localhost:3000/health | grep -i x-api
+# X-API-Version: 0.1.0
+# X-API-Name: osm-notes-api
+```
+
 **Get a Note**:
 
 ```bash

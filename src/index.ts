@@ -15,6 +15,7 @@ import { rateLimitMiddleware } from './middleware/rateLimit';
 import { antiAbuseMiddleware } from './middleware/antiAbuse';
 import { requestLogger } from './middleware/requestLogger';
 import { metricsMiddleware } from './middleware/metrics';
+import { versionHeaders } from './middleware/versionHeaders';
 import { logger } from './utils/logger';
 import routes from './routes';
 import docsRouter from './routes/docs';
@@ -50,9 +51,18 @@ function createApp(): Express {
       origin: config.corsOrigin,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'User-Agent'],
-      exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
+      exposedHeaders: [
+        'X-RateLimit-Limit',
+        'X-RateLimit-Remaining',
+        'X-RateLimit-Reset',
+        'X-API-Version',
+        'X-API-Name',
+      ],
     })
   );
+
+  // Version headers on every response (for deployment checks)
+  app.use(versionHeaders);
 
   // Body parsing middleware
   app.use(express.json({ limit: '10mb' }));
