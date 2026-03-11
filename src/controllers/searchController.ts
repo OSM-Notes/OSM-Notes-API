@@ -7,6 +7,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as searchService from '../services/searchService';
 import { ApiError } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
+import { OSM_ATTRIBUTION } from '../constants/attribution';
 
 /**
  * @swagger
@@ -72,6 +73,7 @@ export async function searchUsers(req: Request, res: Response, next: NextFunctio
     res.json({
       data: results,
       count: results.length,
+      attribution: OSM_ATTRIBUTION,
     });
   } catch (error) {
     next(error);
@@ -152,6 +154,7 @@ export async function searchCountries(
     res.json({
       data: results,
       count: results.length,
+      attribution: OSM_ATTRIBUTION,
     });
   } catch (error) {
     next(error);

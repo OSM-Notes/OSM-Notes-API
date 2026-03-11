@@ -10,6 +10,7 @@ import * as trendsService from '../services/trendsService';
 import { logger } from '../utils/logger';
 import { ApiError } from '../middleware/errorHandler';
 import { TrendsResult } from '../types';
+import { OSM_ATTRIBUTION } from '../constants/attribution';
 
 /**
  * @swagger
@@ -54,6 +55,7 @@ export async function getGlobalAnalytics(
 
     res.json({
       data: globalAnalytics,
+      attribution: OSM_ATTRIBUTION,
     });
   } catch (error) {
     next(error);
@@ -201,7 +203,7 @@ export async function getComparison(
       result = await comparisonService.compareCountries(ids);
     }
 
-    res.json(result);
+    res.json({ ...result, attribution: OSM_ATTRIBUTION });
   } catch (error) {
     next(error);
   }
@@ -320,7 +322,7 @@ export async function getTrends(req: Request, res: Response, next: NextFunction)
 
     const result: TrendsResult = await trendsService.getTrends(params);
 
-    res.json(result);
+    res.json({ ...result, attribution: OSM_ATTRIBUTION });
   } catch (error) {
     next(error);
   }

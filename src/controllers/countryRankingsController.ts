@@ -7,6 +7,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as countryRankingsService from '../services/countryRankingsService';
 import { logger } from '../utils/logger';
 import { CountryRankingsParams, CountryRankingMetric } from '../types';
+import { OSM_ATTRIBUTION } from '../constants/attribution';
 
 /**
  * @swagger
@@ -107,7 +108,7 @@ export async function getCountryRankings(
 
     const result = await countryRankingsService.getCountryRankings(params);
 
-    res.json(result);
+    res.json({ ...result, attribution: OSM_ATTRIBUTION });
   } catch (error) {
     next(error);
   }

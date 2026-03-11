@@ -9,6 +9,10 @@ info:
   description: |
     REST API for OSM Notes Analytics and Ingestion. Provides programmatic access to
     user profiles, country analytics, notes, and real-time metrics.
+
+    Responses that contain data from OpenStreetMap or derivatives include an
+    `attribution` field (text and url) so clients can display proper attribution
+    (e.g. "© OpenStreetMap contributors").
   contact:
     name: OSM Notes Team
   license:
@@ -49,6 +53,19 @@ components:
           type: integer
           description: HTTP status code
           example: 400
+
+    OsmAttribution:
+      type: object
+      description: OpenStreetMap attribution for responses containing OSM data or derivatives.
+      required: [text, url]
+      properties:
+        text:
+          type: string
+          example: "© OpenStreetMap contributors"
+        url:
+          type: string
+          format: uri
+          example: "https://www.openstreetmap.org/copyright"
 
     Note:
       type: object

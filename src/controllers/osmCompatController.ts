@@ -15,6 +15,7 @@ import {
 } from '../utils/osmNoteFormat';
 import type { SearchFilters } from '../types';
 import type { NoteComment } from '../types';
+import { OSM_ATTRIBUTION } from '../constants/attribution';
 
 /**
  * GET /api/0.6/notes?bbox=...&limit=...&closed=...
@@ -78,7 +79,7 @@ export async function getNotesByBbox(
     );
 
     const fc = notesToOsmFeatureCollection(result.data, commentsByNoteId, baseUrl);
-    res.json(fc);
+    res.json({ ...fc, attribution: OSM_ATTRIBUTION });
   } catch (error) {
     next(error);
   }
@@ -135,7 +136,7 @@ export async function searchNotesOsm(
         })
       );
       const fc = notesToOsmFeatureCollection(result.data, commentsByNoteId, baseUrl);
-      res.json(fc);
+      res.json({ ...fc, attribution: OSM_ATTRIBUTION });
       return;
     }
 
@@ -156,7 +157,7 @@ export async function searchNotesOsm(
       })
     );
     const fc = notesToOsmFeatureCollection(result.data, commentsByNoteId, baseUrl);
-    res.json(fc);
+    res.json({ ...fc, attribution: OSM_ATTRIBUTION });
   } catch (error) {
     next(error);
   }
@@ -188,6 +189,7 @@ export async function getNoteByIdOsm(
     const fc = {
       type: 'FeatureCollection' as const,
       features: [feature],
+      attribution: OSM_ATTRIBUTION,
     };
     res.json(fc);
   } catch (error) {

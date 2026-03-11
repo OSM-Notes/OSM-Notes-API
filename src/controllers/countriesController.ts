@@ -9,6 +9,7 @@ import { logger } from '../utils/logger';
 import { ApiError } from '../middleware/errorHandler';
 import { setPaginationHeaders } from '../utils/pagination';
 import { getAppConfig } from '../config/app';
+import { OSM_ATTRIBUTION } from '../constants/attribution';
 
 /**
  * @swagger
@@ -72,6 +73,7 @@ export async function getCountryProfile(
 
     res.json({
       data: countryProfile,
+      attribution: OSM_ATTRIBUTION,
     });
   } catch (error) {
     next(error);
@@ -191,6 +193,7 @@ export async function listCountries(
     res.json({
       data: result.data,
       pagination: result.pagination,
+      attribution: OSM_ATTRIBUTION,
     });
   } catch (error) {
     next(error);

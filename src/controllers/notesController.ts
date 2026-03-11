@@ -11,6 +11,7 @@ import { ApiError } from '../middleware/errorHandler';
 import { SearchFilters, AdvancedSearchFilters, Pagination } from '../types';
 import { validateSearchFilters } from '../middleware/validation';
 import { setPaginationHeaders, setCursorPaginationHeaders } from '../utils/pagination';
+import { OSM_ATTRIBUTION } from '../constants/attribution';
 
 /**
  * @swagger
@@ -70,6 +71,7 @@ export async function getNoteById(req: Request, res: Response, next: NextFunctio
 
     res.json({
       data: note,
+      attribution: OSM_ATTRIBUTION,
     });
   } catch (error) {
     next(error);
@@ -138,6 +140,7 @@ export async function getNoteComments(
     res.json({
       data: comments,
       count: comments.length,
+      attribution: OSM_ATTRIBUTION,
     });
   } catch (error) {
     next(error);
@@ -302,7 +305,7 @@ export async function searchNotes(req: Request, res: Response, next: NextFunctio
         ...filters,
       });
 
-      res.json(result);
+      res.json({ ...result, attribution: OSM_ATTRIBUTION });
       return;
     }
 
@@ -348,7 +351,7 @@ export async function searchNotes(req: Request, res: Response, next: NextFunctio
       setPaginationHeaders(res, result.pagination as Pagination, baseUrl, queryParams);
     }
 
-    res.json(result);
+    res.json({ ...result, attribution: OSM_ATTRIBUTION });
   } catch (error) {
     next(error);
   }

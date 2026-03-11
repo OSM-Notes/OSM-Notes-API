@@ -9,6 +9,7 @@ import { logger } from '../utils/logger';
 import { ApiError } from '../middleware/errorHandler';
 import { HashtagListParams } from '../types';
 import { setPaginationHeaders } from '../utils/pagination';
+import { OSM_ATTRIBUTION } from '../constants/attribution';
 
 /**
  * @swagger
@@ -114,6 +115,7 @@ export async function getHashtags(req: Request, res: Response, next: NextFunctio
     res.json({
       data: result.data,
       pagination: result.pagination,
+      attribution: OSM_ATTRIBUTION,
     });
   } catch (error) {
     next(error);
@@ -211,7 +213,7 @@ export async function getHashtagDetails(
 
     const result = await hashtagService.getHashtagDetails(cleanHashtag);
 
-    res.json(result);
+    res.json({ ...result, attribution: OSM_ATTRIBUTION });
   } catch (error) {
     next(error);
   }

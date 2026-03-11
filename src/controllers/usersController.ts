@@ -9,6 +9,7 @@ import { logger } from '../utils/logger';
 import { ApiError } from '../middleware/errorHandler';
 import { setPaginationHeaders } from '../utils/pagination';
 import { getAppConfig } from '../config/app';
+import { OSM_ATTRIBUTION } from '../constants/attribution';
 
 /**
  * @swagger
@@ -72,6 +73,7 @@ export async function getUserProfile(
 
     res.json({
       data: userProfile,
+      attribution: OSM_ATTRIBUTION,
     });
   } catch (error) {
     next(error);
@@ -187,6 +189,7 @@ export async function listUsers(req: Request, res: Response, next: NextFunction)
     res.json({
       data: result.data,
       pagination: result.pagination,
+      attribution: OSM_ATTRIBUTION,
     });
   } catch (error) {
     next(error);

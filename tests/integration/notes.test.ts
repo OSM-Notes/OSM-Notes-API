@@ -193,6 +193,22 @@ describe('Notes Endpoints', () => {
       }
     });
 
+    it('should include OSM attribution in search response', async () => {
+      const response = await request(app)
+        .get('/notes-api/v1/notes?limit=1')
+        .set('User-Agent', validUserAgent);
+
+      expect([200, 500]).toContain(response.status);
+      if (response.status === 200) {
+        const body = response.body as SearchNotesResponse & {
+          attribution?: { text: string; url: string };
+        };
+        expect(body).toHaveProperty('attribution');
+        expect(body.attribution).toHaveProperty('text', '© OpenStreetMap contributors');
+        expect(body.attribution).toHaveProperty('url', 'https://www.openstreetmap.org/copyright');
+      }
+    });
+
     it('should return 200 with pagination metadata', async () => {
       const response = await request(app)
         .get('/notes-api/v1/notes?page=1&limit=10')
