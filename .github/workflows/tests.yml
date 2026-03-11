@@ -181,26 +181,32 @@ jobs:
 
       - name: Wait for PostgreSQL
         run: |
-          until pg_isready -h localhost -p 5432 -U ${{ env.DB_USER }}; do
+          until pg_isready -h 127.0.0.1 -p 5432 -U ${{ env.DB_USER }}; do
             echo "Waiting for PostgreSQL..."
             sleep 2
           done
 
       - name: Setup test database
         run: |
-          PGPASSWORD=${{ env.DB_PASSWORD }} psql -h localhost -U ${{ env.DB_USER }} -d postgres -c "CREATE DATABASE ${{ env.DB_NAME }};" || true
+          PGPASSWORD=${{ env.DB_PASSWORD }} psql -h 127.0.0.1 -U ${{ env.DB_USER }} -d postgres -c "CREATE DATABASE ${{ env.DB_NAME }};" || true
+        env:
+          PGPASSWORD: ${{ env.DB_PASSWORD }}
+
+      - name: Create database schema
+        run: |
+          PGPASSWORD=${{ env.DB_PASSWORD }} psql -h 127.0.0.1 -U ${{ env.DB_USER }} -d ${{ env.DB_NAME }} -v ON_ERROR_STOP=1 -f scripts/create_schema.sql
         env:
           PGPASSWORD: ${{ env.DB_PASSWORD }}
 
       - name: Run integration tests
         run: npm run test:integration
         env:
-          DB_HOST: localhost
+          DB_HOST: 127.0.0.1
           DB_PORT: 5432
           DB_NAME: ${{ env.DB_NAME }}
           DB_USER: ${{ env.DB_USER }}
           DB_PASSWORD: ${{ env.DB_PASSWORD }}
-          REDIS_HOST: localhost
+          REDIS_HOST: 127.0.0.1
           REDIS_PORT: 6379
           NODE_ENV: test
 
