@@ -61,11 +61,11 @@ components:
       properties:
         text:
           type: string
-          example: "© OpenStreetMap contributors"
+          example: '© OpenStreetMap contributors'
         url:
           type: string
           format: uri
-          example: "https://www.openstreetmap.org/copyright"
+          example: 'https://www.openstreetmap.org/copyright'
 
     Note:
       type: object
