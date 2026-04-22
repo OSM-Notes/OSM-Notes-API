@@ -238,7 +238,7 @@ flowchart TD
 
 1. **RESTful**: Follows REST standards
 2. **JSON**: All responses in JSON
-3. **Versioning**: `/notes-api/v1/` for future compatibility
+3. **Versioning**: `/notes-api/v1/` for the current surface; planned Phase 5 features (OAuth-backed subscriptions, webhooks) use `/notes-api/v2/` ([API Versioning](API_Versioning.md))
 4. **Pagination**: All lists paginated
 5. **Filters**: Standard query parameters
 6. **Documentation**: OpenAPI/Swagger
@@ -2474,7 +2474,7 @@ Total: 12 semanas (~3 meses)
 **Riesgo**: Cambios en datamarts pueden romper API.
 
 **Mitigación**:
-- Versionado de API (`/notes-api/v1/`, `/api/v2/`)
+- Versionado de API (`/notes-api/v1/`, `/notes-api/v2/`)
 - Tests de integración
 - Documentación de cambios
 - Deprecation warnings

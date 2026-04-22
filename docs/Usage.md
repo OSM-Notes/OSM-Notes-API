@@ -46,6 +46,10 @@ User-Agent: MyApp                        # ❌ Missing version and contact
 User-Agent: MyApp/1.0 (invalid)         # ❌ Invalid contact
 ```
 
+### API version prefix
+
+Today’s endpoints are under **`/notes-api/v1/...`**. Phase 5 (OAuth, webhooks, subscriptions) is planned under **`/notes-api/v2/...`**. See [API Versioning](API_Versioning.md).
+
 ### Rate Limiting
 
 - **Anonymous**: 50 requests per 15 minutes per IP + User-Agent combination

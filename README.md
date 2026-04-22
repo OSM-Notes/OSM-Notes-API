@@ -537,6 +537,7 @@ See [docs/PERFORMANCE.md](docs/Performance.md) for performance optimization guid
   - ⏳ Webhook system
   - ⏳ Event subscriptions
   - ⏳ OAuth integration
+  - ⏳ Exposed as **API v2** under `/notes-api/v2/...` ([API Versioning](docs/API_Versioning.md))
 
 ## 🤝 Contributing
 

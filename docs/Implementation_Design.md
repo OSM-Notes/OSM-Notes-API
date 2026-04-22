@@ -2,7 +2,7 @@
 title: "Implementation Design - OSM Notes API"
 description: "Technical design document for REST API implementation. The API is complementary to the static JSON system, not a replacement."
 version: "1.0.0"
-last_updated: "2026-01-25"
+last_updated: "2026-04-22"
 author: "AngocA"
 tags:
   - "architecture"
@@ -20,6 +20,12 @@ status: "active"
 **Fecha**: 2025-12-14  
 **Versión**: 1.1  
 **Basado en**: [API_Proposal.md](./API_Proposal.md)
+
+### Estado de implementación (sincronizado con el repositorio)
+
+- **Fases 1–4**: Completas en el código: endpoints bajo `/notes-api/v1`, operación, documentación, CI y pruebas (ver README del proyecto y checklist de tareas [x] más abajo).
+- **Fase 5** (webhooks, suscripciones, colas, OAuth de producto, **`/notes-api/v2`**): **No implementada**. Lo que resta de este documento en esa sección se considera **pendiente hasta** ese desarrollo; el resto de “elementos de industria” se han consolidado (ver [Elementos adicionales](#elementos-adicionales-lista-histórica-sincronizada-con-el-repositorio)).
+- Sí, **lo que falta en el producto** respecto a este diseño (salvo ítems opcionales) es básicamente **Fase 5**; las mejoras opcionales (APM, tracing, etc.) se listan aparte.
 
 ---
 
@@ -199,7 +205,7 @@ flowchart TD
 **Ejemplo de Integración**:
 ```python
 # Terranote se suscribe a notificaciones
-POST /notes-api/v1/subscriptions
+POST /notes-api/v2/subscriptions
 {
   "type": "area_notes",
   "area": {
@@ -618,12 +624,8 @@ router.get('/users/:user_id',
   getUserProfile
 );
 
-// Ejemplo de endpoint que requiere OAuth (Fase 5)
-router.post('/subscriptions',
-  generalLimiter,
-  requireAuth, // OAuth requerido
-  createSubscription
-);
+// Fase 5 / API v2: suscripciones van en un router distinto montado en /notes-api/v2
+// p. ej. v2Router.post('/subscriptions', generalLimiter, requireAuth, createSubscription);
 
 router.get('/users', 
   generalLimiter,
@@ -794,7 +796,7 @@ export async function getUserProfileService(userId: number) {
 - ✅ Fácil agregar nuevos endpoints
 - ✅ Base para webhooks y notificaciones
 - ✅ **Autenticación OAuth preparada**: Arquitectura lista para agregar OAuth cuando sea necesario (ver sección "Análisis: ¿Requerir OAuth de OSM?")
-- ✅ Versionado de API (`/notes-api/v1/`, `/api/v2/`)
+- ✅ Versionado de API (`/notes-api/v1/`, `/notes-api/v2/`)
 
 **Impacto**: Medio - Beneficio a largo plazo
 
@@ -1606,12 +1608,12 @@ Endpoints Públicos (sin OAuth):
 ├── GET /notes-api/v1/analytics/global     # Estadísticas globales
 └── GET /notes-api/v1/search/*             # Búsquedas públicas
 
-Endpoints con OAuth (requerido):
-├── POST /notes-api/v1/subscriptions       # Crear suscripción
-├── GET /notes-api/v1/subscriptions        # Mis suscripciones
-├── DELETE /notes-api/v1/subscriptions/{id} # Eliminar suscripción
-├── GET /notes-api/v1/preferences           # Preferencias de usuario
-└── POST /notes-api/v1/webhooks/test       # Probar webhook
+Endpoints con OAuth (requerido) — **API v2** (Fase 5):
+├── POST /notes-api/v2/subscriptions       # Crear suscripción
+├── GET /notes-api/v2/subscriptions        # Mis suscripciones
+├── DELETE /notes-api/v2/subscriptions/{id} # Eliminar suscripción
+├── GET /notes-api/v2/preferences           # Preferencias de usuario
+└── POST /notes-api/v2/webhooks/test       # Probar webhook
 ```
 
 **Pros**:
@@ -1704,7 +1706,7 @@ osm_token = get_osm_token_for_user(user_id)
 
 # Crear suscripción con OAuth
 response = requests.post(
-    'https://notes-api.osm.lat/v1/subscriptions',
+    'https://notes-api.osm.lat/notes-api/v2/subscriptions',
     headers={
         'Authorization': f'Bearer {osm_token}',
         'User-Agent': 'Terranote/1.0 (https://github.com/Terranote)'
@@ -2193,7 +2195,9 @@ export const oauthConfig = {
 - ✅ Tests de carga (k6 o Artillery)
 - ✅ Tests de seguridad (OWASP ZAP básico)
 
-### Fase 5: Notificaciones y Webhooks (Futuro - 4-6 semanas)
+### Fase 5: Notificaciones y Webhooks (API v2 — Futuro - 4-6 semanas)
+
+**Versionado**: La Fase 5 se publica bajo **`/notes-api/v2`**. La v1 sigue cubriendo lectura y análisis (fases 1-4); suscripciones, webhooks y preferencias bajo OAuth usan v2 (véase [API Versioning](API_Versioning.md)).
 
 **Objetivos**:
 - ✅ Sistema de webhooks para notificaciones push
@@ -2202,12 +2206,12 @@ export const oauthConfig = {
 - ✅ Sistema de colas para entrega de notificaciones
 - ✅ Retry y manejo de fallos en webhooks
 
-**Endpoints Adicionales**:
-- `POST /notes-api/v1/subscriptions` - Crear suscripción
-- `GET /notes-api/v1/subscriptions` - Listar suscripciones
-- `DELETE /notes-api/v1/subscriptions/{id}` - Eliminar suscripción
-- `GET /notes-api/v1/subscriptions/{id}/events` - Historial de eventos
-- `POST /notes-api/v1/webhooks/test` - Probar webhook
+**Endpoints adicionales** (todos bajo el prefijo `/notes-api/v2`):
+- `POST /notes-api/v2/subscriptions` - Crear suscripción
+- `GET /notes-api/v2/subscriptions` - Listar suscripciones
+- `DELETE /notes-api/v2/subscriptions/{id}` - Eliminar suscripción
+- `GET /notes-api/v2/subscriptions/{id}/events` - Historial de eventos
+- `POST /notes-api/v2/webhooks/test` - Probar webhook
 
 **Casos de Uso**:
 - **Terranote**: Notificaciones de nuevas notas en área de interés
@@ -3498,7 +3502,7 @@ jobs:
   - [x] Verificar health checks
   - [x] Verificar monitoreo
   - [x] Documentar proceso de deployment (`docs/Deployment_Production.md`)
-  - [ ] Actualizar CHANGELOG.md con release v1.0.0 (cuando se etiquete)
+  - [ ] Actualizar `CHANGELOG.md` con entrada explícita de release v1.0.0 (cuando se **etiquete** una versión en git; el archivo ya existe y se mantiene)
 
 **Entregables Fase 4**:
 - ✅ API optimizada (scripts de optimización creados, cache implementado)
@@ -3510,73 +3514,75 @@ jobs:
 
 ---
 
-## FASE 5: Webhooks y Notificaciones (4-6 semanas)
+## FASE 5: Webhooks y Notificaciones (API v2 — 4-6 semanas)
 
 ### Semana 13-15: Sistema de Colas y Webhooks
 
-- [ ] **38. Sistema de Colas (TDD)**
+*Numeración F5.x para no solapar con tareas 1–41 de fases 1–4.*
+
+- [ ] **F5.1. Sistema de Colas (TDD)**
   - [ ] Tests primero
   - [ ] Configurar BullMQ con Redis
   - [ ] Crear workers para procesar eventos
   - [ ] Tests de colas
   - [ ] Documentación
 
-- [ ] **39. Detección de Eventos**
+- [ ] **F5.2. Detección de Eventos**
   - [ ] Tests primero
   - [ ] Detectar nuevas notas
   - [ ] Detectar nuevos comentarios
   - [ ] Tests de detección
   - [ ] Documentación
 
-- [ ] **40. Sistema de Suscripciones (TDD)**
+- [ ] **F5.3. Sistema de Suscripciones (TDD)**
   - [ ] Tests primero
   - [ ] Modelo de datos para suscripciones
-  - [ ] `POST /notes-api/v1/subscriptions`
-  - [ ] `GET /notes-api/v1/subscriptions`
-  - [ ] `DELETE /notes-api/v1/subscriptions/:id`
+  - [ ] `POST /notes-api/v2/subscriptions`
+  - [ ] `GET /notes-api/v2/subscriptions`
+  - [ ] `DELETE /notes-api/v2/subscriptions/:id`
   - [ ] Tests de integración
   - [ ] Documentación
 
-- [ ] **41. Webhooks (TDD)**
+- [ ] **F5.4. Webhooks (TDD)**
   - [ ] Tests primero
   - [ ] Envío de webhooks
   - [ ] Retry automático
   - [ ] Manejo de fallos
-  - [ ] `POST /notes-api/v1/webhooks/test`
+  - [ ] `POST /notes-api/v2/webhooks/test`
   - [ ] Tests de integración
   - [ ] Documentación
 
-- [ ] **42. OAuth para Suscripciones**
-  - [ ] Implementar OAuth opcional
-  - [ ] OAuth requerido para suscripciones
+- [ ] **F5.5. OAuth para Suscripciones**
+  - [ ] Implementar OAuth (flujo y validación de token)
+  - [ ] OAuth requerido para suscripciones y webhooks
   - [ ] Tests de OAuth
   - [ ] Documentación
 
-**Entregables Fase 5**:
-- ✅ Sistema de colas funcionando
-- ✅ Detección de eventos funcionando
-- ✅ Suscripciones funcionando
-- ✅ Webhooks funcionando
-- ✅ OAuth funcionando
-- ✅ Tests pasando
-- ✅ Documentación actualizada
+**Entregables Fase 5** (todos **pendientes** hasta implementar esta fase):
+
+- ⏳ Sistema de colas funcionando
+- ⏳ Detección de eventos funcionando
+- ⏳ Suscripciones funcionando
+- ⏳ Webhooks funcionando
+- ⏳ OAuth funcionando (más allá de variables de entorno y *placeholders* en código)
+- ⏳ Tests y documentación actualizada para v2
 
 ---
 
 ## Checklist de Calidad por Tarea
 
-Para cada tarea de desarrollo, verificar:
+Criterio verificado para el código entregado en **fases 1–4**. Aplicar de nuevo a cada nueva tarea (p. ej. **Fase 5**).
 
-- [ ] **Tests escritos primero (TDD)** donde sea posible
-- [ ] **Tests pasando** (unitarios + integración)
-- [ ] **Código documentado** con JSDoc
-- [ ] **Logging estructurado** agregado
-- [ ] **Estándares de código** aplicados (ESLint + Prettier)
-- [ ] **OpenAPI spec** actualizada
-- [ ] **README.md** actualizado si es necesario
-- [ ] **docs/INSTALLATION.md** actualizado si cambia instalación
-- [ ] **docs/USAGE.md** actualizado con nuevos endpoints/features
-- [ ] **Cobertura de tests** mantenida o aumentada
+- [x] **Tests escritos primero (TDD)** donde sea posible
+- [x] **Tests pasando** (unitarios + integración)
+- [x] **Código documentado** con JSDoc
+- [x] **Logging estructurado** agregado
+- [x] **Estándares de código** aplicados (ESLint + Prettier)
+- [x] **OpenAPI spec** actualizada
+- [x] **README.md** actualizado si es necesario
+- [x] **docs/Installation.md** actualizado si cambia instalación
+- [x] **docs/Usage.md** actualizado con nuevos endpoints/features
+- [x] **Cobertura de tests** mantenida o aumentada
 
 ---
 
@@ -3584,31 +3590,27 @@ Para cada tarea de desarrollo, verificar:
 
 ```
 docs/
-├── INSTALLATION.md          # Manual de instalación completo
-├── USAGE.md                 # Manual de uso completo
-├── API.md                   # Referencia completa de API
-├── API_VERSIONING.md        # Estrategia de versionado de API
-├── TROUBLESHOOTING.md       # Solución de problemas comunes
-├── RUNBOOK.md               # Operaciones y mantenimiento
-├── DEVELOPMENT.md           # Guía para desarrolladores
-├── PERFORMANCE.md           # Benchmarks y métricas de performance
-├── SLA.md                   # Service Level Agreements/Objectives
-├── adr/                     # Architecture Decision Records
-│   ├── 0001-nodejs-express.md
-│   ├── 0002-redis-cache.md
-│   └── 0003-oauth-hybrid.md
+├── Installation.md            # Manual de instalación
+├── Usage.md                  # Manual de uso
+├── API.md
+├── API_Versioning.md         # Estrategia de versionado
+├── Troubleshooting.md
+├── Runbook.md
+├── Development.md
+├── Performance.md
+├── Sla.md
+├── adr/                      # ADRs (p. ej. 0001_…, 0002_…)
 ├── security/
-│   ├── THREAT_MODEL.md      # Análisis de amenazas
-│   ├── SECRETS.md           # Gestión de secretos
-│   ├── SECURITY_POLICY.md   # Política de seguridad
-│   └── SECURITY_RESPONSE.md # Plan de respuesta a incidentes
+│   ├── Threat_Model.md
+│   ├── Secrets.md
+│   └── Security_Policy.md   # (documento dedicado SECURITY_RESPONSE: opcional)
 ├── legal/
-│   ├── TERMS_OF_SERVICE.md  # Términos de uso
-│   └── PRIVACY_POLICY.md    # Política de privacidad
+│   ├── Terms_Of_Service.md
+│   └── Privacy_Policy.md
 └── operations/
-    ├── DISASTER_RECOVERY.md # Plan de recuperación
-    ├── BACKUP_STRATEGY.md    # Estrategia de backups
-    └── CAPACITY_PLANNING.md # Planificación de capacidad
+    ├── Disaster_Recovery.md
+    ├── Backup_Strategy.md
+    └── Capacity_Planning.md
 ```
 
 **Archivos en Raíz**:
@@ -3625,7 +3627,7 @@ docs/
 
 ---
 
-**Estado**: Plan detallado completo, listo para comenzar implementación fase por fase.
+**Estado del documento**: El plan de fases 1–4 se implementó; **Fase 5** sigue planificada. La sección [Elementos adicionales](#elementos-adicionales-lista-histórica-sincronizada-con-el-repositorio) refleja el repositorio actual frente a la lista histórica de “estándares de industria”.
 
 ---
 
@@ -3678,382 +3680,36 @@ docs/
 
 ---
 
-### Elementos Adicionales Recomendados por Estándares de la Industria
-
-#### 1. Arquitectura y Decisiones
-
-**Faltante**: Architecture Decision Records (ADRs)
-- **Qué es**: Documentos que capturan decisiones arquitectónicas importantes
-- **Por qué**: Trazabilidad de decisiones, conocimiento compartido
-- **Cuándo agregar**: Fase 1, cuando se tomen decisiones importantes
-
-**Tareas**:
-- [ ] Crear `docs/adr/` directory
-- [ ] Template para ADRs
-- [ ] ADR-001: Decisión de usar Node.js + Express
-- [ ] ADR-002: Decisión de usar Redis para cache
-- [ ] ADR-003: Decisión de enfoque híbrido OAuth
-- [ ] ADR-004: Decisión de rate limiting restrictivo
-
-**Faltante**: Diagramas de Arquitectura
-- **Qué es**: Diagramas visuales de la arquitectura
-- **Por qué**: Comunicación visual, onboarding más rápido
-- **Cuándo agregar**: Fase 1
-
-**Tareas**:
-- [ ] Crear diagrama de arquitectura general (C4 Model nivel 1)
-- [ ] Crear diagrama de componentes (C4 Model nivel 2)
-- [ ] Crear diagrama de flujo de datos
-- [ ] Crear diagrama de secuencia para endpoints principales
-- [ ] Usar herramientas: Mermaid, PlantUML, o draw.io
-
-#### 2. Seguridad Avanzada
-
-**Faltante**: Threat Modeling
-- **Qué es**: Análisis sistemático de amenazas potenciales
-- **Por qué**: Identificar vulnerabilidades antes de implementar
-- **Cuándo agregar**: Fase 1, antes de desarrollo
-
-**Tareas**:
-- [ ] Crear `docs/security/THREAT_MODEL.md`
-- [ ] Identificar activos (datos, endpoints, infraestructura)
-- [ ] Identificar amenazas (OWASP Top 10)
-- [ ] Mitigaciones para cada amenaza
-- [ ] Revisar periódicamente
-
-**Faltante**: Security Policy y Security Response Plan
-- **Qué es**: Política de seguridad y plan de respuesta a incidentes
-- **Por qué**: Estándar de la industria, necesario para producción
-- **Cuándo agregar**: Fase 4 (Producción)
-
-**Tareas**:
-- [ ] Crear `docs/security/SECURITY_POLICY.md`
-- [ ] Crear `docs/security/SECURITY_RESPONSE.md`
-- [ ] Definir proceso de reporte de vulnerabilidades
-- [ ] Definir proceso de respuesta a incidentes
-- [ ] Contacto de seguridad
-
-**Faltante**: Secrets Management
-- **Qué es**: Gestión segura de secretos (API keys, passwords)
-- **Por qué**: Seguridad, compliance
-- **Cuándo agregar**: Fase 1
-
-**Tareas**:
-- [ ] Documentar uso de variables de entorno
-- [ ] Nunca commitear secretos
-- [ ] Usar `.env.example` sin valores reales
-- [ ] Considerar herramientas: HashiCorp Vault, AWS Secrets Manager (si escala)
-
-**Faltante**: Dependency Scanning y Updates
-- **Qué es**: Escaneo automático de vulnerabilidades en dependencias
-- **Por qué**: Seguridad continua
-- **Cuándo agregar**: Fase 1
-
-**Tareas**:
-- [ ] Configurar `npm audit` en CI/CD
-- [ ] Configurar Dependabot o Renovate
-- [ ] Política de actualización de dependencias
-- [ ] Documentar proceso de actualización
-
-#### 3. Observabilidad Avanzada
-
-**Faltante**: Distributed Tracing
-- **Qué es**: Trazabilidad de requests a través de servicios
-- **Por qué**: Debugging complejo, performance analysis
-- **Cuándo agregar**: Fase 3 (si hay múltiples servicios) o Fase 4
-
-**Tareas**:
-- [ ] Evaluar necesidad (actualmente es un solo servicio)
-- [ ] Si se escala a microservicios: implementar OpenTelemetry
-- [ ] Integrar con Jaeger o Zipkin
-
-**Faltante**: Application Performance Monitoring (APM)
-- **Qué es**: Monitoreo profundo de performance de aplicación
-- **Por qué**: Identificar bottlenecks, optimización proactiva
-- **Cuándo agregar**: Fase 4 (Producción)
-
-**Tareas**:
-- [ ] Evaluar herramientas: New Relic, Datadog, Elastic APM (gratis)
-- [ ] Implementar si es necesario según volumen
-- [ ] Actualmente Prometheus puede ser suficiente
-
-**Faltante**: Log Aggregation y Analysis
-- **Qué es**: Centralización y análisis de logs
-- **Por qué**: Debugging, análisis de patrones
-- **Cuándo agregar**: Fase 4 (Producción)
-
-**Tareas**:
-- [ ] Evaluar herramientas: ELK Stack, Loki, CloudWatch
-- [ ] Configurar si volumen de logs lo requiere
-- [ ] Actualmente logging estructurado puede ser suficiente
-
-#### 4. Calidad y Procesos
-
-**Faltante**: Code Review Process
-- **Qué es**: Proceso definido de revisión de código
-- **Por qué**: Calidad, conocimiento compartido
-- **Cuándo agregar**: Fase 1
-
-**Tareas**:
-- [ ] Crear `docs/DEVELOPMENT.md` con proceso de code review
-- [ ] Definir checklist de revisión
-- [ ] Configurar branch protection en GitHub
-- [ ] Requerir aprobación antes de merge
-
-**Faltante**: Conventional Commits
-- **Qué es**: Estándar de mensajes de commit
-- **Por qué**: Historial claro, changelog automático
-- **Cuándo agregar**: Fase 1
-
-**Tareas**:
-- [ ] Adoptar Conventional Commits
-- [ ] Configurar commitlint
-- [ ] Generar CHANGELOG.md automáticamente
-- [ ] Documentar en `docs/DEVELOPMENT.md`
-
-**Faltante**: Semantic Versioning
-- **Qué es**: Versionado semántico (MAJOR.MINOR.PATCH)
-- **Por qué**: Estándar de la industria, comunicación clara
-- **Cuándo agregar**: Fase 1
-
-**Tareas**:
-- [ ] Adoptar Semantic Versioning
-- [ ] Documentar política de versionado
-- [ ] Versionar API (`/notes-api/v1`, `/api/v2`)
-- [ ] Documentar breaking changes
-
-**Faltante**: Changelog
-- **Qué es**: Registro de cambios por versión
-- **Por qué**: Transparencia, comunicación con usuarios
-- **Cuándo agregar**: Fase 1
-
-**Tareas**:
-- [ ] Crear `CHANGELOG.md`
-- [ ] Mantener actualizado en cada release
-- [ ] Usar formato Keep a Changelog
-- [ ] Generar automáticamente con herramientas
-
-#### 5. Documentación Adicional
-
-**Faltante**: Contributing Guide
-- **Qué es**: Guía para contribuidores
-- **Por qué**: Estándar de proyectos open source
-- **Cuándo agregar**: Fase 1
-
-**Tareas**:
-- [ ] Crear `CONTRIBUTING.md`
-- [ ] Proceso de contribución
-- [ ] Estándares de código
-- [ ] Proceso de PRs
-- [ ] Cómo reportar bugs
-
-**Faltante**: Code of Conduct
-- **Qué es**: Código de conducta para la comunidad
-- **Por qué**: Estándar de proyectos open source
-- **Cuándo agregar**: Fase 1 (si es open source)
-
-**Tareas**:
-- [ ] Crear `CODE_OF_CONDUCT.md`
-- [ ] Usar Contributor Covenant (estándar)
-- [ ] Definir proceso de reporte
-
-**Faltante**: License
-- **Qué es**: Licencia del proyecto
-- **Por qué**: Legal, necesario para open source
-- **Cuándo agregar**: Fase 1
-
-**Tareas**:
-- [ ] Elegir licencia (MIT, Apache 2.0, GPL, etc.)
-- [ ] Crear `LICENSE` file
-- [ ] Documentar en README.md
-
-**Faltante**: API Versioning Strategy
-- **Qué es**: Estrategia de versionado de API
-- **Por qué**: Compatibilidad, evolución
-- **Cuándo agregar**: Fase 1
-
-**Tareas**:
-- [ ] Documentar estrategia de versionado
-- [ ] Política de deprecación
-- [ ] Timeline de soporte de versiones
-- [ ] Comunicación de breaking changes
-
-**Faltante**: SLA/SLOs Definidos
-- **Qué es**: Service Level Agreements/Objectives
-- **Por qué**: Expectativas claras, métricas de éxito
-- **Cuándo agregar**: Fase 4 (Producción)
-
-**Tareas**:
-- [ ] Definir SLAs (disponibilidad, latencia)
-- [ ] Definir SLOs (objetivos medibles)
-- [ ] Documentar en `docs/SLA.md`
-- [ ] Monitorear y reportar
-
-#### 6. Legal y Compliance
-
-**Faltante**: Terms of Service / API Terms
-- **Qué es**: Términos de uso de la API
-- **Por qué**: Legal, protección
-- **Cuándo agregar**: Fase 4 (Producción)
-
-**Tareas**:
-- [ ] Crear `docs/legal/TERMS_OF_SERVICE.md`
-- [ ] Definir uso aceptable
-- [ ] Límites de responsabilidad
-- [ ] Política de cancelación
-
-**Faltante**: Privacy Policy
-- **Qué es**: Política de privacidad
-- **Por qué**: Legal, GDPR compliance
-- **Cuándo agregar**: Fase 4 (Producción)
-
-**Tareas**:
-- [ ] Crear `docs/legal/PRIVACY_POLICY.md`
-- [ ] Qué datos se recopilan
-- [ ] Cómo se usan
-- [ ] Derechos de usuarios
-
-#### 7. Operaciones Avanzadas
-
-**Faltante**: Disaster Recovery Plan
-- **Qué es**: Plan de recuperación ante desastres
-- **Por qué**: Continuidad del negocio
-- **Cuándo agregar**: Fase 4 (Producción)
-
-**Tareas**:
-- [ ] Crear `docs/operations/DISASTER_RECOVERY.md`
-- [ ] Escenarios de desastre
-- [ ] Procedimientos de recuperación
-- [ ] RTO/RPO definidos
-
-**Faltante**: Backup Strategy
-- **Qué es**: Estrategia de backups
-- **Por qué**: Protección de datos
-- **Cuándo agregar**: Fase 4 (Producción)
-
-**Tareas**:
-- [ ] Documentar estrategia de backups
-- [ ] Frecuencia de backups
-- [ ] Retención
-- [ ] Proceso de restauración
-
-**Faltante**: Capacity Planning
-- **Qué es**: Planificación de capacidad
-- **Por qué**: Escalabilidad proactiva
-- **Cuándo agregar**: Fase 4 (Producción)
-
-**Tareas**:
-- [ ] Documentar métricas de capacidad
-- [ ] Límites actuales
-- [ ] Plan de escalado
-- [ ] Monitoreo de capacidad
-
-#### 8. Testing Avanzado
-
-**Faltante**: Contract Testing (Pact)
-- **Qué es**: Tests de contrato entre servicios
-- **Por qué**: Compatibilidad garantizada
-- **Cuándo agregar**: Fase 5 (si hay integraciones complejas)
-
-**Tareas**:
-- [ ] Evaluar necesidad
-- [ ] Implementar Pact si hay múltiples servicios
-- [ ] Tests de contrato con consumidores
-
-**Faltante**: Mutation Testing
-- **Qué es**: Tests de mutación para validar calidad de tests
-- **Por qué**: Validar que tests realmente prueban código
-- **Cuándo agregar**: Fase 4 (opcional, avanzado)
-
-**Tareas**:
-- [ ] Evaluar herramientas (Stryker)
-- [ ] Implementar si es necesario
-- [ ] Objetivo: validar calidad de tests
-
-#### 9. Performance
-
-**Faltante**: Performance Benchmarks
-- **Qué es**: Benchmarks de performance documentados
-- **Por qué**: Línea base, comparación
-- **Cuándo agregar**: Fase 4
-
-**Tareas**:
-- [ ] Ejecutar benchmarks iniciales
-- [ ] Documentar resultados
-- [ ] Establecer objetivos
-- [ ] Re-ejecutar periódicamente
-
-**Faltante**: Load Testing Strategy
-- **Qué es**: Estrategia completa de pruebas de carga
-- **Por qué**: Validar escalabilidad
-- **Cuándo agregar**: Fase 3-4
-
-**Tareas**:
-- [ ] Definir escenarios de carga
-- [ ] Ejecutar regularmente
-- [ ] Documentar resultados
-- [ ] Optimizar según resultados
-
----
-
-### Plan de Implementación de Elementos Adicionales
-
-#### Prioridad ALTA (Agregar en Fase 1)
-
-1. **ADRs** - Architecture Decision Records
-2. **Diagramas de Arquitectura** - C4 Model
-3. **Threat Modeling** - Análisis de seguridad
-4. **Code Review Process** - Proceso definido
-5. **Conventional Commits** - Estándar de commits
-6. **Semantic Versioning** - Versionado semántico
-7. **Changelog** - Registro de cambios
-8. **CONTRIBUTING.md** - Guía de contribución
-9. **LICENSE** - Licencia del proyecto
-10. **API Versioning Strategy** - Estrategia documentada
-11. **Secrets Management** - Documentación
-12. **Dependency Scanning** - CI/CD
-
-#### Prioridad MEDIA (Agregar en Fase 2-3)
-
-1. **Security Policy** - Política de seguridad
-2. **Performance Benchmarks** - Benchmarks iniciales
-3. **Load Testing Strategy** - Estrategia completa
-
-#### Prioridad BAJA (Agregar en Fase 4 - Producción)
-
-1. **SLA/SLOs** - Service Level Agreements
-2. **Terms of Service** - Términos de uso
-3. **Privacy Policy** - Política de privacidad
-4. **Disaster Recovery Plan** - Plan de recuperación
-5. **Backup Strategy** - Estrategia de backups
-6. **Capacity Planning** - Planificación de capacidad
-7. **APM** - Si es necesario según volumen
-8. **Log Aggregation** - Si es necesario según volumen
-
-#### Opcional (Según Necesidad)
-
-1. **Distributed Tracing** - Solo si hay múltiples servicios
-2. **Contract Testing** - Solo si hay integraciones complejas
-3. **Mutation Testing** - Avanzado, opcional
-
----
-
-### Resumen: Cumplimiento con Estándares
-
-**Cumplimiento Actual**: ~75%
-
-**Elementos Críticos Faltantes**:
-- ❌ ADRs (Architecture Decision Records)
-- ❌ Diagramas de Arquitectura
-- ❌ Threat Modeling
-- ❌ Code Review Process definido
-- ❌ Conventional Commits
-- ❌ Changelog
-- ❌ Contributing Guide
-- ❌ License
-- ❌ API Versioning Strategy documentada
-
-**Recomendación**: Agregar elementos de Prioridad ALTA en Fase 1 para alcanzar ~90% de cumplimiento con estándares de la industria.
+### Elementos adicionales (lista histórica sincronizada con el repositorio)
+
+La subsección original enumeraba tareas “de industria” como si faltaran casi todas. Tras **sincronizar** con el árbol actual del repositorio, el cuadro es el siguiente.
+
+**Fases 1–4**: Completas; lo que aquí se listaba en gran parte **ya está hecho** (archivos creados, CI, legal, operaciones).
+
+**Fase 5**: Lo que aún no existe a nivel de producto (webhooks, suscripciones, colas, OAuth con endpoints v2) **no depende** de esta lista; está descrito en la sección **FASE 5** de este mismo documento.
+
+| Área | Estado en repo | Nota |
+|------|----------------|------|
+| ADRs | Hecho | `docs/adr/` (0001–0005, plantilla) |
+| Arquitectura (texto) | Hecho | `docs/Architecture.md` |
+| Diagramas C4 formales / secuencia | Opcional | Ampliar con Mermaid o herramientas externas si se requiere más detalle gráfico |
+| Threat model | Hecho | `docs/security/Threat_Model.md` |
+| Política y secretos | Hecho | `docs/security/Security_Policy.md`, `Secrets.md` |
+| Plan `SECURITY_RESPONSE.md` dedicado | No hay archivo separado | La política y el runbook cubren parte del tema; documento específico **opcional** |
+| `npm audit` + Dependabot | Hecho | `.github/workflows/tests.yml` (job de auditoría), `.github/dependabot.yml` |
+| Changelog, contribución, licencia, CoC | Hecho | `CHANGELOG.md`, `CONTRIBUTING.md`, `LICENSE`, `CODE_OF_CONDUCT.md` |
+| Versionado de API (política) | Hecho | `docs/API_Versioning.md` |
+| Instalación, uso, desarrollo | Hecho | `docs/Installation.md`, `docs/Usage.md`, `docs/Development.md` |
+| Legal y SLA/operaciones | Hecho | `docs/legal/`, `docs/Sla.md`, `docs/operations/` |
+| OpenAPI v1 / benchmarks / k6 | Hecho / previsto | Especificación bajo `openapi/` y Common; `docs/Performance.md`, `tests/load/` |
+| Protección de ramas / commitlint en CI | Parcial / opcional | Guía: `.github/COMMIT_GUIDE.md`; *commitlint* no es obligatorio en el pipeline |
+| APM, agregación central de logs, OpenTelemetry | Opcional | Solo si el volumen o la arquitectura lo exigen |
+| Pact, mutation testing (Stryker) | Opcional | Valuable pero no requisito del estado actual |
+| **OAuth de producto (flujo) + v2** | **Pendiente (Fase 5)** | Variables en `env`; sin router `/notes-api/v2` aún |
+
+### Resumen: cumplimiento (actualizado)
+
+**Cumplimiento estimado** frente a una baseline razonable de documentación, seguridad básica y operación: **~90%**. Los “huecos” relevantes en código son los ya acotados a **Fase 5** y, si se desea, refinamientos opcionales de la tabla (tracing, APM, documento de respuesta a incidentes separado, diagramas C4 explícitos).
 
 ---
 

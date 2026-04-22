@@ -107,7 +107,7 @@ User-Agent: MyApp/1.0 (invalid)         # Invalid contact format
 
 ### OAuth Authentication (Future)
 
-OAuth authentication will be available in Phase 5 for higher rate limits and access to advanced features.
+OAuth authentication will be available in Phase 5 for higher rate limits and access to advanced features. Those features (subscriptions, webhooks, and related endpoints) are planned under the **`/notes-api/v2`** path prefix; see [API Versioning](API_Versioning.md).
 
 ---
 

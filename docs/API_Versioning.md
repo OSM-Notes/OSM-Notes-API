@@ -2,7 +2,7 @@
 title: "API Versioning Strategy"
 description: "This document outlines the API versioning strategy for OSM Notes API."
 version: "1.0.0"
-last_updated: "2026-01-25"
+last_updated: "2026-04-22"
 author: "AngocA"
 tags:
   - "api"
@@ -125,15 +125,24 @@ Migration guides include:
 ### v1 (Current)
 
 - **Status**: Active development
-- **Released**: TBD
+- **Released**: 2026-04-30
 - **Endpoints**: All MVP endpoints
 - **Breaking Changes**: None (initial version)
 
-### Future Versions
+### v2 (Planned)
 
-- **v2**: Planned for Phase 5 (Webhooks and Notifications)
-  - May include breaking changes for subscription endpoints
-  - Timeline: TBD
+**Scope**: Phase 5 (webhooks, push notifications, and related features) in [Implementation_Design](Implementation_Design.md) (Fase 5). All new URL paths in this release use the **`/notes-api/v2`** prefix; v1 remains the stable surface for read/search/analytics from earlier phases.
+
+**Planned contents**:
+
+- **OAuth (OpenStreetMap)**: Required for subscription and webhook management in v2 (stable user identity; authenticated rate limits as in the API docs).
+- **Subscriptions**: Create, list, and delete subscriptions (e.g. areas, notes, users) and event history where applicable.
+- **Webhooks**: Outbound push notifications, delivery queue, retries, and failure handling; includes endpoints such as a webhook test call for integration checks.
+
+**Compatibility**: Introducing authentication requirements and new resource shapes for these features is a **major** API bump. Clients that only use public read-only v1 endpoints are unaffected until they opt into v2. Exact breaking changes and migration steps will be documented in `docs/migration/v1-to-v2.md` when v2 is released.
+
+- **Status**: Not released
+- **Timeline**: TBD (Phase 5)
 
 ## Best Practices for Clients
 
