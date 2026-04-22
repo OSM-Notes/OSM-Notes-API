@@ -131,6 +131,7 @@ export interface UserProfile {
   date_starting_solving_notes?: Date | string | null;
   last_year_activity?: string | null;
   working_hours_of_week_opening?: unknown; // JSON array (number[])
+  /** Derived in API from history_YYYY_open / history_YYYY_closed (optional legacy column activity_by_year) */
   activity_by_year?: unknown; // JSON object
 }
 
@@ -156,6 +157,7 @@ export interface CountryProfile {
   users_open_notes?: unknown; // JSON array
   applications_used?: unknown; // JSON array
   hashtags?: unknown; // JSON array (string[])
+  /** Derived in API from history_YYYY_open / history_YYYY_closed (optional legacy column activity_by_year) */
   activity_by_year?: unknown; // JSON object
   working_hours_of_week_opening?: unknown; // JSON array (number[])
 }

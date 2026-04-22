@@ -1,14 +1,18 @@
 -- Database Schema Creation Script for OSM Notes API
--- Creates all required tables for the API to function
--- 
+-- Creates all required tables for the API to function.
+--
+-- SCOPE: Testing and CI only. In production, the schema is created and maintained
+-- by the sibling project osm_notes_analytics. Keep this script in sync with that
+-- project's schema (e.g. export from there or copy DDL) to avoid API/DB drift.
+--
 -- Usage:
---   # For local testing (osm_notes_api_test):
+--   # Local testing (osm_notes_api_test):
 --   psql -U $(whoami) -d osm_notes_api_test -f scripts/create_schema.sql
 --
---   # For production (osm_notes_dwh):
---   psql -h $DB_HOST -U $DB_USER -d osm_notes_dwh -f scripts/create_schema.sql
+--   # CI (GitHub Actions): run automatically before integration tests.
 --
--- Note: This script creates the table structure. You need to populate it with data separately.
+-- Note: This script creates the table structure. Populate data separately
+-- (e.g. scripts/insert_sample_data.sql or osm_notes_analytics pipelines).
 
 \echo '================================================================================'
 \echo 'Creating OSM Notes API Database Schema'
@@ -112,6 +116,7 @@ CREATE SCHEMA IF NOT EXISTS dwh;
 -- Table: datamartUsers
 CREATE TABLE IF NOT EXISTS dwh.datamartUsers (
   dimension_user_id INTEGER PRIMARY KEY,
+  dimension_country_id INTEGER NULL,
   user_id INTEGER NOT NULL UNIQUE,
   username VARCHAR(255) NULL,
   history_whole_open INTEGER DEFAULT 0,
@@ -129,7 +134,12 @@ CREATE TABLE IF NOT EXISTS dwh.datamartUsers (
   date_starting_solving_notes DATE NULL,
   last_year_activity TEXT NULL,
   working_hours_of_week_opening JSONB NULL,
-  activity_by_year JSONB NULL
+  history_2020_open INTEGER NULL,
+  history_2020_closed INTEGER NULL,
+  history_2021_open INTEGER NULL,
+  history_2021_closed INTEGER NULL,
+  history_year_open INTEGER NULL,
+  history_year_closed INTEGER NULL
 );
 
 COMMENT ON TABLE dwh.datamartUsers IS 'Pre-aggregated user analytics';
@@ -157,8 +167,13 @@ CREATE TABLE IF NOT EXISTS dwh.datamartCountries (
   users_open_notes JSONB NULL,
   applications_used JSONB NULL,
   hashtags JSONB NULL,
-  activity_by_year JSONB NULL,
-  working_hours_of_week_opening JSONB NULL
+  working_hours_of_week_opening JSONB NULL,
+  history_2020_open INTEGER NULL,
+  history_2020_closed INTEGER NULL,
+  history_2021_open INTEGER NULL,
+  history_2021_closed INTEGER NULL,
+  history_year_open INTEGER NULL,
+  history_year_closed INTEGER NULL
 );
 
 COMMENT ON TABLE dwh.datamartCountries IS 'Pre-aggregated country analytics';
@@ -179,7 +194,13 @@ CREATE TABLE IF NOT EXISTS dwh.datamartGlobal (
   active_users_count INTEGER NULL,
   notes_backlog_size INTEGER NULL,
   applications_used JSONB NULL,
-  top_countries JSONB NULL
+  top_countries JSONB NULL,
+  history_2020_open INTEGER NULL,
+  history_2020_closed INTEGER NULL,
+  history_2021_open INTEGER NULL,
+  history_2021_closed INTEGER NULL,
+  history_year_open INTEGER NULL,
+  history_year_closed INTEGER NULL
 );
 
 COMMENT ON TABLE dwh.datamartGlobal IS 'Pre-aggregated global analytics (typically 1 row)';

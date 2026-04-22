@@ -185,10 +185,11 @@ CREATE TABLE IF NOT EXISTS dwh.datamartUsers (
   date_starting_creating_notes DATE NULL,
   date_starting_solving_notes DATE NULL,
   last_year_activity TEXT NULL,
-  working_hours_of_week_opening JSONB NULL,
-  activity_by_year JSONB NULL
+  working_hours_of_week_opening JSONB NULL
 );
 ```
+
+**Per-year metrics**: OSM-Notes-Analytics adds `history_YYYY_open`, `history_YYYY_closed`, etc. The API does **not** read a single `activity_by_year` column; it **builds** the profile/trends `activity_by_year` object from these columns (and may accept a legacy `activity_by_year` column if still present in old databases).
 
 **Indexes**:
 - Primary key on `dimension_user_id` (automatic)
@@ -219,10 +220,11 @@ CREATE TABLE IF NOT EXISTS dwh.datamartCountries (
   users_open_notes JSONB NULL,
   applications_used JSONB NULL,
   hashtags JSONB NULL,
-  activity_by_year JSONB NULL,
   working_hours_of_week_opening JSONB NULL
 );
 ```
+
+**Per-year metrics**: See `dwh.datamartUsers` — the API builds `activity_by_year` in responses from `history_YYYY_*` columns, not a stored JSON.
 
 **Indexes**:
 - Primary key on `dimension_country_id` (automatic)
@@ -250,7 +252,7 @@ CREATE TABLE IF NOT EXISTS dwh.datamartGlobal (
 );
 ```
 
-**Note**: This table typically contains only one row with global statistics.
+**Note**: This table typically contains only one row with global statistics. For **year-scoped** trends, the API uses `history_YYYY_open` / `history_YYYY_closed` when present in Analytics, or the rolling `history_year_open` / `history_year_closed` (single calendar year) when per-year columns are absent.
 
 ---
 
@@ -327,9 +329,9 @@ This script:
 - PostgreSQL database exists: `createdb osm_notes_api_test`
 - PostGIS extension installed: `CREATE EXTENSION IF NOT EXISTS postgis;`
 
-### Option 2: Using the Provided Scripts
+### Option 2: Using the Provided Scripts (testing / CI only)
 
-A script is provided to create the schema structure:
+A script is provided to create the schema for **local testing and CI** (e.g. GitHub Actions integration tests). In production, the schema is created and maintained by the sibling project **osm_notes_analytics**; this script should be kept in sync with that project to avoid drift.
 
 ```bash
 # For local testing
@@ -340,9 +342,6 @@ psql -U $(whoami) -d osm_notes_api_test -f scripts/insert_sample_data.sql
 
 # Create indexes
 psql -U $(whoami) -d osm_notes_api_test -f scripts/create_indexes.sql
-
-# For production
-psql -h $DB_HOST -U $DB_USER -d osm_notes_dwh -f scripts/create_schema.sql
 ```
 
 ### Option 3: Manual Creation

@@ -134,7 +134,7 @@ describe('countryService', () => {
       const result = await countryService.getCountryProfile(42);
 
       expect(result.country_name).toBeNull();
-      expect(result).toEqual(mockCountry);
+      expect(result).toMatchObject(mockCountry);
     });
 
     it('should handle string values from database (notes_health_score)', async () => {

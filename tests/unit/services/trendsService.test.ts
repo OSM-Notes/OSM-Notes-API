@@ -44,11 +44,12 @@ describe('trendsService', () => {
       const mockUser = {
         user_id: 12345,
         username: 'user1',
-        activity_by_year: JSON.stringify({
-          '2020': { open: 10, closed: 5 },
-          '2021': { open: 20, closed: 15 },
-          '2022': { open: 30, closed: 25 },
-        }),
+        history_2020_open: 10,
+        history_2020_closed: 5,
+        history_2021_open: 20,
+        history_2021_closed: 15,
+        history_2022_open: 30,
+        history_2022_closed: 25,
         working_hours_of_week_opening: JSON.stringify([0, 1, 2, 3, 4, 5, 6]),
       };
 
@@ -77,11 +78,12 @@ describe('trendsService', () => {
       const mockCountry = {
         country_id: 42,
         country_name: 'Colombia',
-        activity_by_year: JSON.stringify({
-          '2020': { open: 1000, closed: 800 },
-          '2021': { open: 1200, closed: 1000 },
-          '2022': { open: 1500, closed: 1300 },
-        }),
+        history_2020_open: 1000,
+        history_2020_closed: 800,
+        history_2021_open: 1200,
+        history_2021_closed: 1000,
+        history_2022_open: 1500,
+        history_2022_closed: 1300,
         working_hours_of_week_opening: JSON.stringify([0, 1, 2, 3, 4, 5, 6]),
       };
 
@@ -104,11 +106,12 @@ describe('trendsService', () => {
       };
 
       const mockGlobal = {
-        activity_by_year: JSON.stringify({
-          '2020': { open: 100000, closed: 80000 },
-          '2021': { open: 120000, closed: 100000 },
-          '2022': { open: 150000, closed: 130000 },
-        }),
+        history_2020_open: 100000,
+        history_2020_closed: 80000,
+        history_2021_open: 120000,
+        history_2021_closed: 100000,
+        history_2022_open: 150000,
+        history_2022_closed: 130000,
       };
 
       mockQuery.mockResolvedValueOnce({
@@ -122,7 +125,7 @@ describe('trendsService', () => {
       expect(result).toHaveProperty('trends');
     });
 
-    it('should handle empty activity_by_year gracefully', async () => {
+    it('should handle empty yearly columns gracefully', async () => {
       const params = {
         type: 'users' as const,
         user_id: 12345,
@@ -131,7 +134,6 @@ describe('trendsService', () => {
       const mockUser = {
         user_id: 12345,
         username: 'user1',
-        activity_by_year: null,
         working_hours_of_week_opening: null,
       };
 
@@ -182,7 +184,7 @@ describe('trendsService', () => {
       await expect(trendsService.getTrends(params)).rejects.toThrow(ApiError);
     });
 
-    it('should parse activity_by_year JSON correctly', async () => {
+    it('should build trends from per-year open/closed columns', async () => {
       const params = {
         type: 'users' as const,
         user_id: 12345,
@@ -191,10 +193,10 @@ describe('trendsService', () => {
       const mockUser = {
         user_id: 12345,
         username: 'user1',
-        activity_by_year: JSON.stringify({
-          '2020': { open: 10, closed: 5 },
-          '2021': { open: 20, closed: 15 },
-        }),
+        history_2020_open: 10,
+        history_2020_closed: 5,
+        history_2021_open: 20,
+        history_2021_closed: 15,
         working_hours_of_week_opening: null,
       };
 
@@ -220,9 +222,8 @@ describe('trendsService', () => {
       const mockUser = {
         user_id: 12345,
         username: 'user1',
-        activity_by_year: JSON.stringify({
-          '2020': { open: 10, closed: 5 },
-        }),
+        history_2020_open: 10,
+        history_2020_closed: 5,
         working_hours_of_week_opening: JSON.stringify([0, 1, 2, 3, 4, 5, 6]),
       };
 

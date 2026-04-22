@@ -74,15 +74,29 @@ describe('Trends API Integration Tests', () => {
       try {
         await pool.query(`
           INSERT INTO dwh.datamartUsers (
-            user_id, username, activity_by_year, working_hours_of_week_opening
+            dimension_user_id,
+            user_id,
+            username,
+            history_2020_open,
+            history_2020_closed,
+            history_2021_open,
+            history_2021_closed,
+            working_hours_of_week_opening
           ) VALUES (
             123456,
+            123456,
             'test_user_trends',
-            '{"2020": {"open": 10, "closed": 5}, "2021": {"open": 20, "closed": 15}}'::jsonb,
+            10,
+            5,
+            20,
+            15,
             '[0, 1, 2, 3, 4, 5, 6]'::jsonb
           )
           ON CONFLICT (user_id) DO UPDATE SET
-            activity_by_year = EXCLUDED.activity_by_year,
+            history_2020_open = EXCLUDED.history_2020_open,
+            history_2020_closed = EXCLUDED.history_2020_closed,
+            history_2021_open = EXCLUDED.history_2021_open,
+            history_2021_closed = EXCLUDED.history_2021_closed,
             working_hours_of_week_opening = EXCLUDED.working_hours_of_week_opening
         `);
       } catch {
@@ -157,15 +171,29 @@ describe('Trends API Integration Tests', () => {
       try {
         await pool.query(`
           INSERT INTO dwh.datamartCountries (
-            country_id, country_name, activity_by_year, working_hours_of_week_opening
+            dimension_country_id,
+            country_id,
+            country_name,
+            history_2020_open,
+            history_2020_closed,
+            history_2021_open,
+            history_2021_closed,
+            working_hours_of_week_opening
           ) VALUES (
             999,
+            999,
             'Test Country',
-            '{"2020": {"open": 100, "closed": 80}, "2021": {"open": 120, "closed": 100}}'::jsonb,
+            100,
+            80,
+            120,
+            100,
             '[0, 1, 2, 3, 4, 5, 6]'::jsonb
           )
           ON CONFLICT (country_id) DO UPDATE SET
-            activity_by_year = EXCLUDED.activity_by_year,
+            history_2020_open = EXCLUDED.history_2020_open,
+            history_2020_closed = EXCLUDED.history_2020_closed,
+            history_2021_open = EXCLUDED.history_2021_open,
+            history_2021_closed = EXCLUDED.history_2021_closed,
             working_hours_of_week_opening = EXCLUDED.working_hours_of_week_opening
         `);
       } catch {
@@ -207,11 +235,23 @@ describe('Trends API Integration Tests', () => {
       try {
         await pool.query(`
           INSERT INTO dwh.datamartGlobal (
-            activity_by_year
+            dimension_global_id,
+            history_2020_open,
+            history_2020_closed,
+            history_2021_open,
+            history_2021_closed
           ) VALUES (
-            '{"2020": {"open": 10000, "closed": 8000}, "2021": {"open": 12000, "closed": 10000}}'::jsonb
+            1,
+            10000,
+            8000,
+            12000,
+            10000
           )
-          ON CONFLICT DO NOTHING
+          ON CONFLICT (dimension_global_id) DO UPDATE SET
+            history_2020_open = EXCLUDED.history_2020_open,
+            history_2020_closed = EXCLUDED.history_2020_closed,
+            history_2021_open = EXCLUDED.history_2021_open,
+            history_2021_closed = EXCLUDED.history_2021_closed
         `);
       } catch {
         // If dwh schema doesn't exist or we don't have permissions, skip this test

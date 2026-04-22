@@ -7,77 +7,7 @@ import { getDatabasePool } from '../config/database';
 import { logger } from '../utils/logger';
 import { ApiError } from '../middleware/errorHandler';
 import { TrendsParams, TrendsResult, TrendEntry } from '../types';
-
-/**
- * Database row type for user trends
- */
-interface UserTrendRow {
-  user_id: number;
-  username: string | null;
-  activity_by_year: string | null;
-  working_hours_of_week_opening: string | null;
-}
-
-/**
- * Database row type for country trends
- */
-interface CountryTrendRow {
-  country_id: number;
-  country_name: string | null;
-  activity_by_year: string | null;
-  working_hours_of_week_opening: string | null;
-}
-
-/**
- * Database row type for global trends
- */
-interface GlobalTrendRow {
-  activity_by_year: string | null;
-}
-
-/**
- * Parse activity_by_year JSON and convert to TrendEntry array
- */
-function parseActivityByYear(activityJson: string | null): TrendEntry[] {
-  if (!activityJson) {
-    return [];
-  }
-
-  try {
-    const activity: unknown =
-      typeof activityJson === 'string' ? JSON.parse(activityJson) : activityJson;
-
-    if (!activity || typeof activity !== 'object' || Array.isArray(activity)) {
-      return [];
-    }
-
-    const trends: TrendEntry[] = [];
-    const activityObj = activity as Record<string, unknown>;
-
-    for (const [year, data] of Object.entries(activityObj)) {
-      if (
-        data &&
-        typeof data === 'object' &&
-        !Array.isArray(data) &&
-        'open' in data &&
-        'closed' in data
-      ) {
-        const typedData = data as { open: unknown; closed: unknown };
-        trends.push({
-          year: String(year),
-          open: typeof typedData.open === 'number' ? typedData.open : 0,
-          closed: typeof typedData.closed === 'number' ? typedData.closed : 0,
-        });
-      }
-    }
-
-    // Sort by year ascending
-    return trends.sort((a, b) => a.year.localeCompare(b.year));
-  } catch (error) {
-    logger.warn('Failed to parse activity_by_year', { error });
-    return [];
-  }
-}
+import { buildTrendsFromDatamartRow } from '../utils/activityByYear';
 
 /**
  * Parse working_hours_of_week_opening JSON
@@ -114,31 +44,34 @@ export async function getTrends(params: TrendsParams): Promise<TrendsResult> {
   try {
     if (params.type === 'users' && params.user_id) {
       const query = `
-        SELECT 
-          user_id,
-          username,
-          activity_by_year,
-          working_hours_of_week_opening
+        SELECT *
         FROM dwh.datamartUsers
         WHERE user_id = $1
       `;
 
       logger.debug('Executing get trends for user query', { userId: params.user_id });
 
-      const result = await pool.query<UserTrendRow>(query, [params.user_id]);
+      const result = await pool.query(query, [params.user_id]);
 
       if (result.rows.length === 0) {
         throw new ApiError(404, 'User not found');
       }
 
-      const row = result.rows[0];
-      const trends = parseActivityByYear(row.activity_by_year);
-      const workingHours = parseWorkingHours(row.working_hours_of_week_opening);
+      const row = result.rows[0] as Record<string, unknown>;
+      const trends: TrendEntry[] = buildTrendsFromDatamartRow(row, 'user');
+      const woh = row.working_hours_of_week_opening;
+      const whStr =
+        woh === null || woh === undefined
+          ? null
+          : typeof woh === 'string'
+            ? woh
+            : JSON.stringify(woh);
+      const workingHours = parseWorkingHours(whStr);
 
       return {
         type: 'users',
-        entity_id: row.user_id,
-        entity_name: row.username,
+        entity_id: row.user_id as number,
+        entity_name: row.username as string | null,
         trends,
         working_hours: workingHours,
       };
@@ -146,11 +79,7 @@ export async function getTrends(params: TrendsParams): Promise<TrendsResult> {
 
     if (params.type === 'countries' && params.country_id) {
       const query = `
-        SELECT 
-          country_id,
-          country_name,
-          activity_by_year,
-          working_hours_of_week_opening
+        SELECT *
         FROM dwh.datamartCountries
         WHERE country_id = $1
       `;
@@ -159,20 +88,27 @@ export async function getTrends(params: TrendsParams): Promise<TrendsResult> {
         countryId: params.country_id,
       });
 
-      const result = await pool.query<CountryTrendRow>(query, [params.country_id]);
+      const result = await pool.query(query, [params.country_id]);
 
       if (result.rows.length === 0) {
         throw new ApiError(404, 'Country not found');
       }
 
-      const row = result.rows[0];
-      const trends = parseActivityByYear(row.activity_by_year);
-      const workingHours = parseWorkingHours(row.working_hours_of_week_opening);
+      const row = result.rows[0] as Record<string, unknown>;
+      const trends: TrendEntry[] = buildTrendsFromDatamartRow(row, 'country');
+      const woh = row.working_hours_of_week_opening;
+      const whStr =
+        woh === null || woh === undefined
+          ? null
+          : typeof woh === 'string'
+            ? woh
+            : JSON.stringify(woh);
+      const workingHours = parseWorkingHours(whStr);
 
       return {
         type: 'countries',
-        entity_id: row.country_id,
-        entity_name: row.country_name,
+        entity_id: row.country_id as number,
+        entity_name: row.country_name as string | null,
         trends,
         working_hours: workingHours,
       };
@@ -180,22 +116,21 @@ export async function getTrends(params: TrendsParams): Promise<TrendsResult> {
 
     if (params.type === 'global') {
       const query = `
-        SELECT 
-          activity_by_year
+        SELECT *
         FROM dwh.datamartGlobal
         LIMIT 1
       `;
 
       logger.debug('Executing get trends for global query');
 
-      const result = await pool.query<GlobalTrendRow>(query);
+      const result = await pool.query(query);
 
       if (result.rows.length === 0) {
         throw new ApiError(404, 'Global analytics not found');
       }
 
-      const row = result.rows[0];
-      const trends = parseActivityByYear(row.activity_by_year);
+      const row = result.rows[0] as Record<string, unknown>;
+      const trends: TrendEntry[] = buildTrendsFromDatamartRow(row, 'global');
 
       return {
         type: 'global',

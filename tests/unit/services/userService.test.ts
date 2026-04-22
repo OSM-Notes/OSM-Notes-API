@@ -128,7 +128,7 @@ describe('userService', () => {
       const result = await userService.getUserProfile(12345);
 
       expect(result.username).toBeNull();
-      expect(result).toEqual(mockUser);
+      expect(result).toMatchObject(mockUser);
     });
 
     it('should handle string values from database (history fields)', async () => {
