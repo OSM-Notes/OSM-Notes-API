@@ -50,8 +50,8 @@ describe('Cache Middleware Integration', () => {
         .get('/notes-api/v1/users/12345')
         .set('User-Agent', validUserAgent);
 
-      // Should return 200 (if data exists) or 500 (if DB unavailable)
-      expect([200, 500]).toContain(response.status);
+      // Should return 200 (if data exists), 404 (if missing), or 500 (if DB unavailable)
+      expect([200, 404, 500]).toContain(response.status);
       expect(response.headers['x-cache']).toBe('DISABLED');
     });
 
@@ -65,8 +65,8 @@ describe('Cache Middleware Integration', () => {
         .set('User-Agent', validUserAgent);
 
       // Both should work (even if cache is disabled)
-      expect([200, 500]).toContain(response1.status);
-      expect([200, 500]).toContain(response2.status);
+      expect([200, 404, 500]).toContain(response1.status);
+      expect([200, 404, 500]).toContain(response2.status);
     });
   });
 

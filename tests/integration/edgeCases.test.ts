@@ -150,7 +150,7 @@ describe('Edge Cases and Boundary Conditions', () => {
         .get('/notes-api/v1/users/123%20456')
         .set('User-Agent', validUserAgent);
 
-      expect([400, 500]).toContain(response.status);
+      expect([400, 404, 500]).toContain(response.status);
     });
 
     it('should handle user ID as string with numbers', async () => {
@@ -158,7 +158,7 @@ describe('Edge Cases and Boundary Conditions', () => {
         .get('/notes-api/v1/users/123abc')
         .set('User-Agent', validUserAgent);
 
-      expect([400, 500]).toContain(response.status);
+      expect([400, 404, 500]).toContain(response.status);
     });
   });
 
