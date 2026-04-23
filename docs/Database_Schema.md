@@ -24,6 +24,7 @@ This document describes the database schema required for the OSM Notes API to fu
 - [Schema: dwh](#schema-dwh)
 - [Minimum Data Requirements](#minimum-data-requirements)
 - [Creating the Schema](#creating-the-schema)
+- [DWH schema version contract](#dwh-schema-version-contract)
 
 ---
 
@@ -43,6 +44,21 @@ The API requires two schemas:
    - `datamartGlobal` - Global analytics
 
 **Note**: For local testing (`osm_notes_api_test`), only the `public` schema is required. The `dwh` schema is typically only available in production (`osm_notes_dwh`).
+
+### DWH schema version contract
+
+OSM-Notes-Analytics maintains **`public.schema_version`** with **`component = 'dwh'`** and a SemVer string (see Analytics `docs/Schema_Versioning_DWH.md`). That is **independent** of Ingestion’s `component = 'core'`.
+
+The API can optionally verify that row on **`GET /health`** when you set:
+
+| Variable | Default | Meaning |
+|----------|---------|---------|
+| `DWH_SCHEMA_CHECK_ENABLED` | off | Set to `true` to query `public.schema_version` and compare to the range below. |
+| `EXPECTED_DWH_SCHEMA_MIN` | `1.0.0` | Minimum supported `dwh` version (inclusive). |
+| `EXPECTED_DWH_SCHEMA_MAX` | `1.0.x` | Maximum line: any `1.0.*` patch is allowed (same wildcard rules as Analytics `etc/schema_compatibility.sh`). |
+| `SCHEMA_DWH_COMPONENT` | `dwh` | Row `component` value to read. |
+
+If the check is enabled and the version is **missing** or **out of range**, health returns **`degraded`** (HTTP 200) with `dwhSchema.status` set accordingly. Production deployments that connect to a real Analytics DB often enable this after ETL has run at least once.
 
 ---
 

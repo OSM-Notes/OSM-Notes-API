@@ -209,6 +209,31 @@ COMMENT ON TABLE dwh.datamartGlobal IS 'Pre-aggregated global analytics (typical
 \echo ''
 
 -- ============================================================================
+-- PUBLIC SCHEMA VERSION (aligns with OSM-Notes-Analytics ensure_dwh_schema_version.sql)
+-- ============================================================================
+
+\echo 'Ensuring public.schema_version (component dwh) for API / DWH contract checks...'
+
+CREATE TABLE IF NOT EXISTS public.schema_version (
+  component VARCHAR(64) PRIMARY KEY,
+  version VARCHAR(16) NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO public.schema_version (component, version)
+VALUES ('dwh', '1.0.0')
+ON CONFLICT (component) DO UPDATE
+  SET
+    version = EXCLUDED.version,
+    updated_at = CASE
+      WHEN public.schema_version.version IS DISTINCT FROM EXCLUDED.version
+        THEN CURRENT_TIMESTAMP
+      ELSE public.schema_version.updated_at
+    END;
+
+\echo '  ✓ public.schema_version (dwh)'
+
+-- ============================================================================
 -- CREATE INDEXES
 -- ============================================================================
 

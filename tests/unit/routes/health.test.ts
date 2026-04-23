@@ -24,6 +24,11 @@ interface HealthCheckResponse {
     status: 'up' | 'down' | 'not_configured';
     responseTime?: number;
   };
+  dwhSchema?: {
+    status: string;
+    version?: string;
+    details?: string;
+  };
 }
 
 // Mock dependencies
@@ -51,6 +56,7 @@ describe('Health Check Route', () => {
 
     // Reset environment
     delete process.env.REDIS_HOST;
+    delete process.env.DWH_SCHEMA_CHECK_ENABLED;
     jest.clearAllMocks();
   });
 
@@ -76,6 +82,7 @@ describe('Health Check Route', () => {
         redis: expect.objectContaining({
           status: 'up',
         }),
+        dwhSchema: { status: 'disabled' },
       });
     });
 
@@ -100,6 +107,7 @@ describe('Health Check Route', () => {
         redis: expect.objectContaining({
           status: 'down',
         }),
+        dwhSchema: { status: 'disabled' },
       });
     });
 
@@ -165,6 +173,7 @@ describe('Health Check Route', () => {
         redis: expect.objectContaining({
           status: 'not_configured',
         }),
+        dwhSchema: { status: 'disabled' },
       });
     });
 
@@ -185,6 +194,7 @@ describe('Health Check Route', () => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           responseTime: expect.any(Number),
         }),
+        dwhSchema: { status: 'disabled' },
       });
       expect(logger.error).toHaveBeenCalledWith('Redis health check failed', expect.any(Object));
     });
