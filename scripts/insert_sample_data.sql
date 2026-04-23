@@ -1,6 +1,7 @@
 -- Sample Data Insertion Script for OSM Notes API
 -- Inserts minimal test data to make the API functional
--- 
+-- Column names match OSM-Notes-Ingestion base tables (note_comments, note_comments_text).
+--
 -- Usage:
 --   psql -U $(whoami) -d osm_notes_api_test -f scripts/insert_sample_data.sql
 --
@@ -19,9 +20,19 @@ BEGIN
   END IF;
 END $$;
 
+\echo 'Inserting sample users (required before note_comments.id_user FK)...'
+
+INSERT INTO public.users (user_id, username)
+VALUES
+  (1001, 'test_user_1'),
+  (1002, 'test_user_2'),
+  (1003, 'test_user_3')
+ON CONFLICT (user_id) DO NOTHING;
+
+\echo '  ✓ Inserted sample users'
+
 \echo 'Inserting sample notes...'
 
--- Insert sample notes
 INSERT INTO public.notes (note_id, latitude, longitude, status, created_at, closed_at, id_user, id_country)
 VALUES
   (1, 40.7128, -74.0060, 'open', NOW() - INTERVAL '10 days', NULL, 1001, 1),
@@ -38,50 +49,46 @@ ON CONFLICT (note_id) DO NOTHING;
 
 \echo '  ✓ Inserted sample notes'
 
--- Insert sample comments
 \echo 'Inserting sample comments...'
 
-INSERT INTO public.note_comments (comment_id, note_id, user_id, action, created_at)
+INSERT INTO public.note_comments (id, note_id, sequence_action, event, created_at, id_user)
 VALUES
-  (1, 1, 1001, 'opened', NOW() - INTERVAL '10 days'),
-  (2, 1, 1002, 'commented', NOW() - INTERVAL '9 days'),
-  (3, 1, 1003, 'commented', NOW() - INTERVAL '8 days'),
-  (4, 2, 1002, 'opened', NOW() - INTERVAL '20 days'),
-  (5, 2, 1001, 'commented', NOW() - INTERVAL '15 days'),
-  (6, 2, 1002, 'closed', NOW() - INTERVAL '5 days'),
-  (7, 3, 1003, 'opened', NOW() - INTERVAL '5 days'),
-  (8, 3, 1001, 'commented', NOW() - INTERVAL '4 days'),
-  (9, 4, 1001, 'opened', NOW() - INTERVAL '3 days'),
-  (10, 5, 1002, 'opened', NOW() - INTERVAL '15 days'),
-  (11, 5, 1003, 'closed', NOW() - INTERVAL '2 days')
-ON CONFLICT (comment_id) DO NOTHING;
+  (1, 1, 1, 'opened'::note_event_enum, NOW() - INTERVAL '10 days', 1001),
+  (2, 1, 2, 'commented'::note_event_enum, NOW() - INTERVAL '9 days', 1002),
+  (3, 1, 3, 'commented'::note_event_enum, NOW() - INTERVAL '8 days', 1003),
+  (4, 2, 1, 'opened'::note_event_enum, NOW() - INTERVAL '20 days', 1002),
+  (5, 2, 2, 'commented'::note_event_enum, NOW() - INTERVAL '15 days', 1001),
+  (6, 2, 3, 'closed'::note_event_enum, NOW() - INTERVAL '5 days', 1002),
+  (7, 3, 1, 'opened'::note_event_enum, NOW() - INTERVAL '5 days', 1003),
+  (8, 3, 2, 'commented'::note_event_enum, NOW() - INTERVAL '4 days', 1001),
+  (9, 4, 1, 'opened'::note_event_enum, NOW() - INTERVAL '3 days', 1001),
+  (10, 5, 1, 'opened'::note_event_enum, NOW() - INTERVAL '15 days', 1002),
+  (11, 5, 2, 'closed'::note_event_enum, NOW() - INTERVAL '2 days', 1003)
+ON CONFLICT (id) DO NOTHING;
+
+SELECT setval(
+  pg_get_serial_sequence('public.note_comments', 'id'),
+  COALESCE((SELECT MAX(id) FROM public.note_comments), 1)
+);
 
 \echo '  ✓ Inserted sample comments'
 
--- Insert sample comment text
 \echo 'Inserting sample comment text...'
 
-INSERT INTO public.note_comments_text (comment_id, text)
+INSERT INTO public.note_comments_text (id, note_id, sequence_action, body)
 VALUES
-  (2, 'This is a test comment on note 1'),
-  (3, 'Another comment with more details'),
-  (5, 'Comment on closed note'),
-  (8, 'Comment on London note')
-ON CONFLICT (comment_id) DO NOTHING;
+  (2, 1, 2, 'This is a test comment on note 1'),
+  (3, 1, 3, 'Another comment with more details'),
+  (5, 2, 2, 'Comment on closed note'),
+  (8, 3, 2, 'Comment on London note')
+ON CONFLICT (id) DO NOTHING;
+
+SELECT setval(
+  pg_get_serial_sequence('public.note_comments_text', 'id'),
+  COALESCE((SELECT MAX(id) FROM public.note_comments_text), 1)
+);
 
 \echo '  ✓ Inserted sample comment text'
-
--- Insert sample users (optional but recommended)
-\echo 'Inserting sample users...'
-
-INSERT INTO public.users (user_id, username)
-VALUES
-  (1001, 'test_user_1'),
-  (1002, 'test_user_2'),
-  (1003, 'test_user_3')
-ON CONFLICT (user_id) DO NOTHING;
-
-\echo '  ✓ Inserted sample users'
 \echo ''
 
 -- ============================================================================
@@ -94,22 +101,22 @@ ON CONFLICT (user_id) DO NOTHING;
 \echo ''
 \echo 'Data summary:'
 
-SELECT 
+SELECT
   'public.notes' as table_name,
   COUNT(*) as row_count
 FROM public.notes
 UNION ALL
-SELECT 
+SELECT
   'public.note_comments' as table_name,
   COUNT(*) as row_count
 FROM public.note_comments
 UNION ALL
-SELECT 
+SELECT
   'public.note_comments_text' as table_name,
   COUNT(*) as row_count
 FROM public.note_comments_text
 UNION ALL
-SELECT 
+SELECT
   'public.users' as table_name,
   COUNT(*) as row_count
 FROM public.users;
@@ -120,4 +127,3 @@ FROM public.users;
 \echo '  - GET /api/v1/notes/1/comments'
 \echo '  - GET /api/v1/notes?status=open&limit=10'
 \echo ''
-

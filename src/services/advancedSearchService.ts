@@ -100,7 +100,7 @@ export async function advancedSearchNotes(
       }
     }
 
-    // Text search in comment bodies (Ingestion: text is in note_comments_text.body)
+    // Text search in comment bodies (Ingestion: note_comments_text.body; join via note_id + sequence_action)
     let textSearchJoin = '';
     if (filters.text) {
       textSearchJoin = `
@@ -145,7 +145,7 @@ export async function advancedSearchNotes(
     let countParams: unknown[];
 
     if (filters.text) {
-      // If text search is used, we need to join with comment text for count too (Ingestion: body in note_comments_text)
+      // If text search is used, we need to join with comment text for count too
       const countConditions = conditions.filter((c) => !c.includes('nct_search.body'));
       const countWhereClause =
         countConditions.length > 0

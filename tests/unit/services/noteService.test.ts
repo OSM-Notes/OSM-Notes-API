@@ -302,7 +302,7 @@ describe('noteService', () => {
       expect(firstCall).toBeDefined();
       if (firstCall) {
         const [query, params] = firstCall;
-        expect(query).toContain('id_user =');
+        expect(query).toContain('nc_f.id_user =');
         expect(params).toEqual(expect.arrayContaining([12345]));
       }
     });
@@ -482,7 +482,7 @@ describe('noteService', () => {
       if (firstCall) {
         const [query, params] = firstCall;
         expect(query).toContain('id_country =');
-        expect(query).toContain('id_user =');
+        expect(query).toContain('nc_f.id_user =');
         expect(query).toContain('status =');
         // Verify parameters include country, status, and user_id
         expect(params).toEqual(expect.arrayContaining([42, 'open', 12345]));

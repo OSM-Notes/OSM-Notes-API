@@ -58,11 +58,10 @@ BEGIN
     -- REMOVED: idx_note_comments_created_at - Consolidated with note_comments_created in Ingestion base
     -- The base index note_comments_created covers this need
     
-    -- Index: idx_note_comments_user_id (user_id)
+    -- Index: idx_note_comments_id_user (id_user) — Ingestion: note_comments_users
     -- Benefits: API (queries filtering comments by user)
-    --           Similar to note_comments_users but uses user_id column name
-    -- Used by: Queries filtering comments by user
-    CREATE INDEX IF NOT EXISTS idx_note_comments_user_id ON public.note_comments(user_id);
+    -- Used by: Queries filtering comments by OSM user
+    CREATE INDEX IF NOT EXISTS idx_note_comments_id_user ON public.note_comments(id_user);
     
     -- REMOVED: idx_note_comments_note_created - Consolidated with note_comments_id_created DESC in Ingestion base
     -- The base index note_comments_id_created now uses DESC order, covering this need
@@ -78,11 +77,8 @@ DECLARE
   has_pg_trgm BOOLEAN;
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'note_comments_text') THEN
-    -- Index: idx_note_comments_text_comment_id (comment_id)
-    -- Benefits: API (noteService.ts:137 - LEFT JOIN: LEFT JOIN note_comments_text nct ON nc.comment_id = nct.comment_id)
-    --           Similar to idx_note_comment_texts_comment_id
-    -- Used by: JOINs between note_comments and note_comments_text using comment_id
-    CREATE INDEX IF NOT EXISTS idx_note_comments_text_comment_id ON public.note_comments_text(comment_id);
+    -- Index: note_comments_id_text — Ingestion indexes note_comments_text (note_id); API joins on note_id + sequence_action
+    CREATE INDEX IF NOT EXISTS idx_note_comments_text_note_id ON public.note_comments_text(note_id);
     
     -- Check if pg_trgm extension is available for optimized text search
     SELECT EXISTS (
@@ -90,26 +86,12 @@ BEGIN
     ) INTO has_pg_trgm;
     
     IF has_pg_trgm THEN
-      -- Index: idx_note_comments_text_text_search_gin (text) - GIN with pg_trgm for ILIKE text search
-      -- Benefits: API (advancedSearchService.ts:108 - text search: nc_search.text ILIKE $pattern)
-      --           Optimizes text search queries in note comments using trigram matching
-      --           Much faster than B-tree for ILIKE pattern searches
-      -- Used by: Text search queries with ILIKE patterns (e.g., '%search term%')
-      -- Note: Requires pg_trgm extension: CREATE EXTENSION IF NOT EXISTS pg_trgm;
+      -- Index: GIN on body (Ingestion column name) for ILIKE in advancedSearchService
       CREATE INDEX IF NOT EXISTS idx_note_comments_text_text_search_gin 
-      ON public.note_comments_text USING GIN (text gin_trgm_ops);
+      ON public.note_comments_text USING GIN (body gin_trgm_ops);
       RAISE NOTICE 'Created GIN index for text search (pg_trgm extension available)';
     ELSE
-      -- Index: idx_note_comments_text_text_search (text) - B-tree fallback for ILIKE text search
-      -- Benefits: API (advancedSearchService.ts:108 - text search: nc_search.text ILIKE $pattern)
-      --           Basic optimization for text search queries
-      --           Works for prefix searches but slower than GIN for pattern searches
-      -- Used by: Text search queries with ILIKE patterns
-      -- Note: For better performance, install pg_trgm extension and recreate index:
-      --       CREATE EXTENSION IF NOT EXISTS pg_trgm;
-      --       DROP INDEX IF EXISTS idx_note_comments_text_text_search;
-      --       CREATE INDEX ... USING GIN (text gin_trgm_ops);
-      CREATE INDEX IF NOT EXISTS idx_note_comments_text_text_search ON public.note_comments_text(text);
+      CREATE INDEX IF NOT EXISTS idx_note_comments_text_text_search ON public.note_comments_text(body);
       RAISE NOTICE 'Created B-tree index for text search (pg_trgm not available - consider installing for better performance)';
     END IF;
     
@@ -124,7 +106,7 @@ DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'users') THEN
     -- Index: idx_users_user_id (user_id)
-    -- Benefits: API (noteService.ts:136 - JOIN with users: LEFT JOIN public.users u ON nc.user_id = u.user_id)
+    -- Benefits: API (noteService — JOIN users: ON nc.id_user = u.user_id)
     --           Analytics (JOINs with users table)
     -- Used by: JOINs with users table using user_id
     CREATE INDEX IF NOT EXISTS idx_users_user_id ON public.users(user_id);

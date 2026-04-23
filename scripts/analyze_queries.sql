@@ -63,7 +63,7 @@ SELECT EXISTS (
     n.closed_at,
     n.id_user,
     n.id_country,
-    COUNT(DISTINCT nc.comment_id) as comments_count
+    COUNT(DISTINCT nc.id) as comments_count
   FROM public.notes n
   LEFT JOIN public.note_comments nc ON n.note_id = nc.note_id
   WHERE n.note_id = (
@@ -93,20 +93,20 @@ SELECT EXISTS (
   \set ON_ERROR_STOP off
   EXPLAIN (ANALYZE, BUFFERS, VERBOSE)
   SELECT
-    nc.comment_id,
+    nc.id AS comment_id,
     nc.note_id,
-    nc.user_id,
+    nc.id_user AS user_id,
     u.username,
-    nc.action,
+    nc.event AS action,
     nc.created_at,
-    nct.text
+    nct.body AS text
   FROM public.note_comments nc
-  LEFT JOIN public.users u ON nc.user_id = u.user_id
-  LEFT JOIN public.note_comments_text nct ON nc.comment_id = nct.comment_id
+  LEFT JOIN public.users u ON nc.id_user = u.user_id
+  LEFT JOIN public.note_comments_text nct ON nct.note_id = nc.note_id AND nct.sequence_action = nc.sequence_action
   WHERE nc.note_id = (
     SELECT note_id FROM public.notes LIMIT 1
   )
-  ORDER BY nc.created_at ASC
+  ORDER BY nc.sequence_action ASC NULLS LAST, nc.created_at ASC
   LIMIT 100;
   \set ON_ERROR_STOP on
   
@@ -139,7 +139,7 @@ SELECT EXISTS (
     n.closed_at,
     n.id_user,
     n.id_country,
-    COUNT(DISTINCT nc.comment_id) as comments_count
+    COUNT(DISTINCT nc.id) as comments_count
   FROM public.notes n
   LEFT JOIN public.note_comments nc ON n.note_id = nc.note_id
   WHERE n.id_country = (
@@ -179,7 +179,7 @@ SELECT EXISTS (
     n.closed_at,
     n.id_user,
     n.id_country,
-    COUNT(DISTINCT nc.comment_id) as comments_count
+    COUNT(DISTINCT nc.id) as comments_count
   FROM public.notes n
   LEFT JOIN public.note_comments nc ON n.note_id = nc.note_id
   WHERE n.status = 'open'

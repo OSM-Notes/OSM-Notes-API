@@ -1,9 +1,9 @@
 -- Database Schema Creation Script for OSM Notes API
 -- Creates all required tables for the API to function.
 --
--- SCOPE: Testing and CI only. In production, the schema is created and maintained
--- by the sibling project osm_notes_analytics. Keep this script in sync with that
--- project's schema (e.g. export from there or copy DDL) to avoid API/DB drift.
+-- SCOPE: Testing and CI. Core `public` tables (notes, note_comments, note_comments_text, users)
+-- follow OSM-Notes-Ingestion base DDL (processPlanetNotes_20/21/22_*.sql). In production, data
+-- usually lives in the Ingestion-backed database; keep this script aligned to avoid API/DB drift.
 --
 -- Usage:
 --   # Local testing (osm_notes_api_test):
@@ -26,8 +26,22 @@
 \echo 'Installing required PostgreSQL extensions...'
 
 -- pg_trgm extension (required for optimized text search)
--- Enables GIN index on note_comments_text.text for faster ILIKE in advancedSearchService
+-- Enables GIN index on note_comments_text.body for faster ILIKE in advancedSearchService
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+-- Enumerators aligned with OSM-Notes-Ingestion (processPlanetNotes_20_createBaseTables_enum.sql)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'note_event_enum') THEN
+    CREATE TYPE note_event_enum AS ENUM (
+      'opened',
+      'closed',
+      'reopened',
+      'commented',
+      'hidden'
+    );
+  END IF;
+END $$;
 
 -- ============================================================================
 -- SCHEMA: public
@@ -59,42 +73,10 @@ COMMENT ON COLUMN public.notes.id_country IS 'Country ID where the note is locat
 
 \echo '  ✓ Created table: public.notes'
 
--- Table: note_comments
-CREATE TABLE IF NOT EXISTS public.note_comments (
-  comment_id INTEGER PRIMARY KEY,
-  note_id INTEGER NOT NULL,
-  user_id INTEGER NULL,
-  action VARCHAR(50) NOT NULL CHECK (action IN ('opened', 'closed', 'commented', 'reopened', 'hidden')),
-  created_at TIMESTAMP NOT NULL,
-  FOREIGN KEY (note_id) REFERENCES public.notes(note_id) ON DELETE CASCADE
-);
-
-COMMENT ON TABLE public.note_comments IS 'Comments on OSM notes';
-COMMENT ON COLUMN public.note_comments.comment_id IS 'Primary key, unique comment identifier';
-COMMENT ON COLUMN public.note_comments.note_id IS 'Foreign key to notes.note_id';
-COMMENT ON COLUMN public.note_comments.user_id IS 'OSM user ID who made the comment';
-COMMENT ON COLUMN public.note_comments.action IS 'Type of action: opened, closed, commented, reopened, hidden';
-COMMENT ON COLUMN public.note_comments.created_at IS 'When the comment was created';
-
-\echo '  ✓ Created table: public.note_comments'
-
--- Table: note_comments_text
-CREATE TABLE IF NOT EXISTS public.note_comments_text (
-  comment_id INTEGER PRIMARY KEY,
-  text TEXT NULL,
-  FOREIGN KEY (comment_id) REFERENCES public.note_comments(comment_id) ON DELETE CASCADE
-);
-
-COMMENT ON TABLE public.note_comments_text IS 'Text content of note comments';
-COMMENT ON COLUMN public.note_comments_text.comment_id IS 'Primary key, foreign key to note_comments.comment_id';
-COMMENT ON COLUMN public.note_comments_text.text IS 'Comment text content';
-
-\echo '  ✓ Created table: public.note_comments_text'
-
--- Table: users (optional but recommended)
+-- Table: users (before note_comments when using FK from id_user; matches Ingestion ordering of dependencies)
 CREATE TABLE IF NOT EXISTS public.users (
   user_id INTEGER PRIMARY KEY,
-  username VARCHAR(255) NULL
+  username VARCHAR(255) NOT NULL
 );
 
 COMMENT ON TABLE public.users IS 'OSM user information (optional, improves JOIN performance)';
@@ -102,6 +84,44 @@ COMMENT ON COLUMN public.users.user_id IS 'Primary key, OSM user ID';
 COMMENT ON COLUMN public.users.username IS 'OSM username';
 
 \echo '  ✓ Created table: public.users (optional)'
+
+-- Table: note_comments (OSM-Notes-Ingestion processPlanetNotes_21_createBaseTables_tables.sql + pk in _22)
+CREATE TABLE IF NOT EXISTS public.note_comments (
+  id SERIAL PRIMARY KEY,
+  note_id INTEGER NOT NULL,
+  sequence_action INTEGER,
+  event note_event_enum NOT NULL,
+  processing_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP NOT NULL,
+  id_user INTEGER,
+  FOREIGN KEY (note_id) REFERENCES public.notes(note_id) ON DELETE CASCADE,
+  FOREIGN KEY (id_user) REFERENCES public.users(user_id)
+);
+
+COMMENT ON TABLE public.note_comments IS 'Comments on OSM notes (Ingestion base table)';
+COMMENT ON COLUMN public.note_comments.id IS 'Surrogate PK; links to note_comments_text.id';
+COMMENT ON COLUMN public.note_comments.note_id IS 'OSM note id';
+COMMENT ON COLUMN public.note_comments.sequence_action IS 'Comment sequence for ordering';
+COMMENT ON COLUMN public.note_comments.event IS 'Action type';
+COMMENT ON COLUMN public.note_comments.id_user IS 'OSM user who performed the action';
+
+\echo '  ✓ Created table: public.note_comments'
+
+-- Table: note_comments_text (Ingestion: join to note_comments via note_id + sequence_action, or matching id)
+CREATE TABLE IF NOT EXISTS public.note_comments_text (
+  id SERIAL PRIMARY KEY,
+  note_id INTEGER NOT NULL,
+  sequence_action INTEGER,
+  processing_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  body TEXT,
+  FOREIGN KEY (note_id) REFERENCES public.notes(note_id) ON DELETE CASCADE
+);
+
+COMMENT ON TABLE public.note_comments_text IS 'Text of note comments (Ingestion base table)';
+COMMENT ON COLUMN public.note_comments_text.id IS 'Same value as note_comments.id for that row';
+COMMENT ON COLUMN public.note_comments_text.body IS 'Comment text';
+
+\echo '  ✓ Created table: public.note_comments_text'
 \echo ''
 
 -- ============================================================================

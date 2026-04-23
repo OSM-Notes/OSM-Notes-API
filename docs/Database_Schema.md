@@ -103,18 +103,20 @@ The API returns `id_user` in the note response by deriving it from the first com
 
 Stores comments on notes (schema matches OSM-Notes-Ingestion: `id`, `id_user`, `event`).
 
-**Required Columns** (Ingestion naming):
+**Required Columns** (Ingestion naming; see `processPlanetNotes_21_createBaseTables_tables.sql`):
 ```sql
--- Ingestion: id, note_id, sequence_action, event, created_at, id_user
+-- Ingestion: id, note_id, sequence_action, event, processing_time, created_at, id_user
 -- API maps: id AS comment_id, id_user AS user_id, event AS action
 CREATE TABLE IF NOT EXISTS public.note_comments (
   id SERIAL PRIMARY KEY,
   note_id INTEGER NOT NULL,
   sequence_action INTEGER,
   event note_event_enum NOT NULL,  -- 'opened', 'closed', 'commented', 'reopened', 'hidden'
+  processing_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   created_at TIMESTAMP NOT NULL,
-  id_user INTEGER NULL,
-  FOREIGN KEY (note_id) REFERENCES public.notes(note_id) ON DELETE CASCADE
+  id_user INTEGER,
+  FOREIGN KEY (note_id) REFERENCES public.notes(note_id) ON DELETE CASCADE,
+  FOREIGN KEY (id_user) REFERENCES public.users(user_id)
 );
 ```
 
@@ -154,17 +156,17 @@ CREATE TABLE IF NOT EXISTS public.note_comments_text (
 
 Stores OSM user information. This table is optional but recommended for better performance.
 
-**Required Columns**:
+**Required Columns** (Ingestion uses `VARCHAR(256) NOT NULL` for username; `create_schema.sql` uses `VARCHAR(255) NOT NULL`):
 ```sql
 CREATE TABLE IF NOT EXISTS public.users (
   user_id INTEGER PRIMARY KEY,
-  username VARCHAR(255) NULL
+  username VARCHAR(255) NOT NULL
 );
 ```
 
 **Column Descriptions**:
 - `user_id`: Primary key, OSM user ID
-- `username`: OSM username (nullable)
+- `username`: OSM username
 
 **Indexes**:
 - Primary key on `user_id` (automatic)
@@ -284,10 +286,11 @@ To test the API endpoints, you need at minimum:
    VALUES (1, 40.7128, -74.0060, 'open', NOW());
    ```
 
-2. **At least 1 comment** (optional, for testing comments endpoint):
+2. **At least 1 comment** (optional, for testing comments endpoint; matches Ingestion columns):
    ```sql
-   INSERT INTO public.note_comments (comment_id, note_id, action, created_at)
-   VALUES (1, 1, 'opened', NOW());
+   INSERT INTO public.users (user_id, username) VALUES (1001, 'u1') ON CONFLICT (user_id) DO NOTHING;
+   INSERT INTO public.note_comments (id, note_id, sequence_action, event, created_at, id_user)
+   VALUES (1, 1, 1, 'opened'::note_event_enum, NOW(), 1001);
    ```
 
 ### For Full Testing
