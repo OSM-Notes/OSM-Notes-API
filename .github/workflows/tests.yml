@@ -198,6 +198,7 @@ jobs:
         env:
           PGPASSWORD: ${{ env.DB_PASSWORD }}
 
+      # After create_schema.sql, public.schema_version has component=dwh (see scripts/create_schema.sql)
       - name: Run integration tests
         run: npm run test:integration
         env:
@@ -206,9 +207,12 @@ jobs:
           DB_NAME: ${{ env.DB_NAME }}
           DB_USER: ${{ env.DB_USER }}
           DB_PASSWORD: ${{ env.DB_PASSWORD }}
+          DB_MAX_CONNECTIONS: 5
           REDIS_HOST: 127.0.0.1
           REDIS_PORT: 6379
           NODE_ENV: test
+          # Validate same contract as OSM-Notes-Analytics (defaults: min 1.0.0, max 1.0.x, component dwh)
+          DWH_SCHEMA_CHECK_ENABLED: 'true'
 
   # ============================================================================
   # STAGE 4: Security
