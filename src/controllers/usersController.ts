@@ -195,3 +195,66 @@ export async function listUsers(req: Request, res: Response, next: NextFunction)
     next(error);
   }
 }
+
+/**
+ * Get inferred user IDs linked to a username.
+ */
+export async function getUserIdsByUsername(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const username = req.params.username?.trim();
+    if (!username) {
+      throw new ApiError(400, 'Invalid username');
+    }
+
+    logger.debug('Getting inferred user IDs by username', { username });
+    const links = await userService.getUserIdsByUsername(username);
+
+    res.json({
+      data: {
+        username,
+        user_ids: links,
+      },
+      count: links.length,
+      inferred: true,
+      attribution: OSM_ATTRIBUTION,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * Get inferred lifecycle history by user ID.
+ */
+export async function getInferredHistoryByUserId(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const userId = parseInt(req.params.user_id, 10);
+
+    if (isNaN(userId) || userId <= 0) {
+      throw new ApiError(400, 'Invalid user ID');
+    }
+
+    logger.debug('Getting inferred history by user ID', { userId });
+    const history = await userService.getInferredHistoryByUserId(userId);
+
+    res.json({
+      data: {
+        user_id: userId,
+        history,
+      },
+      count: history.length,
+      inferred: true,
+      attribution: OSM_ATTRIBUTION,
+    });
+  } catch (error) {
+    next(error);
+  }
+}

@@ -136,6 +136,32 @@ export interface UserProfile {
 }
 
 /**
+ * Inferred user ID link based on username activity.
+ */
+export interface InferredUserIdLink {
+  user_id: number;
+  username: string;
+  first_seen_at: Date | string;
+  last_seen_at: Date | string;
+  comments_count: number;
+  notes_count: number;
+  status: 'active' | 'inactive';
+}
+
+/**
+ * Inferred lifecycle event for a user identity.
+ */
+export interface InferredLifecycleEvent {
+  event_type: 'first_seen' | 'last_seen' | 'possible_user_id_change';
+  occurred_at: Date | string;
+  user_id: number;
+  username: string;
+  related_user_id?: number;
+  confidence: 'low' | 'medium';
+  inferred: true;
+}
+
+/**
  * Country profile from datamartCountries
  */
 export interface CountryProfile {

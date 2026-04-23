@@ -331,4 +331,88 @@ describe('userService', () => {
       expect(result.days_since_last_action).toBe(5);
     });
   });
+
+  describe('getUserIdsByUsername', () => {
+    it('should return inferred user ID links for a username', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            user_id: 12345,
+            username: 'test_user',
+            first_seen_at: '2024-01-01T00:00:00Z',
+            last_seen_at: new Date().toISOString(),
+            comments_count: '10',
+            notes_count: '8',
+          },
+        ],
+        rowCount: 1,
+      });
+
+      const result = await userService.getUserIdsByUsername('test_user');
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toMatchObject({
+        user_id: 12345,
+        username: 'test_user',
+        comments_count: 10,
+        notes_count: 8,
+      });
+      expect(['active', 'inactive']).toContain(result[0].status);
+    });
+  });
+
+  describe('getInferredHistoryByUserId', () => {
+    it('should return inferred history for a user ID', async () => {
+      mockQuery
+        .mockResolvedValueOnce({
+          rows: [{ username: 'test_user' }],
+          rowCount: 1,
+        })
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              user_id: 12345,
+              username: 'test_user',
+              first_seen_at: '2024-01-01T00:00:00Z',
+              last_seen_at: '2024-02-01T00:00:00Z',
+              comments_count: '10',
+              notes_count: '8',
+            },
+            {
+              user_id: 99999,
+              username: 'test_user',
+              first_seen_at: '2024-03-01T00:00:00Z',
+              last_seen_at: '2024-03-10T00:00:00Z',
+              comments_count: '4',
+              notes_count: '3',
+            },
+          ],
+          rowCount: 2,
+        });
+
+      const result = await userService.getInferredHistoryByUserId(12345);
+
+      expect(result.length).toBeGreaterThanOrEqual(2);
+      expect(result.some((event) => event.event_type === 'first_seen')).toBe(true);
+      expect(result.some((event) => event.event_type === 'last_seen')).toBe(true);
+      expect(result.some((event) => event.event_type === 'possible_user_id_change')).toBe(true);
+    });
+
+    it('should throw 404 when user ID has no username history', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [],
+        rowCount: 0,
+      });
+
+      try {
+        await userService.getInferredHistoryByUserId(12345);
+      } catch (error) {
+        expect(error).toBeInstanceOf(ApiError);
+        if (error instanceof ApiError) {
+          expect(error.statusCode).toBe(404);
+          expect(error.message).toBe('User not found');
+        }
+      }
+    });
+  });
 });

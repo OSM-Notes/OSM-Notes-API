@@ -101,4 +101,43 @@ describe('Users Endpoints', () => {
       expect(responses.length).toBe(15);
     });
   });
+
+  describe('GET /notes-api/v1/users/by-username/:username/user-ids', () => {
+    it('should return JSON response for valid username', async () => {
+      const response = await request(app)
+        .get('/notes-api/v1/users/by-username/test_user/user-ids')
+        .set('User-Agent', validUserAgent);
+
+      expect([200, 500]).toContain(response.status);
+      expect(response.headers['content-type']).toMatch(/json/);
+    });
+
+    it('should require User-Agent header', async () => {
+      const response = await request(app).get('/notes-api/v1/users/by-username/test_user/user-ids');
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+    });
+  });
+
+  describe('GET /notes-api/v1/users/:user_id/history-inferred', () => {
+    it('should return valid status for a numeric user ID', async () => {
+      const response = await request(app)
+        .get('/notes-api/v1/users/12345/history-inferred')
+        .set('User-Agent', validUserAgent);
+
+      expect([200, 404, 500]).toContain(response.status);
+      expect(response.headers['content-type']).toMatch(/json/);
+    });
+
+    it('should return 400 for invalid user ID', async () => {
+      const response = await request(app)
+        .get('/notes-api/v1/users/invalid/history-inferred')
+        .set('User-Agent', validUserAgent);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('message');
+    });
+  });
 });

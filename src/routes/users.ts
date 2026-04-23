@@ -54,6 +54,28 @@ router.get(
 );
 
 /**
+ * @route   GET /notes-api/v1/users/by-username/:username/user-ids
+ * @desc    Get inferred user IDs associated with a username
+ * @access  Public
+ */
+router.get(
+  '/by-username/:username/user-ids',
+  cacheHandler(cacheMiddleware({ ttl: 300 })),
+  asyncHandler(usersController.getUserIdsByUsername)
+);
+
+/**
+ * @route   GET /notes-api/v1/users/:user_id/history-inferred
+ * @desc    Get inferred lifecycle history by user ID
+ * @access  Public
+ */
+router.get(
+  '/:user_id/history-inferred',
+  cacheHandler(cacheMiddleware({ ttl: 300 })),
+  asyncHandler(usersController.getInferredHistoryByUserId)
+);
+
+/**
  * @route   GET /notes-api/v1/users/:user_id
  * @desc    Get user profile by ID
  * @access  Public

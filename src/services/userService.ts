@@ -6,7 +6,13 @@
 import { getDatabasePool } from '../config/database';
 import { logger } from '../utils/logger';
 import { ApiError } from '../middleware/errorHandler';
-import { UserProfile, UserListParams, SearchResult } from '../types';
+import {
+  UserProfile,
+  UserListParams,
+  SearchResult,
+  InferredUserIdLink,
+  InferredLifecycleEvent,
+} from '../types';
 import { buildActivityByYearFromRow } from '../utils/activityByYear';
 
 /** Row from `SELECT *` on dwh.datamartUsers; extra `history_YYYY_*` keys come from OSM-Notes-Analytics. */
@@ -42,6 +48,15 @@ interface UserListDbRow {
   history_whole_commented: number | string;
   avg_days_to_resolution: number | string | null;
   resolution_rate: number | string | null;
+}
+
+interface InferredUserIdLinkRow {
+  user_id: number | string;
+  username: string;
+  first_seen_at: Date | string;
+  last_seen_at: Date | string;
+  comments_count: number | string;
+  notes_count: number | string;
 }
 
 /**
@@ -236,6 +251,141 @@ export async function listUsers(params: UserListParams): Promise<SearchResult<Us
     };
   } catch (error) {
     logger.error('Error listing users', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw new ApiError(500, 'Internal server error');
+  }
+}
+
+/**
+ * Get inferred user IDs associated with a username from note comment activity.
+ * @param username - The username to analyze
+ * @returns Inferred list of user IDs and activity windows
+ */
+export async function getUserIdsByUsername(username: string): Promise<InferredUserIdLink[]> {
+  const pool = getDatabasePool();
+
+  try {
+    const query = `
+      SELECT
+        u.user_id,
+        u.username,
+        MIN(nc.created_at) AS first_seen_at,
+        MAX(nc.created_at) AS last_seen_at,
+        COUNT(*) AS comments_count,
+        COUNT(DISTINCT nc.note_id) AS notes_count
+      FROM public.users u
+      INNER JOIN public.note_comments nc ON nc.id_user = u.user_id
+      WHERE u.username = $1
+      GROUP BY u.user_id, u.username
+      ORDER BY MAX(nc.created_at) DESC
+    `;
+
+    logger.debug('Getting inferred user IDs by username', { username });
+    const result = await pool.query(query, [username]);
+
+    return (result.rows as InferredUserIdLinkRow[]).map((row) => {
+      const lastSeen = new Date(row.last_seen_at);
+      const inactiveThresholdMs = 90 * 24 * 60 * 60 * 1000;
+      const status: 'active' | 'inactive' =
+        Date.now() - lastSeen.getTime() <= inactiveThresholdMs ? 'active' : 'inactive';
+
+      return {
+        user_id: Number(row.user_id),
+        username: row.username,
+        first_seen_at: row.first_seen_at,
+        last_seen_at: row.last_seen_at,
+        comments_count:
+          typeof row.comments_count === 'string'
+            ? parseInt(row.comments_count, 10)
+            : row.comments_count,
+        notes_count:
+          typeof row.notes_count === 'string' ? parseInt(row.notes_count, 10) : row.notes_count,
+        status,
+      };
+    });
+  } catch (error) {
+    logger.error('Error getting inferred user IDs by username', {
+      username,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw new ApiError(500, 'Internal server error');
+  }
+}
+
+/**
+ * Get inferred lifecycle events by user ID, based on other user IDs that used the same username.
+ * @param userId - OSM user ID
+ * @returns Inferred lifecycle events
+ */
+export async function getInferredHistoryByUserId(
+  userId: number
+): Promise<InferredLifecycleEvent[]> {
+  const pool = getDatabasePool();
+
+  try {
+    const usernameQuery = `
+      SELECT u.username
+      FROM public.users u
+      WHERE u.user_id = $1
+      LIMIT 1
+    `;
+    const usernameResult = await pool.query(usernameQuery, [userId]);
+
+    if (usernameResult.rows.length === 0) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    const username = String((usernameResult.rows[0] as { username: unknown }).username);
+    const links = await getUserIdsByUsername(username);
+    const current = links.find((link) => link.user_id === userId);
+
+    if (!current) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    const events: InferredLifecycleEvent[] = [
+      {
+        event_type: 'first_seen',
+        occurred_at: current.first_seen_at,
+        user_id: current.user_id,
+        username: current.username,
+        confidence: 'medium',
+        inferred: true,
+      },
+      {
+        event_type: 'last_seen',
+        occurred_at: current.last_seen_at,
+        user_id: current.user_id,
+        username: current.username,
+        confidence: 'medium',
+        inferred: true,
+      },
+    ];
+
+    links
+      .filter((link) => link.user_id !== userId)
+      .forEach((link) => {
+        events.push({
+          event_type: 'possible_user_id_change',
+          occurred_at: link.first_seen_at,
+          user_id: userId,
+          username: current.username,
+          related_user_id: link.user_id,
+          confidence: 'low',
+          inferred: true,
+        });
+      });
+
+    events.sort((a, b) => new Date(a.occurred_at).getTime() - new Date(b.occurred_at).getTime());
+    return events;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
+    logger.error('Error getting inferred history by user ID', {
+      userId,
       error: error instanceof Error ? error.message : String(error),
     });
     throw new ApiError(500, 'Internal server error');
