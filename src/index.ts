@@ -33,13 +33,14 @@ function createApp(): Express {
   app.set('trust proxy', 1);
 
   // Security middleware
+  // Swagger UI (/docs) uses inline scripts; a strict script-src blocks the UI in browsers
   app.use(
     helmet({
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
-          scriptSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'"],
           imgSrc: ["'self'", 'data:', 'https:'],
         },
       },
