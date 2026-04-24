@@ -62,14 +62,14 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO osm_notes_ap
 -- VERIFY PERMISSIONS
 -- ============================================================================
 
--- Display user information
+-- Display user information (pg_roles: works on PostgreSQL 15+ where pg_user omits role flags)
 SELECT 
-  usename as username,
-  usesuper as is_superuser,
-  usecreatedb as can_create_db,
-  usecreatereole as can_create_role
-FROM pg_catalog.pg_user
-WHERE usename = 'osm_notes_api_user';
+  rolname AS username,
+  rolsuper AS is_superuser,
+  rolcreatedb AS can_create_db,
+  rolcreaterole AS can_create_role
+FROM pg_catalog.pg_roles
+WHERE rolname = 'osm_notes_api_user';
 
 -- Display schema permissions
 SELECT 
