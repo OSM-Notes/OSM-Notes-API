@@ -71,28 +71,28 @@ ALTER USER osm_notes_api_user WITH PASSWORD 'your_secure_password_here';
 
 ### Step 4: Verify Permissions
 
-Test that the user has correct permissions:
+Test that the user has correct permissions. Always pass **`-h`** (e.g. `127.0.0.1` or your server IP) so PostgreSQL uses **password** authentication; omitting `-h` uses a local socket and often triggers **peer** authentication, which fails unless your Linux username equals `osm_notes_api_user`.
 
 ```bash
-# Test connection
-psql -h $DB_HOST -U osm_notes_api_user -d osm_notes_dwh -c "SELECT 1;"
+# Test connection (set DB_NAME to your real DWH database, e.g. osm_notes_dwh or notes_dwh)
+psql -h $DB_HOST -U osm_notes_api_user -d $DB_NAME -c "SELECT 1;"
 
 # Test SELECT permission (should work)
-psql -h $DB_HOST -U osm_notes_api_user -d osm_notes_dwh \
+psql -h $DB_HOST -U osm_notes_api_user -d $DB_NAME \
      -c "SELECT COUNT(*) FROM dwh.datamartUsers LIMIT 1;"
 
 # Test INSERT is denied (should fail with permission denied)
-psql -h $DB_HOST -U osm_notes_api_user -d osm_notes_dwh \
+psql -h $DB_HOST -U osm_notes_api_user -d $DB_NAME \
      -c "INSERT INTO dwh.datamartUsers (user_id) VALUES (999999);"
 # Expected: ERROR: permission denied for table datamartUsers
 
 # Test UPDATE is denied (should fail with permission denied)
-psql -h $DB_HOST -U osm_notes_api_user -d osm_notes_dwh \
+psql -h $DB_HOST -U osm_notes_api_user -d $DB_NAME \
      -c "UPDATE dwh.datamartUsers SET username = 'test' WHERE user_id = 1;"
 # Expected: ERROR: permission denied for table datamartUsers
 
 # Test DELETE is denied (should fail with permission denied)
-psql -h $DB_HOST -U osm_notes_api_user -d osm_notes_dwh \
+psql -h $DB_HOST -U osm_notes_api_user -d $DB_NAME \
      -c "DELETE FROM dwh.datamartUsers WHERE user_id = 1;"
 # Expected: ERROR: permission denied for table datamartUsers
 ```
@@ -215,11 +215,12 @@ DB_MAX_CONNECTIONS=20
 
 ### PostgreSQL Configuration
 
-**`pg_hba.conf`** (PostgreSQL host-based authentication):
+**`pg_hba.conf`** (PostgreSQL host-based authentication; use your real `DB_NAME` and API host IP):
 ```
-# Allow API user only from API server IP
-host    osm_notes_dwh    osm_notes_api_user    192.168.0.7/32    md5
+# Allow API user only from API server IP (prefer scram-sha-256 on PostgreSQL 14+)
+host    osm_notes_dwh    osm_notes_api_user    192.168.0.7/32    scram-sha-256
 ```
+Use `md5` only if the cluster still requires it; match the authentication method to `pg_hba.conf` for TCP connections.
 
 **Connection limits** (optional):
 ```sql
@@ -263,18 +264,39 @@ If you get "permission denied" errors:
 
 If connection fails:
 
-1. **Verify password**:
+1. **Use the real database name**  
+   Your DWH may be `notes_dwh`, `osm_notes_dwh`, or another name. It must match the database where you ran `create_readonly_user.sql` and the value of `DB_NAME` in the API `.env`.
+
+2. **Verify password** (TCP + password auth, not local “peer”):
    ```bash
-   psql -h $DB_HOST -U osm_notes_api_user -d osm_notes_dwh
+   psql -h "$DB_HOST" -U osm_notes_api_user -d "$DB_NAME" -c "SELECT 1;"
    ```
+   Use `-W` if you want `psql` to always prompt for a password.
 
-2. **Check pg_hba.conf**: Ensure user is allowed to connect
+3. **`FATAL: Peer authentication failed`** (local socket, no `-h`)  
+   A command like `psql -U osm_notes_api_user -d ...` uses the Unix socket and, with typical `pg_hba.conf` lines for `local`, **peer** authentication requires the **Linux username** to match the **PostgreSQL role name**. Your OS user is not `osm_notes_api_user`, so peer auth fails.  
+   **Fix**: Force TCP so PostgreSQL uses `pg_hba.conf` `host` rules and password auth, e.g.:
+   ```bash
+   psql -h 127.0.0.1 -p 5432 -U osm_notes_api_user -d "$DB_NAME" -c "SELECT 1;"
+   ```
+   On the server, `pg_hba.conf` must allow this (see below), e.g. `host ... 127.0.0.1/32 scram-sha-256`.
 
-3. **Check firewall**: Ensure port 5432 is accessible
+4. **`FATAL: no pg_hba.conf entry for host "…", user "osm_notes_api_user", database "…"`**  
+   PostgreSQL is rejecting the client before password check: there is no matching line in `pg_hba.conf` for that **client IP** (as seen by the server), **database**, and **user**.  
+   **Fix** (on the database server, then reload: `sudo systemctl reload postgresql` or `SELECT pg_reload_conf();`):
+   - Password over TCP (adjust IP, DB name, and method to match your policy; `scram-sha-256` is typical on PostgreSQL 14+):
+     ```
+     host    notes_dwh    osm_notes_api_user    192.168.0.5/32    scram-sha-256
+     host    notes_dwh    osm_notes_api_user    127.0.0.1/32      scram-sha-256
+     ```
+   - If your client uses SSL (`sslmode=require` in connection string), you may need a `hostssl` line instead of `host`, or add a rule that matches SSL vs non-SSL as required.
+   - The IP in the error is the **client** connecting to Postgres (e.g. your API host or your laptop). Allow that subnet or host explicitly.
 
-4. **Check user exists**:
+5. **Check firewall**: Ensure port 5432 is reachable from the client to the server.
+
+6. **Check user exists**:
    ```sql
-   SELECT usename FROM pg_user WHERE usename = 'osm_notes_api_user';
+   SELECT rolname FROM pg_roles WHERE rolname = 'osm_notes_api_user';
    ```
 
 ## Related Documentation
