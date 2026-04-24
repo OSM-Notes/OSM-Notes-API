@@ -323,8 +323,16 @@ Search notes with various filters and pagination.
 }
 ```
 
-**Example**:
+**Examples**  
+`country` is **`id_country`** from Ingestion. The value **`42` is illustrative**; if no notes use that id, the response has **`data: []`** and **`total: 0`**.
+
 ```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/notes-api/v1/notes?country=60189&limit=10"
+
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/notes-api/v1/notes?status=open&limit=10"
+
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      "http://localhost:3000/notes-api/v1/notes?status=open&country=42&limit=10"
 ```
@@ -432,13 +440,13 @@ Get detailed profile and statistics for a specific user.
 |-----------|------|----------|-------------|
 | `user_id` | number | Yes | OSM user ID |
 
-**Response** (200 OK):
+**Response** (200 OK; shape illustrative):
 ```json
 {
   "data": {
     "dimension_user_id": 123,
-    "user_id": 12345,
-    "username": "example_user",
+    "user_id": 89128,
+    "username": "AngocA",
     "history_whole_open": 100,
     "history_whole_closed": 50,
     "history_whole_commented": 75,
@@ -448,7 +456,7 @@ Get detailed profile and statistics for a specific user.
     "days_since_last_action": 5,
     "applications_used": ["iD", "JOSM", "Vespucci"],
     "collaboration_patterns": {},
-    "countries_open_notes": [42, 43],
+    "countries_open_notes": [60189, 51477],
     "hashtags": ["#osm", "#mapping"],
     "date_starting_creating_notes": "2020-01-15T00:00:00Z",
     "date_starting_solving_notes": "2020-02-01T00:00:00Z",
@@ -459,10 +467,10 @@ Get detailed profile and statistics for a specific user.
 }
 ```
 
-**Example**:
+**Example** (OSM user id `89128` = AngocA):
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/notes-api/v1/users/12345
+     http://localhost:3000/notes-api/v1/users/89128
 ```
 
 **Error Responses**:
@@ -484,16 +492,16 @@ Get detailed profile and statistics for a specific country.
 |-----------|------|----------|-------------|
 | `country_id` | number | Yes | Country ID |
 
-**Response** (200 OK):
+**Response** (200 OK; shape illustrative):
 ```json
 {
   "data": {
     "dimension_country_id": 45,
-    "country_id": 42,
-    "country_name": "Colombia",
-    "country_name_en": "Colombia",
-    "country_name_es": "Colombia",
-    "iso_alpha2": "CO",
+    "country_id": 60189,
+    "country_name": "Россия",
+    "country_name_en": "Russia",
+    "country_name_es": "Rusia",
+    "iso_alpha2": "RU",
     "history_whole_open": 1000,
     "history_whole_closed": 800,
     "avg_days_to_resolution": 7.2,
@@ -512,10 +520,10 @@ Get detailed profile and statistics for a specific country.
 }
 ```
 
-**Example**:
+**Example** (`country_id` / `id_country`, e.g. `60189` as in note search docs):
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/notes-api/v1/countries/42
+     http://localhost:3000/notes-api/v1/countries/60189
 ```
 
 **Error Responses**:

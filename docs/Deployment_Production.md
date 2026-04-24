@@ -577,7 +577,7 @@ curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
      http://localhost:3000/notes-api/v1/users/1
 
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/notes-api/v1/countries/42
+     http://localhost:3000/notes-api/v1/countries/60189
 ```
 
 ### 3. Logs

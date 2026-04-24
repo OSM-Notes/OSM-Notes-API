@@ -128,23 +128,37 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 
 **Search Notes**:
 
+`country` must match **`id_country`** in Ingestion (`public.notes`), not an ISO code. The value **`42` in older examples is only a placeholder**: many databases have **no** notes with `id_country = 42`, so the API correctly returns **`data: []`** and **`total: 0`** — that is not an error.
+
+Examples that usually return rows when the planet data includes those countries (ids and counts depend on your snapshot):
+
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/notes-api/v1/notes?country=60189&limit=10"
+
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/notes-api/v1/notes?status=open&limit=10"
+```
+
+Illustrative filter (often empty on real data):
+
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      "http://localhost:3000/notes-api/v1/notes?status=open&country=42&limit=10"
 ```
 
-**Get User Profile**:
+**Get User Profile** (numeric OSM user id; `89128` = [AngocA](https://www.openstreetmap.org/user/AngocA)):
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/notes-api/v1/users/12345
+     http://localhost:3000/notes-api/v1/users/89128
 ```
 
-**Get Country Profile**:
+**Get Country Profile** (`country_id` / `id_country` from datamarts, not ISO; `60189` matches the notes search examples above):
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/notes-api/v1/countries/42
+     http://localhost:3000/notes-api/v1/countries/60189
 ```
 
 **Get Global Analytics**:
@@ -256,8 +270,8 @@ See [docs/USAGE.md](docs/Usage.md) for complete usage guide.
 - **OpenAPI Spec**: `GET /docs/json` - OpenAPI JSON specification
 
 **This project's API** (`/notes-api/v1/`):
-- `GET /notes-api/v1/users/:id` - Get user profile
-- `GET /notes-api/v1/countries/:id` - Get country profile
+- `GET /notes-api/v1/users/:id` - Get user profile (OSM numeric user id, e.g. `89128` for AngocA)
+- `GET /notes-api/v1/countries/:id` - Get country profile (`country_id` in DWH, e.g. `60189`)
 - `GET /notes-api/v1/notes` - Search notes
 - `GET /notes-api/v1/notes/:id` - Get specific note
 - `GET /notes-api/v1/analytics/global` - Global analytics

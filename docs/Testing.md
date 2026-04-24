@@ -114,19 +114,19 @@ curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
 **4. Search notes with filters:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     "http://localhost:3000/notes-api/v1/notes?status=open&country=42&limit=10"
+     "http://localhost:3000/notes-api/v1/notes?country=60189&limit=10"
 ```
 
 **5. Get user profile:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/notes-api/v1/users/12345
+     http://localhost:3000/notes-api/v1/users/89128
 ```
 
 **6. Get country profile:**
 ```bash
 curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
-     http://localhost:3000/notes-api/v1/countries/42
+     http://localhost:3000/notes-api/v1/countries/60189
 ```
 
 **7. Get global analytics:**
@@ -223,11 +223,11 @@ http GET localhost:3000/notes-api/v1/notes \
        - `limit`: `10`
 
    - **GET User Profile**
-     - URL: `{{base_url}}/notes-api/v1/users/12345`
+     - URL: `{{base_url}}/notes-api/v1/users/89128`
      - Method: GET
 
    - **GET Country Profile**
-     - URL: `{{base_url}}/notes-api/v1/countries/42`
+     - URL: `{{base_url}}/notes-api/v1/countries/60189`
      - Method: GET
 
    - **GET Global Analytics**
@@ -287,7 +287,7 @@ async function testEndpoints() {
     console.log('User:', users.status);
 
     // Test countries
-    const countries = await makeRequest('/notes-api/v1/countries/42');
+    const countries = await makeRequest('/notes-api/v1/countries/60189');
     console.log('Country:', countries.status);
 
     // Test analytics

@@ -224,11 +224,24 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 **With Filters**:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/notes-api/v1/notes?country=42&status=open&date_from=2024-01-01&date_to=2024-12-31&page=1&limit=20"
+     "http://localhost:3000/notes-api/v1/notes?country=60189&status=open&date_from=2024-01-01&date_to=2024-12-31&page=1&limit=20"
+```
+
+**`country` and empty results**  
+The `country` parameter is **`notes.id_country`** from OSM-Notes-Ingestion (how each note was assigned to a country polygon). It is **not** a generic “country code” you can guess: e.g. **`42` is often used in docs as a placeholder** and **many deployments have zero notes** with `id_country = 42`, so you get `data: []` and `total: 0` — the API is working. Use an `id_country` that exists in your database (see a note’s `id_country` from `GET /notes-api/v1/notes/:id` or query `public.notes`).
+
+**Examples that returned data** (one production-style snapshot; your totals will differ):
+
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/notes-api/v1/notes?country=60189&limit=10"
+
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/notes-api/v1/notes?status=open&limit=10"
 ```
 
 **Query Parameters**:
-- `country` (number): Filter by country ID
+- `country` (number): Filter by **`id_country`** (same field as in note objects), not ISO 3166-1 numeric
 - `status` (string): Filter by status (`open`, `closed`, `reopened`)
 - `user_id` (number): Filter by user ID
 - `date_from` (string): Filter notes created from this date (ISO format: `YYYY-MM-DD`)
@@ -287,7 +300,13 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 
 **Examples**:
 
-Search open notes in Colombia:
+Search open notes for a concrete `id_country` that exists in your data (replace `60189` after checking your DB):
+```bash
+curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
+     "http://localhost:3000/notes-api/v1/notes?country=60189&status=open"
+```
+
+Placeholder `country=42` (often returns **no rows** — see explanation above):
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      "http://localhost:3000/notes-api/v1/notes?country=42&status=open"
@@ -322,19 +341,19 @@ Combine multiple filters using AND (default) or OR operators:
 **AND Operator** (default - all conditions must match):
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/notes-api/v1/notes?country=42&status=open&operator=AND"
+     "http://localhost:3000/notes-api/v1/notes?country=60189&status=open&operator=AND"
 ```
 
 **OR Operator** (any condition can match):
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/notes-api/v1/notes?country=42&status=open&operator=OR"
+     "http://localhost:3000/notes-api/v1/notes?country=60189&status=open&operator=OR"
 ```
 
 **Combining Text Search with Filters**:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/notes-api/v1/notes?text=test&country=42&status=open&operator=AND"
+     "http://localhost:3000/notes-api/v1/notes?text=test&country=60189&status=open&operator=AND"
 ```
 
 **Advanced Query Parameters**:
@@ -356,30 +375,30 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
      "http://localhost:3000/notes-api/v1/notes?text=help"
 ```
 
-Search notes in Colombia OR Spain with text "fix":
+Search notes in two countries (replace ids with `id_country` values from your data) OR match text `"fix"`:
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     "http://localhost:3000/notes-api/v1/notes?country=42&country=43&text=fix&operator=OR"
+     "http://localhost:3000/notes-api/v1/notes?country=60189&country=51477&text=fix&operator=OR"
 ```
 
 **Note**: When using OR operator with multiple values of the same filter (e.g., multiple countries), you may need to make separate requests or use the text search combined with other filters.
 
 ### User Profile Endpoint
 
-Get detailed user profile with analytics and statistics.
+Get detailed user profile with analytics and statistics. The path parameter is the **numeric OSM user id** (not the display name). Example: **`89128`** = [AngocA](https://www.openstreetmap.org/user/AngocA).
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/notes-api/v1/users/12345
+     http://localhost:3000/notes-api/v1/users/89128
 ```
 
-**Response**:
+**Response** (shape illustrative; values depend on your DWH):
 ```json
 {
   "data": {
     "dimension_user_id": 123,
-    "user_id": 12345,
-    "username": "example_user",
+    "user_id": 89128,
+    "username": "AngocA",
     "history_whole_open": 100,
     "history_whole_closed": 50,
     "history_whole_commented": 75,
@@ -424,30 +443,30 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 
 **Example**:
 ```bash
-# Get user profile
+# Get user profile (AngocA on openstreetmap.org)
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/notes-api/v1/users/12345
+     http://localhost:3000/notes-api/v1/users/89128
 ```
 
 ### Country Profile Endpoint
 
-Get detailed country profile with analytics and statistics.
+Get detailed country profile with analytics and statistics. The id is **`country_id`** in the DWH (same family as `id_country` on notes), e.g. **`60189`** as in the note search examples.
 
 ```bash
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/notes-api/v1/countries/42
+     http://localhost:3000/notes-api/v1/countries/60189
 ```
 
-**Response**:
+**Response** (shape illustrative):
 ```json
 {
   "data": {
     "dimension_country_id": 45,
-    "country_id": 42,
-    "country_name": "Colombia",
-    "country_name_en": "Colombia",
-    "country_name_es": "Colombia",
-    "iso_alpha2": "CO",
+    "country_id": 60189,
+    "country_name": "Россия",
+    "country_name_en": "Russia",
+    "country_name_es": "Rusia",
+    "iso_alpha2": "RU",
     "history_whole_open": 1000,
     "history_whole_closed": 800,
     "avg_days_to_resolution": 7.2,
@@ -460,8 +479,8 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
     "users_open_notes": [
       {
         "rank": 1,
-        "user_id": 12345,
-        "username": "top_user",
+        "user_id": 89128,
+        "username": "AngocA",
         "quantity": 50
       }
     ],
@@ -480,9 +499,9 @@ curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
 
 **Example**:
 ```bash
-# Get country profile
+# Get country profile (same id as in /notes?country=60189)
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/notes-api/v1/countries/42
+     http://localhost:3000/notes-api/v1/countries/60189
 ```
 
 ### Global Analytics Endpoint
@@ -1365,10 +1384,10 @@ scrape_configs:
 ```bash
 # ✅ Correct
 curl -H "User-Agent: MyApp/1.0 (contact@example.com)" \
-     http://localhost:3000/notes-api/v1/users/12345
+     http://localhost:3000/notes-api/v1/users/89128
 
 # ❌ Incorrect
-curl http://localhost:3000/notes-api/v1/users/12345
+curl http://localhost:3000/notes-api/v1/users/89128
 ```
 
 ### 2. Respect Rate Limits

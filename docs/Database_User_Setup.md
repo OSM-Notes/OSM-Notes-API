@@ -123,6 +123,62 @@ psql -h 127.0.0.1 -d notes_dwh -U postgres -c "
 "
 ```
 
+## Foreign Data Wrapper (FDW) user mapping (when `public.*` is remote)
+
+If Analytics keeps **base tables on Ingestion** and exposes them in the DWH database as **foreign tables** (`postgres_fdw`), each **local** PostgreSQL role that runs `SELECT` on those tables needs a **user mapping**: credentials used when the DWH server opens a connection to Ingestion.
+
+Without it, queries to `public.notes` / `public.note_comments` fail with an error like:
+
+`user mapping not found for user "osm_notes_api_user", server "ingestion_server"`
+
+(`ingestion_server` is an example foreign server name; yours may differ — see `\des+` in `psql`.)
+
+**Fix** (connect to the **DWH** database as a superuser, e.g. `postgres`):
+
+1. Confirm the foreign server name:
+   ```sql
+   SELECT srvname FROM pg_foreign_server;
+   ```
+
+2. Create a mapping from the API role to a **read-only** role that exists on the **Ingestion** database and has `SELECT` on `public` (reuse the same remote user/password Analytics uses for ETL readers if your policy allows):
+   ```sql
+   CREATE USER MAPPING FOR osm_notes_api_user
+   SERVER ingestion_server
+   OPTIONS (user 'your_ingestion_readonly_user', password 'your_ingestion_password');
+   ```
+
+3. Inspect existing mappings (optional):
+   ```sql
+   SELECT r.rolname, s.srvname
+   FROM pg_user_mapping u
+   JOIN pg_roles r ON r.oid = u.umuser
+   JOIN pg_foreign_server s ON s.oid = u.umserver;
+   ```
+
+Use a dedicated read-only Ingestion user for the API if you do not want to share passwords across roles.
+
+### FDW: permission denied on base tables (e.g. note_comments)
+
+After a user mapping exists, errors like **`permission denied for table note_comments`** usually mean the **Ingestion** role named in `CREATE USER MAPPING … OPTIONS (user '…')` **does not have `SELECT`** on that table on the **Ingestion** database (the remote side of the FDW).
+
+**Fix on Ingestion** (connect to the Ingestion database as superuser; replace `your_ingestion_readonly_user` with the same login used in the user mapping):
+
+```sql
+GRANT USAGE ON SCHEMA public TO your_ingestion_readonly_user;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO your_ingestion_readonly_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO your_ingestion_readonly_user;
+```
+
+The API reads at least **`public.notes`** and **`public.note_comments`** for note detail/search; other endpoints may need **`note_comments_text`**, **`users`**, **`countries`**, etc. Grant `SELECT` on every `public` object your deployment exposes as foreign tables.
+
+**On the DWH** (`notes_dwh`), ensure the API role can use the foreign tables locally (re-run if tables were added after the API user was created):
+
+```sql
+GRANT USAGE ON SCHEMA public TO osm_notes_api_user;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO osm_notes_api_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO osm_notes_api_user;
+```
+
 ## Manual Creation (Alternative)
 
 If you prefer to create the user manually:
@@ -300,6 +356,14 @@ If connection fails:
    ```sql
    SELECT rolname FROM pg_roles WHERE rolname = 'osm_notes_api_user';
    ```
+
+### `user mapping not found for user "…", server "…"`
+
+The API user can connect to the DWH (`/health` shows database **up**) but endpoints that read **`public.notes`** (via FDW) return **500**. PostgreSQL needs a **`CREATE USER MAPPING FOR … SERVER …`** for `DB_USER` on the foreign server used for Ingestion. See [Foreign Data Wrapper (FDW) user mapping](#foreign-data-wrapper-fdw-user-mapping-when-public-is-remote).
+
+### `permission denied for table …` (FDW / Ingestion)
+
+See [FDW: permission denied on base tables](#fdw-permission-denied-on-base-tables-eg-note_comments) — grant **`SELECT`** on the remote Ingestion tables to the role used in the user mapping, and **`SELECT`** on foreign tables in the DWH to `osm_notes_api_user`.
 
 ## Related Documentation
 
