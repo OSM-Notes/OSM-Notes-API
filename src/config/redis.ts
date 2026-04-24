@@ -35,11 +35,34 @@ export function getRedisClient(): RedisClientType | null {
       database: env.REDIS_DB,
     });
 
+    // node-redis reconnects aggressively; without throttling, logs flood on ECONNREFUSED
+    let redisErrorLogAt = 0;
+    let redisErrorSuppressed = 0;
+    const REDIS_ERROR_LOG_MIN_INTERVAL_MS = 30_000;
+
     client.on('error', (err: Error) => {
-      logger.error('Redis client error', {
+      const now = Date.now();
+      if (now - redisErrorLogAt < REDIS_ERROR_LOG_MIN_INTERVAL_MS) {
+        redisErrorSuppressed++;
+        return;
+      }
+      redisErrorLogAt = now;
+      const suppressed = redisErrorSuppressed;
+      redisErrorSuppressed = 0;
+
+      const base = {
         error: err.message,
-        stack: err.stack,
-      });
+        host: env.REDIS_HOST,
+        port: env.REDIS_PORT,
+        ...(suppressed > 0 ? { similarErrorsSuppressed: suppressed } : {}),
+        ...(err.message.includes('ECONNREFUSED')
+          ? {
+              hint: 'No Redis at this host:port — start Redis, fix REDIS_HOST/REDIS_PORT, or set REDIS_HOST=disabled for in-memory rate limit and cache',
+            }
+          : {}),
+      };
+
+      logger.error('Redis client error', base);
     });
 
     client.on('connect', () => {
