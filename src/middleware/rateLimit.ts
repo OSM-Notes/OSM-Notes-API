@@ -36,13 +36,16 @@ type RequestWithFlags = Request & {
  * @internal Exported for testing only
  */
 export function createRedisStoreAdapter(
-  redisClient: ReturnType<typeof getRedisClient>
+  redisClient: ReturnType<typeof getRedisClient>,
+  /** Unique per rate limiter — required by express-rate-limit when using multiple limiters with Redis */
+  prefix = 'rl:'
 ): Store | undefined {
   if (!redisClient) {
     return undefined;
   }
 
   return new RedisStore({
+    prefix,
     sendCommand: async (
       ...args: (string | { command?: string[] })[]
     ): Promise<string | number | (string | number)[]> => {
@@ -157,14 +160,19 @@ export function generateIpKey(req: Request): string {
 /**
  * @internal Exported for testing only
  */
-export function createStore(): Store | undefined {
+let loggedRateLimitBackend = false;
+
+export function createStore(redisKeyPrefix = 'rl:'): Store | undefined {
   const redisClient = getRedisClient();
 
   if (redisClient) {
     try {
-      const store = createRedisStoreAdapter(redisClient);
+      const store = createRedisStoreAdapter(redisClient, redisKeyPrefix);
       if (store) {
-        logger.info('Using Redis store for rate limiting');
+        if (!loggedRateLimitBackend) {
+          logger.info('Using Redis store for rate limiting');
+          loggedRateLimitBackend = true;
+        }
         return store;
       }
     } catch (error) {
@@ -174,11 +182,17 @@ export function createStore(): Store | undefined {
     }
   }
 
-  logger.warn('Using in-memory rate limit store (Redis not available)');
+  if (!loggedRateLimitBackend) {
+    logger.warn('Using in-memory rate limit store (Redis not available)');
+    loggedRateLimitBackend = true;
+  }
   return undefined;
 }
 
-const sharedRateLimitStore = createStore();
+/** Separate Store instances — sharing one RedisStore across limiters triggers ERR_ERL_STORE_REUSE */
+const rateLimitStoreBot = createStore('rl:bot:');
+const rateLimitStoreAnon = createStore('rl:anon:');
+const rateLimitStorePerIp = createStore('rl:ip:');
 
 function skipHealth(req: Request): boolean {
   return req.path === '/health';
@@ -194,7 +208,7 @@ const rateLimitBotClientMiddleware = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  store: sharedRateLimitStore,
+  store: rateLimitStoreBot,
   keyGenerator: (req: Request) => generateClientKey(req, 'bot'),
   handler: (req: Request, res: Response) => {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
@@ -220,7 +234,7 @@ const rateLimitAnonymousClientMiddleware = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  store: sharedRateLimitStore,
+  store: rateLimitStoreAnon,
   keyGenerator: (req: Request) => generateClientKey(req, 'anon'),
   handler: (req: Request, res: Response) => {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
@@ -246,7 +260,7 @@ const rateLimitPerIpMiddleware = rateLimit({
   },
   standardHeaders: false,
   legacyHeaders: false,
-  store: sharedRateLimitStore,
+  store: rateLimitStorePerIp,
   keyGenerator: generateIpKey,
   handler: (req: Request, res: Response) => {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
