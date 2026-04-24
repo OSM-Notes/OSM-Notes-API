@@ -101,7 +101,9 @@ psql -h $DB_HOST -U osm_notes_api_user -d $DB_NAME \
 
 The API reads from the Analytics data warehouse in the `dwh` schema. **The database user used by the API must have these permissions**, or the health check will show `database: down` and analytics endpoints will return 500.
 
-If the user was created by OSM-Notes-Analytics (e.g. `osm_notes_analytics_user`) or created manually without schema access, run as a PostgreSQL superuser (replace `your_api_db_user` and `your_dwh_database` with your actual `DB_USER` and `DB_NAME` from `.env`):
+**If you already followed this guide and ran `scripts/create_readonly_user.sql` for `osm_notes_api_user`, skip this subsection** — that script already applies the same grants to `osm_notes_api_user`.
+
+Use the commands below only when the role in `DB_USER` is **not** covered by that script (for example you reuse `osm_notes_analytics_user` for the API) or when someone created the API user **without** `USAGE` / `SELECT` on `dwh`. Run as a PostgreSQL superuser (replace `your_api_db_user` and `your_dwh_database` with your actual `DB_USER` and `DB_NAME` from `.env`):
 
 ```bash
 psql -h 127.0.0.1 -d your_dwh_database -U postgres -c "
@@ -111,7 +113,7 @@ psql -h 127.0.0.1 -d your_dwh_database -U postgres -c "
 "
 ```
 
-Example for user `osm_notes_analytics_user` and database `notes_dwh`:
+Example (same idea, different role): user `osm_notes_analytics_user` and database `notes_dwh`. **Do not run this for `osm_notes_api_user` if `create_readonly_user.sql` already succeeded** — you would duplicate work already done by the script.
 
 ```bash
 psql -h 127.0.0.1 -d notes_dwh -U postgres -c "
