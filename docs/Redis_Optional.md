@@ -215,11 +215,11 @@ curl http://localhost:3000/health
 ### Verify rate limiting with Redis
 
 ```bash
-# Check rate limiting keys
-redis-cli KEYS "rate-limit:*"
+# Check rate limiting keys (prefix used by express-rate-limit + this API)
+redis-cli KEYS "rate_limit:*"
 
-# Check specific value
-redis-cli GET "rate-limit:192.168.1.1:MyApp/1.0"
+# Example: anonymous per-client bucket (IP + app/version identifier)
+redis-cli GET "rate_limit:anon:192.168.1.1:MyApp/1.0"
 ```
 
 ### Verify cache

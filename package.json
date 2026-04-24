@@ -19,6 +19,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
     "type-check": "tsc --noEmit",
+    "type-check:src": "tsc --noEmit -p tsconfig.src.json",
     "prepare": "node -e \"const fs=require('fs');const p=require('path');const c=process.cwd();const bin=p.join(c,'node_modules','.bin','husky');if(fs.existsSync(p.join(c,'.git'))&&fs.existsSync(bin))require('child_process').execFileSync('node',[bin,'install'],{stdio:'inherit',cwd:c});\""
   },
   "keywords": [

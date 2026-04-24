@@ -107,7 +107,7 @@ User-Agent: MyApp/1.0 (invalid)         # Invalid contact format
 
 ### OAuth Authentication (Future)
 
-OAuth authentication will be available in Phase 5 for higher rate limits and access to advanced features. Those features (subscriptions, webhooks, and related endpoints) are planned under the **`/notes-api/v2`** path prefix; see [API Versioning](API_Versioning.md).
+OAuth authentication will be available in Phase 5 for higher rate limits and access to advanced features. Those features (subscriptions, webhooks, and related endpoints) are planned under the **`/notes-api/v2`** path prefix; see [API Versioning](API_Versioning.md). **Authenticated rate limits are not enforced in the application yet**; only anonymous, bot, and per-IP rules below apply today.
 
 ---
 
@@ -115,20 +115,21 @@ OAuth authentication will be available in Phase 5 for higher rate limits and acc
 
 ### Limits
 
-- **Anonymous users**: 50 requests per 15 minutes per IP + User-Agent combination
-- **Authenticated users** (Phase 5): 1000 requests/hour
-- **Detected bots**: 10 requests/hour
+- **Anonymous users** (non-bot `User-Agent`): 50 requests per 15 minutes per IP + User-Agent combination
+- **Detected bots** (e.g. curl, wget, python-requests, axios — see anti-abuse patterns): 10 requests per hour per IP + User-Agent combination
+- **Per IP (aggregate)**: 150 requests per 15 minutes from the same IP across all User-Agents (reduces abuse from rotating `User-Agent` strings)
+- **Authenticated users** (Phase 5): 1000 requests/hour — planned; not yet applied by the server
 
 ### How It Works
 
-Rate limiting is enforced **per IP address and User-Agent combination**, meaning:
-- Different applications (different User-Agent) from the same IP have separate limits
-- Same application from different IPs have separate limits
+Per-client limits use **IP address + User-Agent** (or parsed app name/version when available). Additionally, **all traffic from one IP** counts toward the aggregate cap.
+
+- Different applications (different User-Agent) from the same IP have separate per-client buckets, but share the per-IP aggregate limit
 - Health check endpoint (`/health`) is excluded from rate limiting
 
 ### Response Headers
 
-All responses include rate limiting information:
+Responses include **`RateLimit-*` headers for the active per-client tier** (50/15 min for anonymous, or 10/hour for detected bots). The per-IP aggregate limit does not add a second `RateLimit-*` header (you still get `429` with an explanatory message if that cap is hit).
 
 ```
 RateLimit-Limit: 50
@@ -137,18 +138,18 @@ RateLimit-Reset: 1234567890
 ```
 
 **Headers**:
-- `RateLimit-Limit`: Maximum number of requests allowed in the window
-- `RateLimit-Remaining`: Number of requests remaining in current window
+- `RateLimit-Limit`: Maximum number of requests allowed in the window for the current client tier
+- `RateLimit-Remaining`: Number of requests remaining in current window for that tier
 - `RateLimit-Reset`: Unix timestamp (seconds) when the rate limit resets
 
 ### Rate Limit Exceeded
 
-When rate limit is exceeded, you'll receive a `429 Too Many Requests` response:
+When rate limit is exceeded, you'll receive a `429 Too Many Requests` response. The `message` field describes which limit was hit (anonymous per-client, bot tier, or per-IP aggregate). Example (anonymous tier):
 
 ```json
 {
   "error": "Too Many Requests",
-  "message": "Rate limit exceeded. Maximum 50 requests per 15 minutes allowed.",
+  "message": "Rate limit exceeded. Maximum 50 requests per 15 minutes allowed per application (IP + User-Agent).",
   "statusCode": 429
 }
 ```

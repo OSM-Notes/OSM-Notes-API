@@ -440,8 +440,8 @@ k6 run tests/load/all-endpoints.js
 ## 🔒 Security
 
 - **User-Agent required**: All requests must include a valid User-Agent with format `AppName/Version (Contact)`
-- **Rate Limiting**: 50 requests/15min for anonymous users, 1000 req/hour for authenticated
-- **Anti-abuse protection**: Automatic blocking of known AIs and bots without OAuth
+- **Rate limiting**: 50 requests/15min per IP+UA (anonymous), 10/hour for detected automation User-Agents, 150/15min aggregate per IP; higher quotas for authenticated users are planned (Phase 5)
+- **Anti-abuse protection**: Blocking of known AI `User-Agent` patterns without OAuth; stricter limits for common tool/bot clients
 - **Security headers**: Helmet.js configured with security best practices
 - **Input validation**: All inputs validated with Joi schemas
 - **Optional OAuth**: Available for advanced features (Phase 5)

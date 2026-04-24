@@ -34,12 +34,21 @@ describe('Rate Limiting Middleware Integration', () => {
       expect(response.headers).toHaveProperty('ratelimit-reset');
     });
 
-    it('should show correct limit (50 requests)', async () => {
+    it('should show correct limit (50 requests) for anonymous clients', async () => {
       const response = await request(app).get('/notes-api/v1').set('User-Agent', validUserAgent);
 
       expect(response.status).toBe(200);
       const limit = parseInt(response.headers['ratelimit-limit'] || '0', 10);
       expect(limit).toBe(50);
+    });
+
+    it('should show limit 10 for detected bot User-Agents', async () => {
+      const botUa = 'curl/8.0 (test@example.com)';
+      const response = await request(app).get('/notes-api/v1').set('User-Agent', botUa);
+
+      expect(response.status).toBe(200);
+      const limit = parseInt(response.headers['ratelimit-limit'] || '0', 10);
+      expect(limit).toBe(10);
     });
 
     it('should decrement remaining count', async () => {

@@ -86,7 +86,7 @@ This document defines the Service Level Agreements (SLAs) and Service Level Obje
 - Measured via Prometheus (`rate(http_requests_total[1m])`)
 
 **Current Status**:
-- Rate limiting configured: 50 req/15min per IP+User-Agent
+- Rate limiting configured: 50 req/15min per IP+User-Agent (anonymous), 10/hour (detected bot `User-Agent`s), 150 req/15min aggregate per IP
 - Load testing scripts available (k6)
 - Monitoring via Grafana dashboards
 

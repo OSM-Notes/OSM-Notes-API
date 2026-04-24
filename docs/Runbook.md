@@ -523,10 +523,10 @@ If Redis is used:
 redis-cli
 
 # List rate limit keys
-KEYS rate-limit:*
+KEYS rate_limit:*
 
 # Delete all rate limit keys (use with caution)
-KEYS rate-limit:* | xargs redis-cli DEL
+KEYS rate_limit:* | xargs redis-cli DEL
 ```
 
 **Warning**: This resets rate limits for all users. Use only in emergencies.
@@ -713,12 +713,11 @@ curl http://localhost:3000/metrics
 
 3. **Clear rate limit counters** (if needed):
    ```bash
-   redis-cli KEYS rate-limit:* | xargs redis-cli DEL
+   redis-cli KEYS rate_limit:* | xargs redis-cli DEL
    ```
 
 4. **Temporarily increase limits** (if needed):
-   - Edit `src/middleware/rateLimit.ts`
-   - Increase `max` value
+   - Edit `src/middleware/rateLimit.ts` (`RATE_LIMIT_ANON_MAX`, `RATE_LIMIT_PER_IP_MAX`, `RATE_LIMIT_BOT_MAX`, etc.)
    - Redeploy
 
 ---

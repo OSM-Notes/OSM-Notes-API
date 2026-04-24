@@ -133,32 +133,35 @@ psql -h $DB_HOST -U $DB_USER -d $DB_NAME -c \
 
 ### 429 Too Many Requests
 
-**Error**: `Rate limit exceeded. Maximum 50 requests per 15 minutes allowed.`
+**Error**: Message varies by which limit fired, for example:
+- Per anonymous client: `Maximum 50 requests per 15 minutes allowed per application (IP + User-Agent).`
+- Per detected bot client: `maximum 10 requests per hour allowed.`
+- Per IP aggregate: `Maximum 150 aggregate requests per 15 minutes allowed per IP address.`
 
-**Cause**: Exceeded rate limit for IP + User-Agent combination
+**Cause**: Exceeded one of the configured rate limits (per-client anonymous, per-client bot, or aggregate per IP)
 
 **Solution**:
-1. Wait 15 minutes for the limit to reset
-2. Use a different User-Agent (different app)
-3. Use a different IP address
-4. Check rate limit headers:
+1. Read the JSON `message` to see which limit applied
+2. Wait for the window to reset (15 minutes for anonymous and per-IP caps; 1 hour for bot tier), or reduce request rate
+3. Avoid rotating `User-Agent` strings to bypass limits; aggregate per-IP limits are enforced for that reason
+4. For automation tools (curl, python-requests, etc.), use an application-specific `User-Agent` if you need the anonymous tier — see API documentation (tool names in `User-Agent` still count as bots)
+5. Check rate limit headers on successful responses:
    ```bash
    curl -I -H "User-Agent: MyApp/1.0 (contact@example.com)" \
         http://localhost:3000/notes-api/v1/notes
    ```
    Look for:
-   - `RateLimit-Limit`: Maximum requests allowed
-   - `RateLimit-Remaining`: Remaining requests
-   - `RateLimit-Reset`: Unix timestamp when limit resets
+   - `RateLimit-Limit`: Maximum requests allowed for the current client tier
+   - `RateLimit-Remaining`: Remaining requests in that tier
+   - `RateLimit-Reset`: Unix timestamp when that tier resets
 
 **Reset Rate Limit** (if Redis is used):
 ```bash
 # Connect to Redis
 redis-cli
 
-# Delete rate limit keys (use with caution)
-KEYS rate-limit:*
-DEL rate-limit:*
+# Delete rate limit keys (use with caution; prefix used by the API)
+KEYS rate_limit:*
 ```
 
 ---
@@ -419,19 +422,13 @@ curl -H "User-Agent: TestApp/1.0 (test@example.com)" \
 ### Rate Limit Too Restrictive
 
 **Current Limits**:
-- Anonymous: 50 requests per 15 minutes
-- Authenticated: 1000 requests/hour (when OAuth available)
-- Bots: 10 requests/hour
+- Anonymous: 50 requests per 15 minutes per IP + User-Agent
+- Per IP (aggregate): 150 requests per 15 minutes
+- Bots (detected `User-Agent`): 10 requests per hour per IP + User-Agent
+- Authenticated: 1000 requests/hour (Phase 5; not enforced in application code yet)
 
 **Adjust Limits** (if needed):
-Edit `src/middleware/rateLimit.ts`:
-```typescript
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,  // 15 minutes
-  max: 50,                    // 50 requests
-  // ...
-});
-```
+Edit the exported constants in `src/middleware/rateLimit.ts` (`RATE_LIMIT_ANON_MAX`, `RATE_LIMIT_PER_IP_MAX`, `RATE_LIMIT_BOT_MAX`, and corresponding window constants).
 
 ### Rate Limit Not Resetting
 
@@ -634,8 +631,8 @@ LOG_LEVEL=debug
 Check Redis keys:
 ```bash
 redis-cli
-KEYS rate-limit:*
-GET rate-limit:127.0.0.1:MyApp/1.0
+KEYS rate_limit:*
+GET rate_limit:anon:127.0.0.1:MyApp/1.0
 ```
 
 **Request Tracing**:

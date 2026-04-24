@@ -1,49 +1,38 @@
 /**
  * Rate limiting middleware
- * Limits requests per IP + User-Agent combination
+ * Limits requests per IP + User-Agent combination, with stricter tiers for detected bots
+ * and an aggregate cap per IP to reduce User-Agent rotation abuse.
  *
  * @module middleware/rateLimit
- * @description
- * This middleware implements rate limiting using express-rate-limit with Redis as the backing store.
- * Rate limits are enforced per IP address and User-Agent combination to prevent abuse while
- * allowing legitimate applications to make requests.
- *
- * **Rate Limits:**
- * - Anonymous users: 50 requests per 15 minutes
- * - Per IP + User-Agent combination (different apps from same IP have separate limits)
- * - Health check endpoint (`/health`) is excluded from rate limiting
- *
- * **Headers:**
- * - `RateLimit-Limit`: Maximum number of requests allowed
- * - `RateLimit-Remaining`: Number of requests remaining in current window
- * - `RateLimit-Reset`: Unix timestamp when the rate limit resets
- *
- * **Error Response (429):**
- * When rate limit is exceeded, returns:
- * ```json
- * {
- *   "error": "Too Many Requests",
- *   "message": "Rate limit exceeded. Maximum 50 requests per 15 minutes allowed.",
- *   "statusCode": 429
- * }
- * ```
  */
 
 import rateLimit from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
 import type { Store } from 'express-rate-limit';
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { getRedisClient } from '../config/redis';
 import { logger } from '../utils/logger';
 import { trackRateLimitExceeded } from './metrics';
 
+/** Anonymous clients: requests per rolling window */
+export const RATE_LIMIT_ANON_WINDOW_MS = 15 * 60 * 1000;
+export const RATE_LIMIT_ANON_MAX = 50;
+
+/** Detected automation clients (curl, python-requests, etc.): per ADR-0005 */
+export const RATE_LIMIT_BOT_WINDOW_MS = 60 * 60 * 1000;
+export const RATE_LIMIT_BOT_MAX = 10;
+
+/** Aggregate cap per IP (all UAs), same window as anonymous tier */
+export const RATE_LIMIT_PER_IP_WINDOW_MS = 15 * 60 * 1000;
+export const RATE_LIMIT_PER_IP_MAX = 150;
+
+type RequestWithFlags = Request & {
+  isBot?: boolean;
+  userAgentInfo?: { appName: string; version: string };
+};
+
 /**
  * Redis client adapter for rate-limit-redis
- * Adapts redis v4 client to work with RedisStore
- *
- * @param redisClient - Redis client instance from getRedisClient()
- * @returns RedisStore instance or undefined if Redis is not available
- * @private
  * @internal Exported for testing only
  */
 export function createRedisStoreAdapter(
@@ -61,7 +50,6 @@ export function createRedisStoreAdapter(
         await redisClient.connect();
       }
 
-      // Support both (command, ...rest) and ({ command: [...] }) call styles
       const first = args[0];
       const commandArray =
         typeof first === 'object' &&
@@ -72,7 +60,6 @@ export function createRedisStoreAdapter(
       const command = (commandArray[0] ?? '').toString().toUpperCase();
       const commandArgs = commandArray.slice(1).map((a) => (a ?? '').toString());
 
-      // Map commands to redis v4 methods
       switch (command) {
         case 'INCR': {
           const result = await redisClient.incr(commandArgs[0] || '');
@@ -98,23 +85,17 @@ export function createRedisStoreAdapter(
           return result ?? 0;
         }
         case 'SCRIPT': {
-          // SCRIPT LOAD - Load a Lua script and return SHA1 hash
-          // For testing, we return a mock hash
           if (commandArgs[0]?.toUpperCase() === 'LOAD') {
-            // Return a mock SHA1 hash for the script
             return 'mock_script_hash_' + Math.random().toString(36).substring(7);
           }
-          // SCRIPT EXISTS - Check if scripts exist
           if (commandArgs[0]?.toUpperCase() === 'EXISTS') {
-            // Return 1 for any script hash (they all "exist" in our mock)
             return 1;
           }
           throw new Error(`Unsupported SCRIPT subcommand: ${commandArgs[0]}`);
         }
         case 'EVALSHA': {
-          // EVALSHA: rate-limit-redis expects [totalHits, timeToExpireMs] (same as Lua script return)
           const key = commandArgs[2] || '';
-          const isIncrementScript = commandArgs.length >= 5; // increment: EVALSHA sha 1 key reset windowMs
+          const isIncrementScript = commandArgs.length >= 5;
 
           if (isIncrementScript) {
             const windowMs = parseInt(commandArgs[4] || '0', 10);
@@ -126,7 +107,6 @@ export function createRedisStoreAdapter(
             const timeToExpireMs = ttlSeconds >= 0 ? ttlSeconds * 1000 : windowMs;
             return [Number(current), Number(timeToExpireMs)];
           }
-          // Get script: EVALSHA sha 1 key -> return [totalHits, timeToExpire]
           const totalHits = parseInt((await redisClient.get(key)) || '0', 10) || 0;
           const ttlSeconds = await redisClient.ttl(key);
           const timeToExpireMs = ttlSeconds >= 0 ? ttlSeconds * 1000 : 0;
@@ -144,31 +124,37 @@ export function createRedisStoreAdapter(
 }
 
 /**
- * Generate a key for rate limiting based on IP and User-Agent
- *
- * @param req - Express request object
- * @returns Rate limit key in format: `rate_limit:{ip}:{userAgent}`
- * @private
+ * Key for per-client buckets (anonymous or bot — separate prefixes, mutually exclusive middleware).
  * @internal Exported for testing only
  */
-export function generateKey(req: Request): string {
+export function generateClientKey(req: Request, bucketPrefix: 'anon' | 'bot'): string {
   const ip = req.ip || req.socket.remoteAddress || 'unknown';
   const userAgent = req.get('User-Agent') || 'unknown';
-  // Use User-Agent info if available (from validateUserAgent middleware)
-  const userAgentInfo = (req as Request & { userAgentInfo?: { appName: string; version: string } })
-    .userAgentInfo;
+  const userAgentInfo = (req as RequestWithFlags).userAgentInfo;
   const identifier = userAgentInfo
     ? `${userAgentInfo.appName}/${userAgentInfo.version}`
     : userAgent;
 
-  return `rate_limit:${ip}:${identifier}`;
+  return `rate_limit:${bucketPrefix}:${ip}:${identifier}`;
 }
 
 /**
- * Create rate limit store (Redis if available, otherwise memory)
- *
- * @returns Store instance (RedisStore or undefined for memory store)
- * @private
+ * @deprecated Use generateClientKey(req, 'anon') for new code; kept for tests that expect the old name.
+ */
+export function generateKey(req: Request): string {
+  return generateClientKey(req, 'anon');
+}
+
+/**
+ * Aggregate per-IP key (all clients).
+ * @internal Exported for testing only
+ */
+export function generateIpKey(req: Request): string {
+  const ip = req.ip || req.socket.remoteAddress || 'unknown';
+  return `rate_limit:ip:${ip}`;
+}
+
+/**
  * @internal Exported for testing only
  */
 export function createStore(): Store | undefined {
@@ -188,70 +174,101 @@ export function createStore(): Store | undefined {
     }
   }
 
-  // Fallback to memory store if Redis is not available
   logger.warn('Using in-memory rate limit store (Redis not available)');
-  return undefined; // express-rate-limit will use memory store by default
+  return undefined;
 }
 
-/**
- * Rate limit middleware instance
- *
- * @description
- * Express middleware that enforces rate limiting on all requests.
- * Uses Redis for distributed rate limiting when available, falls back to memory store.
- *
- * **Configuration:**
- * - Window: 15 minutes
- * - Max requests: 50 per window per IP + User-Agent
- * - Store: Redis (if available) or memory
- * - Key generator: IP + User-Agent combination
- * - Skip condition: Health check endpoint (`/health`)
- *
- * **Usage:**
- * ```typescript
- * import { rateLimitMiddleware } from './middleware/rateLimit';
- * app.use(rateLimitMiddleware);
- * ```
- *
- * @example
- * // Apply to all routes
- * app.use(rateLimitMiddleware);
- *
- * // Or apply to specific routes
- * app.use('/notes-api/v1', rateLimitMiddleware);
- */
-export const rateLimitMiddleware = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // Limit each IP + User-Agent to 50 requests per windowMs
+const sharedRateLimitStore = createStore();
+
+function skipHealth(req: Request): boolean {
+  return req.path === '/health';
+}
+
+const rateLimitBotClientMiddleware = rateLimit({
+  windowMs: RATE_LIMIT_BOT_WINDOW_MS,
+  max: RATE_LIMIT_BOT_MAX,
   message: {
     error: 'Too Many Requests',
-    message: 'Rate limit exceeded. Maximum 50 requests per 15 minutes allowed.',
+    message: `Rate limit exceeded. Detected automation User-Agent: maximum ${RATE_LIMIT_BOT_MAX} requests per hour allowed.`,
     statusCode: 429,
   },
-  standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
-  legacyHeaders: false, // Disable `X-RateLimit-*` headers
-  store: createStore(),
-  keyGenerator: generateKey,
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: sharedRateLimitStore,
+  keyGenerator: (req: Request) => generateClientKey(req, 'bot'),
   handler: (req: Request, res: Response) => {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     const userAgent = req.get('User-Agent') || 'unknown';
-
-    // Track rate limit exceeded in metrics
     trackRateLimitExceeded(ip, userAgent);
-
-    logger.warn('Rate limit exceeded', {
-      ip,
-      userAgent,
-      path: req.path,
-    });
+    logger.warn('Rate limit exceeded (bot tier)', { ip, userAgent, path: req.path });
     res.status(429).json({
       error: 'Too Many Requests',
-      message: 'Rate limit exceeded. Maximum 50 requests per 15 minutes allowed.',
+      message: `Rate limit exceeded. Detected automation User-Agent: maximum ${RATE_LIMIT_BOT_MAX} requests per hour allowed.`,
       statusCode: 429,
     });
   },
-  skip: (req: Request) => {
-    // Skip rate limiting for health checks (optional)
-    return req.path === '/health';
-  },
+  skip: (req: Request) => skipHealth(req) || !(req as RequestWithFlags).isBot,
 });
+
+const rateLimitAnonymousClientMiddleware = rateLimit({
+  windowMs: RATE_LIMIT_ANON_WINDOW_MS,
+  max: RATE_LIMIT_ANON_MAX,
+  message: {
+    error: 'Too Many Requests',
+    message: `Rate limit exceeded. Maximum ${RATE_LIMIT_ANON_MAX} requests per 15 minutes allowed per application (IP + User-Agent).`,
+    statusCode: 429,
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: sharedRateLimitStore,
+  keyGenerator: (req: Request) => generateClientKey(req, 'anon'),
+  handler: (req: Request, res: Response) => {
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    const userAgent = req.get('User-Agent') || 'unknown';
+    trackRateLimitExceeded(ip, userAgent);
+    logger.warn('Rate limit exceeded (anonymous client tier)', { ip, userAgent, path: req.path });
+    res.status(429).json({
+      error: 'Too Many Requests',
+      message: `Rate limit exceeded. Maximum ${RATE_LIMIT_ANON_MAX} requests per 15 minutes allowed per application (IP + User-Agent).`,
+      statusCode: 429,
+    });
+  },
+  skip: (req: Request) => skipHealth(req) || !!(req as RequestWithFlags).isBot,
+});
+
+const rateLimitPerIpMiddleware = rateLimit({
+  windowMs: RATE_LIMIT_PER_IP_WINDOW_MS,
+  max: RATE_LIMIT_PER_IP_MAX,
+  message: {
+    error: 'Too Many Requests',
+    message: `Rate limit exceeded. Maximum ${RATE_LIMIT_PER_IP_MAX} aggregate requests per 15 minutes allowed per IP address.`,
+    statusCode: 429,
+  },
+  standardHeaders: false,
+  legacyHeaders: false,
+  store: sharedRateLimitStore,
+  keyGenerator: generateIpKey,
+  handler: (req: Request, res: Response) => {
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    const userAgent = req.get('User-Agent') || 'unknown';
+    trackRateLimitExceeded(ip, userAgent);
+    logger.warn('Rate limit exceeded (per-IP aggregate)', { ip, userAgent, path: req.path });
+    res.status(429).json({
+      error: 'Too Many Requests',
+      message: `Rate limit exceeded. Maximum ${RATE_LIMIT_PER_IP_MAX} aggregate requests per 15 minutes allowed per IP address.`,
+      statusCode: 429,
+    });
+  },
+  skip: skipHealth,
+});
+
+/**
+ * Full rate limit stack: bot tier, anonymous tier, then per-IP aggregate cap.
+ */
+export function rateLimitMiddleware(req: Request, res: Response, next: NextFunction): void {
+  rateLimitBotClientMiddleware(req, res, () => {
+    rateLimitAnonymousClientMiddleware(req, res, () => {
+      rateLimitPerIpMiddleware(req, res, next);
+    });
+  });
+}

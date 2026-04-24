@@ -47,9 +47,10 @@ You agree NOT to use the Service to:
 
 The Service implements rate limiting to ensure fair usage:
 
-- **Anonymous Users**: 50 requests per 15 minutes per IP address and User-Agent combination
-- **Authenticated Users**: 1000 requests per hour (when OAuth is available)
-- **Bots/Automated Tools**: 10 requests per hour
+- **Anonymous Users**: 50 requests per 15 minutes per IP address and User-Agent combination (non-bot clients)
+- **Bots/Automated Tools** (detected `User-Agent` patterns): 10 requests per hour per IP and User-Agent combination
+- **Per IP (aggregate)**: 150 requests per 15 minutes from the same IP across all User-Agents
+- **Authenticated Users**: 1000 requests per hour when OAuth is available (Phase 5; not yet enforced for all endpoints)
 
 ### Fair Use Policy
 

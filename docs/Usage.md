@@ -52,30 +52,18 @@ Today’s endpoints are under **`/notes-api/v1/...`**. Phase 5 (OAuth, webhooks,
 
 ### Rate Limiting
 
-- **Anonymous**: 50 requests per 15 minutes per IP + User-Agent combination
-- **Authenticated**: 1000 requests/hour (when OAuth is available in Phase 5)
-- **Detected bots**: 10 requests/hour (when anti-abuse middleware is implemented)
+- **Anonymous** (non-bot `User-Agent`): 50 requests per 15 minutes per IP + User-Agent combination
+- **Detected bots** (curl, wget, python-requests, etc.): 10 requests per hour per IP + User-Agent combination
+- **Per IP (aggregate)**: 150 requests per 15 minutes from the same IP across all User-Agents
+- **Authenticated**: 1000 requests/hour — planned for Phase 5; **not enforced by the server yet**
 
-**Rate limiting is enforced per IP address and User-Agent combination**, meaning:
-- Different applications (different User-Agent) from the same IP have separate limits
-- Same application from different IPs have separate limits
+**Per-client limits** use IP + User-Agent. **All clients behind the same IP** also share the aggregate cap above.
+
 - Health check endpoint (`/health`) is excluded from rate limiting
 
-**Response headers** include rate limiting information (standard headers):
-```
-RateLimit-Limit: 50
-RateLimit-Remaining: 49
-RateLimit-Reset: 1234567890
-```
+**Response headers** reflect the active **per-client** tier (`RateLimit-*`: limit 50 for anonymous, or 10 for bot). The per-IP cap does not expose a separate header; if it triggers, the JSON body explains it.
 
-**When rate limit is exceeded**, you'll receive a `429 Too Many Requests` response:
-```json
-{
-  "error": "Too Many Requests",
-  "message": "Rate limit exceeded. Maximum 50 requests per 15 minutes allowed.",
-  "statusCode": 429
-}
-```
+**When rate limit is exceeded**, you'll receive a `429 Too Many Requests` response (message text depends on which limit was hit).
 
 **Best practices**:
 - Implement exponential backoff when receiving 429 responses
@@ -104,10 +92,7 @@ If you're using an AI agent, you must authenticate with OSM OAuth. Without authe
 ```
 
 **Bot Detection**:
-Known bots are automatically detected and subject to restrictive rate limiting (10 requests/hour). To avoid this:
-- Use a proper User-Agent header with contact information
-- Format: `<AppName>/<Version> (<Contact>)`
-- Example: `MyBot/1.0 (bot@example.com)` instead of `curl/7.68.0`
+Known bots are automatically detected and subject to restrictive rate limiting (10 requests/hour). Detection is based on the `User-Agent` string (e.g. names starting with `curl/`, `python-requests`, etc.). A syntactically valid header like `curl/8.0 (you@example.com)` **still** counts as a bot. For the standard anonymous tier, use an **application-specific** name, for example `MyBot/1.0 (bot@example.com)`.
 
 ## Available Endpoints
 

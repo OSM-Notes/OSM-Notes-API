@@ -92,7 +92,7 @@ This document identifies potential threats to OSM Notes API and the mitigations 
 - Potential data exfiltration
 
 **Mitigations**:
-- ✅ Rate limiting (50 req/15min)
+- ✅ Rate limiting (50 req/15min per IP+UA anonymous, 10/hour bot tier, 150/15min per IP aggregate)
 - ✅ User-Agent validation
 - ✅ IP-based tracking
 - ✅ Monitoring and alerting

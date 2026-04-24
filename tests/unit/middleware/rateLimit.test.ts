@@ -8,6 +8,8 @@ import {
   createRedisStoreAdapter,
   createStore,
   generateKey,
+  generateClientKey,
+  generateIpKey,
 } from '../../../src/middleware/rateLimit';
 import { getRedisClient } from '../../../src/config/redis';
 
@@ -396,7 +398,7 @@ describe('rateLimitMiddleware', () => {
         get: jest.fn().mockReturnValue('MyApp/2.0 (contact@example.com)'),
       } as Partial<Request>;
       const key = generateKey(testRequest as Request);
-      expect(key).toBe('rate_limit:192.168.1.100:MyApp/2.0 (contact@example.com)');
+      expect(key).toBe('rate_limit:anon:192.168.1.100:MyApp/2.0 (contact@example.com)');
     });
 
     it('should handle missing IP address', () => {
@@ -406,7 +408,7 @@ describe('rateLimitMiddleware', () => {
         get: jest.fn().mockReturnValue('TestApp/1.0 (test@example.com)'),
       } as Partial<Request>;
       const key = generateKey(testRequest as Request);
-      expect(key).toBe('rate_limit:10.0.0.1:TestApp/1.0 (test@example.com)');
+      expect(key).toBe('rate_limit:anon:10.0.0.1:TestApp/1.0 (test@example.com)');
     });
 
     it('should handle missing User-Agent', () => {
@@ -415,7 +417,7 @@ describe('rateLimitMiddleware', () => {
         get: jest.fn().mockReturnValue(null),
       } as Partial<Request>;
       const key = generateKey(testRequest as Request);
-      expect(key).toBe('rate_limit:127.0.0.1:unknown');
+      expect(key).toBe('rate_limit:anon:127.0.0.1:unknown');
     });
 
     it('should use userAgentInfo when available', () => {
@@ -428,7 +430,7 @@ describe('rateLimitMiddleware', () => {
         },
       } as Partial<Request & { userAgentInfo?: { appName: string; version: string } }>;
       const key = generateKey(testRequest as Request);
-      expect(key).toBe('rate_limit:127.0.0.1:MyApp/2.0');
+      expect(key).toBe('rate_limit:anon:127.0.0.1:MyApp/2.0');
     });
 
     it('should handle request without IP or socket.remoteAddress', () => {
@@ -438,7 +440,25 @@ describe('rateLimitMiddleware', () => {
         get: jest.fn().mockReturnValue('TestApp/1.0 (test@example.com)'),
       } as Partial<Request>;
       const key = generateKey(testRequest as Request);
-      expect(key).toBe('rate_limit:unknown:TestApp/1.0 (test@example.com)');
+      expect(key).toBe('rate_limit:anon:unknown:TestApp/1.0 (test@example.com)');
+    });
+
+    it('should generate bot bucket key with prefix', () => {
+      const testRequest = {
+        ip: '192.168.1.1',
+        get: jest.fn().mockReturnValue('curl/8.0 (c@example.com)'),
+      } as Partial<Request>;
+      expect(generateClientKey(testRequest as Request, 'bot')).toBe(
+        'rate_limit:bot:192.168.1.1:curl/8.0 (c@example.com)'
+      );
+    });
+
+    it('should generate per-IP aggregate key', () => {
+      const testRequest = {
+        ip: '10.0.0.5',
+        get: jest.fn().mockReturnValue('App/1.0 (a@b.com)'),
+      } as Partial<Request>;
+      expect(generateIpKey(testRequest as Request)).toBe('rate_limit:ip:10.0.0.5');
     });
   });
 });

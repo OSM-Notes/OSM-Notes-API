@@ -17,10 +17,11 @@ At the same time, we want to allow legitimate use cases.
 
 We will implement **restrictive rate limiting**:
 
-- **Anonymous users**: 50 requests/15 minutes
-- **Detected bots**: 10 requests/hour (very restrictive)
-- **Authenticated users** (Phase 5): 1000 requests/hour
-- **Rate limiting by**: IP address + User-Agent combination
+- **Anonymous users**: 50 requests/15 minutes per IP + User-Agent
+- **Detected bots**: 10 requests/hour per IP + User-Agent (very restrictive)
+- **Per IP (aggregate)**: 150 requests/15 minutes across all User-Agents from the same IP (mitigates `User-Agent` rotation)
+- **Authenticated users** (Phase 5): 1000 requests/hour (planned; not enforced until OAuth is wired)
+- **Primary key for per-client limits**: IP address + User-Agent combination (or parsed app name/version)
 
 ## Consequences
 
