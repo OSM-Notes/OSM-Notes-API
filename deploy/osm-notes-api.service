@@ -19,7 +19,7 @@ User=notes
 Group=maptimebogota
 WorkingDirectory=/home/notes/OSM-Notes-API
 Environment=NODE_ENV=production
-Environment=PORT=3010
+Environment=PORT=3000
 EnvironmentFile=/home/notes/OSM-Notes-API/.env
 ExecStart=/usr/bin/node dist/index.js
 Restart=on-failure

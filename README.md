@@ -83,8 +83,8 @@ npm run build
 # Start application
 npm start
 
-# Or use a different port (e.g. when 3000 is in use)
-PORT=3010 npm start
+# Or set another port in .env, e.g. when 3000 is already in use:
+# PORT=3001
 ```
 
 See [Installation and Dependencies](docs/Installation_Dependencies.md) for database user permissions (grant access to `dwh` schema) and [Database User Setup](docs/Database_User_Setup.md) for creating the read-only user.

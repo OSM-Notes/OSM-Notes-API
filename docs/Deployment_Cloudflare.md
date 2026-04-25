@@ -42,7 +42,7 @@ Save. After propagation, `notes-api.osm.lat` will resolve through Cloudflare to 
 
 ### 3. Origin Server (your API host)
 
-- Open the port where the API listens (e.g. **3010** or **3000**) in the firewall, so Cloudflare can reach it.
+- Open the port where the API listens (default **3000**, or the value of `PORT` in `.env`) in the firewall, so Cloudflare can reach it.
 - If using **Full (strict)**:
   - Install a TLS certificate on the server (e.g. Certbot for Let’s Encrypt), or
   - Use **Cloudflare Origin CA** (in SSL/TLS → Origin Server): create a cert and install it on the server so Cloudflare can connect with HTTPS.
@@ -78,7 +78,7 @@ If other hostnames in Cloudflare already use a **CNAME** to your tunnel (e.g. `1
    ```yaml
    ingress:
      - hostname: notes-api.osm.lat
-       service: http://127.0.0.1:3010   # port where the API listens (adjust if different)
+       service: http://127.0.0.1:3000   # port where the API listens (adjust if different)
      # ... your other hostnames ...
      - service: http_status:404
    ```
@@ -86,7 +86,7 @@ If other hostnames in Cloudflare already use a **CNAME** to your tunnel (e.g. `1
 3. **Restart cloudflared**  
    `sudo systemctl restart cloudflared` (or restart the tunnel process).
 
-After DNS propagation, **notes-api.osm.lat** will go through the same tunnel to the service you defined (e.g. the API on port 3010).
+After DNS propagation, **notes-api.osm.lat** will go through the same tunnel to the service you defined (e.g. the API on port 3000).
 
 ---
 
@@ -129,11 +129,11 @@ credentials-file: /path/to/<TUNNEL_ID>.json   # from tunnel create
 
 ingress:
   - hostname: notes-api.osm.lat
-    service: http://127.0.0.1:3010   # or the host:port where the API listens
+    service: http://127.0.0.1:3000   # or the host:port where the API listens
   - service: http_status:404
 ```
 
-Replace `<TUNNEL_ID>` and the path to the credentials file. Use the same port your API uses (e.g. 3010 from the systemd service).
+Replace `<TUNNEL_ID>` and the path to the credentials file. Use the same port your API uses (e.g. 3000 from the systemd service).
 
 ### 4. Create DNS (CNAME) for the tunnel
 
@@ -153,7 +153,7 @@ sudo systemctl enable cloudflared
 
 (If you used a config path other than the default, pass it with `--config /path/to/config.yml` in the service install step; see Cloudflare docs.)
 
-After this, traffic to **notes-api.osm.lat** goes: Internet → Cloudflare → tunnel → your API on `http://127.0.0.1:3010`.
+After this, traffic to **notes-api.osm.lat** goes: Internet → Cloudflare → tunnel → your API on `http://127.0.0.1:3000`.
 
 ### 6. SSL/TLS in Cloudflare
 
@@ -170,7 +170,7 @@ After this, traffic to **notes-api.osm.lat** goes: Internet → Cloudflare → t
 | DNS record | A (or AAAA) for `notes-api` → server IP | CNAME `notes-api` → tunnel (via `cloudflared tunnel route dns`) |
 | Proxy (orange cloud) | On for the A record | N/A (tunnel is always proxied) |
 | SSL/TLS mode | Full or Full (strict) | Full |
-| Open port on server | Yes (e.g. 3010) | No |
+| Open port on server | Yes (e.g. 3000) | No |
 | Trust proxy in app | Already set | Already set |
 
 ---

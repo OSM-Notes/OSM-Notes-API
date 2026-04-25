@@ -439,11 +439,11 @@ export NODE_ENV=production
 npm start
 
 # Or use a different port (e.g. when 3000 is in use)
-PORT=3010 npm start
+PORT=3000 npm start
 
 # Or use PM2 for process management
 npm install -g pm2
-pm2 start dist/index.js --name osm-notes-api -- --port 3010
+pm2 start dist/index.js --name osm-notes-api -- --port 3000
 pm2 save
 pm2 startup
 ```

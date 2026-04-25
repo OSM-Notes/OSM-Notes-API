@@ -304,17 +304,17 @@ Optionally stop the Redis container: `docker compose -f docker/docker-compose.ho
 #### Verify Deployment
 
 ```bash
-# Health check (port from .env PORT, default 3010; /health does not require User-Agent)
-curl -s http://localhost:3010/health
+# Health check (port from .env PORT, default 3000; /health does not require User-Agent)
+curl -s http://localhost:3000/health
 
 # With User-Agent (required for other API routes)
-curl -H "User-Agent: Monitor/1.0 (ops@example.com)" http://localhost:3010/health
+curl -H "User-Agent: Monitor/1.0 (ops@example.com)" http://localhost:3000/health
 
 # Version headers
-curl -sI http://localhost:3010/health | grep -i x-api
+curl -sI http://localhost:3000/health | grep -i x-api
 
 # Metrics (for monitoring verification)
-curl -s http://localhost:3010/metrics | head -5
+curl -s http://localhost:3000/metrics | head -5
 ```
 
 #### Update Deployment
@@ -325,13 +325,13 @@ git pull origin main
 
 docker compose -f docker/docker-compose.host-db.yml --env-file .env up -d --build
 
-curl -H "User-Agent: Monitor/1.0 (ops@example.com)" http://localhost:3010/health
+curl -H "User-Agent: Monitor/1.0 (ops@example.com)" http://localhost:3000/health
 ```
 
 To remove leftover postgres/redis containers from a previous full-stack run:  
 `docker compose -f docker/docker-compose.host-db.yml down --remove-orphans`
 
-Requires Docker 20.10+ (for `host-gateway`). Port mapping: `${PORT:-3010}:3000`.
+Requires Docker 20.10+ (for `host-gateway`). Port mapping: `${PORT:-3000}:3000`.
 
 ### Alternative: Docker Compose full stack (API + Postgres + Redis in containers)
 
@@ -362,19 +362,20 @@ docker run -d \
 docker logs -f osm-notes-api
 ```
 
-### Method 3: Systemd (recommended for single-instance, e.g. port 3010)
+### Method 3: Systemd (recommended for single-instance, e.g. port 3000)
 
 A unit file is provided so the API runs as a system service and survives reboots:
 
 ```bash
-# Build first (--ignore-scripts avoids prepare/husky failing when dev deps are omitted)
+# Build: need devDependencies (TypeScript) for tsc; then prune (see deploy/README.md)
 cd /home/notes/OSM-Notes-API   # or your install path
-npm ci --omit=dev --ignore-scripts
+npm ci --ignore-scripts
 npm run build
+npm prune --omit=dev
 
 # Install unit file
 sudo cp deploy/osm-notes-api.service /etc/systemd/system/
-# Edit if User, WorkingDirectory, or PORT differ (default: User=notes, PORT=3010)
+# Edit if User, WorkingDirectory, or PORT differ (default: User=notes, PORT=3000)
 sudo nano /etc/systemd/system/osm-notes-api.service
 
 # Enable and start
@@ -387,8 +388,8 @@ sudo systemctl status osm-notes-api
 Verify:
 
 ```bash
-curl -s -H "User-Agent: Test/1.0 (a@b.com)" http://127.0.0.1:3010/health
-curl -s -H "User-Agent: Test/1.0 (a@b.com)" "http://127.0.0.1:3010/notes-api/v1/notes?limit=2"
+curl -s -H "User-Agent: Test/1.0 (a@b.com)" http://127.0.0.1:3000/health
+curl -s -H "User-Agent: Test/1.0 (a@b.com)" "http://127.0.0.1:3000/notes-api/v1/notes?limit=2"
 ```
 
 See [deploy/README.md](../deploy/README.md) for details and log commands (`journalctl -u osm-notes-api -f`).
@@ -399,12 +400,13 @@ See [deploy/README.md](../deploy/README.md) for details and log commands (`journ
 # Install PM2 globally
 sudo npm install -g pm2
 
-# Build application (--ignore-scripts avoids prepare/husky when using --omit=dev)
-npm ci --omit=dev --ignore-scripts
+# Build application (see deploy/README.md — do not use --omit=dev before build)
+npm ci --ignore-scripts
 npm run build
+npm prune --omit=dev
 
 # Start with PM2 (set PORT in .env or here)
-PORT=3010 pm2 start dist/index.js --name osm-notes-api --env production
+PORT=3000 pm2 start dist/index.js --name osm-notes-api --env production
 
 # Save PM2 configuration
 pm2 save
@@ -504,11 +506,11 @@ GRAFANA_PORT=3002 docker compose -f docker/docker-compose.yml --profile monitori
 # Acceso: http://192.168.0.7:3002
 ```
 
-**When the API runs with host-db** (port 3010 on the host), Prometheus must scrape the host. The repo’s `docker/prometheus/prometheus.yml` already has target `host.docker.internal:3010` and the compose adds `extra_hosts` for Prometheus. See [docs/Monitoring.md](Monitoring.md) for details.
+**When the API runs with host-db** (port 3000 on the host), Prometheus must scrape the host. The repo’s `docker/prometheus/prometheus.yml` already has target `host.docker.internal:3000` and the compose adds `extra_hosts` for Prometheus. See [docs/Monitoring.md](Monitoring.md) for details.
 
 ### Cómo monitorear la API con Prometheus (pasos)
 
-Supón que la API ya corre con host-db en el puerto **3010**. Para monitorearla con Prometheus (y opcionalmente Grafana):
+Supón que la API ya corre con host-db en el puerto **3000**. Para monitorearla con Prometheus (y opcionalmente Grafana):
 
 1. **Levantar solo Prometheus y Grafana** (desde el mismo repo, sin tocar la API en host-db):
    ```bash
@@ -520,7 +522,7 @@ Supón que la API ya corre con host-db en el puerto **3010**. Para monitorearla 
 2. **Comprobar que Prometheus scrapea la API**
    - Abre **http://192.168.0.7:9090** (o tu servidor).
    - **Status** → **Targets**.
-   - El job **osm-notes-api** debe estar **UP** (target `host.docker.internal:3010`). Si está DOWN, revisa que la API responda: `curl -s http://localhost:3010/metrics | head -5`.
+   - El job **osm-notes-api** debe estar **UP** (target `host.docker.internal:3000`). Si está DOWN, revisa que la API responda: `curl -s http://localhost:3000/metrics | head -5`.
 
 3. **Ver métricas en Prometheus**
    - **Graph** → en la query escribe `http_requests_total` o `up{job="osm-notes-api"}` → **Execute**. Debe haber series.
@@ -538,7 +540,7 @@ Supón que la API ya corre con host-db en el puerto **3010**. Para monitorearla 
 1. **Prometheus – target de la API en UP**
    - Abre `http://<servidor>:9090` → **Status** → **Targets**.
    - Debe aparecer el job `osm-notes-api` (o el que scrapee `/metrics`) con estado **UP**.
-   - Si está **DOWN**, comprueba que el target sea la URL correcta de la API (con host-db suele ser `host.docker.internal:3010` o `<ip-del-host>:3010`).
+   - Si está **DOWN**, comprueba que el target sea la URL correcta de la API (con host-db suele ser `host.docker.internal:3000` o `<ip-del-host>:3000`).
 
 2. **Prometheus – que haya métricas**
    - En Prometheus: **Graph** → consulta `http_requests_total` (o `up{job="osm-notes-api"}`) → **Execute**. Debe devolver series si la API está siendo scrapeada.
@@ -595,8 +597,8 @@ pm2 logs osm-notes-api --lines 100 | grep -i error
 The API exposes Prometheus metrics at `/metrics`. Verifying it responds confirms the monitoring pipeline can scrape the API (no User-Agent required):
 
 ```bash
-# Replace 3010 with your PORT if different (host-db compose)
-curl -s http://localhost:3010/metrics | head -30
+# Replace 3000 with your PORT if different (host-db compose)
+curl -s http://localhost:3000/metrics | head -30
 # Expect: Prometheus-style lines (e.g. # HELP, # TYPE, http_requests_total)
 ```
 
