@@ -191,13 +191,17 @@ describe('Hashtags API Integration Tests', () => {
       }
     });
 
-    it('should return 400 for empty hashtag', async () => {
+    it('should return hashtag list for trailing slash (not an empty :hashtag segment)', async () => {
       const response = await request(app)
         .get('/notes-api/v1/hashtags/')
         .set('User-Agent', VALID_USER_AGENT);
 
-      // Express may return 404 (route not found), 400 (bad request), or 500 (if dwh schema doesn't exist)
-      expect([400, 404, 500]).toContain(response.status);
+      // /hashtags/ matches the collection route GET / on this router, same as /hashtags (list), not /:hashtag
+      expect([200, 500]).toContain(response.status);
+      if (response.status === 200) {
+        expect(response.body).toHaveProperty('data');
+        expect(response.body).toHaveProperty('pagination');
+      }
     });
 
     it('should return user summaries with correct structure', async () => {
