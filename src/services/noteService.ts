@@ -233,14 +233,14 @@ function buildSearchConditions(
       EXISTS (
         SELECT 1 FROM dwh.datamartUsers du
         WHERE du.user_id = (SELECT nc1.id_user FROM public.note_comments nc1 WHERE nc1.note_id = n.note_id ORDER BY nc1.sequence_action ASC NULLS LAST LIMIT 1)
-        AND du.hashtags IS NOT NULL AND jsonb_typeof(du.hashtags) = 'array'
-        AND $${paramIndex} = ANY(SELECT jsonb_array_elements_text(du.hashtags))
+        AND du.hashtags IS NOT NULL AND jsonb_typeof(du.hashtags::jsonb) = 'array'
+        AND $${paramIndex} = ANY(SELECT jsonb_array_elements_text(du.hashtags::jsonb))
       )
       OR EXISTS (
         SELECT 1 FROM dwh.datamartCountries dc
         WHERE dc.country_id = n.id_country
-        AND dc.hashtags IS NOT NULL AND jsonb_typeof(dc.hashtags) = 'array'
-        AND $${paramIndex} = ANY(SELECT jsonb_array_elements_text(dc.hashtags))
+        AND dc.hashtags IS NOT NULL AND jsonb_typeof(dc.hashtags::jsonb) = 'array'
+        AND $${paramIndex} = ANY(SELECT jsonb_array_elements_text(dc.hashtags::jsonb))
       )
     )`);
     params.push(cleanHashtag);
@@ -251,8 +251,8 @@ function buildSearchConditions(
     conditions.push(`EXISTS (
       SELECT 1 FROM dwh.datamartUsers du
       WHERE du.user_id = (SELECT nc1.id_user FROM public.note_comments nc1 WHERE nc1.note_id = n.note_id ORDER BY nc1.sequence_action ASC NULLS LAST LIMIT 1)
-      AND du.applications_used IS NOT NULL AND jsonb_typeof(du.applications_used) = 'array'
-      AND $${paramIndex} = ANY(SELECT jsonb_array_elements_text(du.applications_used))
+      AND du.applications_used IS NOT NULL AND jsonb_typeof(du.applications_used::jsonb) = 'array'
+      AND $${paramIndex} = ANY(SELECT jsonb_array_elements_text(du.applications_used::jsonb))
     )`);
     params.push(application);
     paramIndex++;

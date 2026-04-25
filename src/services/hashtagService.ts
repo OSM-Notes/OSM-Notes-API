@@ -60,20 +60,20 @@ export async function getHashtags(params: HashtagListParams = {}): Promise<Hasht
     const order = params.order || 'desc'; // Default to desc (most common first)
 
     // Query to extract and aggregate hashtags from both users and countries
-    // Using jsonb_array_elements_text to extract hashtags from JSONB arrays
+    // Cast to jsonb: DWH may store `json` or `jsonb`; jsonb_* functions need jsonb
     const query = `
       WITH all_hashtags AS (
         -- Extract hashtags from users
-        SELECT jsonb_array_elements_text(hashtags) as hashtag
+        SELECT jsonb_array_elements_text(hashtags::jsonb) as hashtag
         FROM dwh.datamartUsers
-        WHERE hashtags IS NOT NULL AND jsonb_typeof(hashtags) = 'array'
+        WHERE hashtags IS NOT NULL AND jsonb_typeof(hashtags::jsonb) = 'array'
         
         UNION ALL
         
         -- Extract hashtags from countries
-        SELECT jsonb_array_elements_text(hashtags) as hashtag
+        SELECT jsonb_array_elements_text(hashtags::jsonb) as hashtag
         FROM dwh.datamartCountries
-        WHERE hashtags IS NOT NULL AND jsonb_typeof(hashtags) = 'array'
+        WHERE hashtags IS NOT NULL AND jsonb_typeof(hashtags::jsonb) = 'array'
       ),
       hashtag_counts AS (
         SELECT 
@@ -94,15 +94,15 @@ export async function getHashtags(params: HashtagListParams = {}): Promise<Hasht
     // Count query for pagination
     const countQuery = `
       WITH all_hashtags AS (
-        SELECT jsonb_array_elements_text(hashtags) as hashtag
+        SELECT jsonb_array_elements_text(hashtags::jsonb) as hashtag
         FROM dwh.datamartUsers
-        WHERE hashtags IS NOT NULL AND jsonb_typeof(hashtags) = 'array'
+        WHERE hashtags IS NOT NULL AND jsonb_typeof(hashtags::jsonb) = 'array'
         
         UNION ALL
         
-        SELECT jsonb_array_elements_text(hashtags) as hashtag
+        SELECT jsonb_array_elements_text(hashtags::jsonb) as hashtag
         FROM dwh.datamartCountries
-        WHERE hashtags IS NOT NULL AND jsonb_typeof(hashtags) = 'array'
+        WHERE hashtags IS NOT NULL AND jsonb_typeof(hashtags::jsonb) = 'array'
       )
       SELECT COUNT(DISTINCT hashtag) as count
       FROM all_hashtags
@@ -172,8 +172,8 @@ export async function getHashtagDetails(hashtag: string): Promise<HashtagDetails
         history_whole_closed
       FROM dwh.datamartUsers
       WHERE hashtags IS NOT NULL 
-        AND jsonb_typeof(hashtags) = 'array'
-        AND $1 = ANY(SELECT jsonb_array_elements_text(hashtags))
+        AND jsonb_typeof(hashtags::jsonb) = 'array'
+        AND $1 = ANY(SELECT jsonb_array_elements_text(hashtags::jsonb))
       ORDER BY history_whole_open DESC
       LIMIT 50
     `;
@@ -187,8 +187,8 @@ export async function getHashtagDetails(hashtag: string): Promise<HashtagDetails
         history_whole_closed
       FROM dwh.datamartCountries
       WHERE hashtags IS NOT NULL 
-        AND jsonb_typeof(hashtags) = 'array'
-        AND $1 = ANY(SELECT jsonb_array_elements_text(hashtags))
+        AND jsonb_typeof(hashtags::jsonb) = 'array'
+        AND $1 = ANY(SELECT jsonb_array_elements_text(hashtags::jsonb))
       ORDER BY history_whole_open DESC
       LIMIT 50
     `;
@@ -198,16 +198,16 @@ export async function getHashtagDetails(hashtag: string): Promise<HashtagDetails
       SELECT COUNT(*) as count
       FROM dwh.datamartUsers
       WHERE hashtags IS NOT NULL 
-        AND jsonb_typeof(hashtags) = 'array'
-        AND $1 = ANY(SELECT jsonb_array_elements_text(hashtags))
+        AND jsonb_typeof(hashtags::jsonb) = 'array'
+        AND $1 = ANY(SELECT jsonb_array_elements_text(hashtags::jsonb))
     `;
 
     const countriesCountQuery = `
       SELECT COUNT(*) as count
       FROM dwh.datamartCountries
       WHERE hashtags IS NOT NULL 
-        AND jsonb_typeof(hashtags) = 'array'
-        AND $1 = ANY(SELECT jsonb_array_elements_text(hashtags))
+        AND jsonb_typeof(hashtags::jsonb) = 'array'
+        AND $1 = ANY(SELECT jsonb_array_elements_text(hashtags::jsonb))
     `;
 
     logger.debug('Executing get hashtag details query', { hashtag });
