@@ -83,7 +83,10 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
     });
 
     // Log slow requests (warnings for requests > 1 second)
-    if (responseTime && responseTime > 1000) {
+    // OSM 0.6 compatibility routes are allowed to be heavy; SLO focus is on /notes-api/...
+    const pathForPolicy = (req.originalUrl || '').split('?')[0];
+    const isOsm06Compat = pathForPolicy.startsWith('/api/0.6/');
+    if (responseTime && responseTime > 1000 && !isOsm06Compat) {
       logger.warn('Slow request detected', {
         requestId,
         method: req.method,

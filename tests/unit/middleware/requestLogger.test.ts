@@ -251,6 +251,34 @@ describe('requestLogger middleware', () => {
         })
       );
     });
+
+    it('should not log slow request warning for OSM 0.6 compatibility paths', () => {
+      const osmRequest = {
+        ...mockRequest,
+        path: '/search',
+        originalUrl: '/api/0.6/notes/search?q=test',
+        query: { q: 'test' },
+      } as Request;
+
+      const finishCallback = jest.fn();
+      (mockResponse.on as jest.Mock).mockImplementation((event: string, callback: () => void) => {
+        if (event === 'finish') {
+          finishCallback.mockImplementation(() => {
+            (osmRequest as Request & { startTime?: number }).startTime = Date.now() - 1500;
+            callback();
+          });
+        }
+        return mockResponse;
+      });
+
+      requestLogger(osmRequest, mockResponse as Response, mockNext);
+      finishCallback();
+
+      const slowWarnings = (logger.warn as jest.Mock).mock.calls.filter(
+        (c: unknown[]) => c[0] === 'Slow request detected'
+      );
+      expect(slowWarnings).toHaveLength(0);
+    });
   });
 
   describe('getRequestId', () => {
