@@ -29,7 +29,7 @@ export const searchFiltersSchema = Joi.object({
     .optional(),
   // Advanced search parameters
   text: Joi.string().min(1).max(500).optional(),
-  operator: Joi.string().valid('AND', 'OR').default('AND').optional(),
+  operator: Joi.string().valid('AND', 'OR').optional(),
   page: Joi.number().integer().min(1).default(1).optional(),
   limit: Joi.number().integer().min(1).max(100).default(20).optional(),
   // Cursor pagination (keyset mode): if present, page is ignored

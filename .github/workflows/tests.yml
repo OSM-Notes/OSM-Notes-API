@@ -125,8 +125,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run all tests (master test command)
-        run: npm test
+      # Unit tests only: integration needs PostgreSQL/Redis (see integration-tests job)
+      - name: Run unit tests
+        run: npm run test:unit
 
       - name: Generate coverage report
         run: npm run test:coverage

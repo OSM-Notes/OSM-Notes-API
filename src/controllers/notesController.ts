@@ -274,8 +274,10 @@ export async function searchNotes(req: Request, res: Response, next: NextFunctio
       return undefined;
     };
 
-    // Check if advanced search is requested (text or operator parameter)
-    const useAdvancedSearch = req.query.text || req.query.operator;
+    // Advanced search only when `text` is present. Do not use `req.query.operator` here:
+    // Joi may apply default "AND" to operator, which would route every request to advanced search
+    // and skip standard search (e.g. cursor `after` validation).
+    const useAdvancedSearch = Boolean(getQueryString(req.query.text));
 
     if (useAdvancedSearch) {
       // Use advanced search service
