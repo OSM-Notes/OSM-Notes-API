@@ -4,6 +4,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
 import * as notesController from '../controllers/notesController';
+import { cacheMiddleware } from '../middleware/cache';
 
 const router = Router();
 
@@ -17,6 +18,17 @@ function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => P
 }
 
 /**
+ * Async wrapper for cache middleware
+ */
+function cacheHandler(
+  middleware: (req: Request, res: Response, next: NextFunction) => Promise<void>
+) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    void Promise.resolve(middleware(req, res, next)).catch(next);
+  };
+}
+
+/**
  * @route   GET /notes-api/v1/notes
  * @desc    Search notes with filters
  * @access  Public
@@ -24,17 +36,26 @@ function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => P
 router.get('/', asyncHandler(notesController.searchNotes));
 
 /**
- * @route   GET /notes-api/v1/notes/:note_id
- * @desc    Get a note by ID
- * @access  Public
- */
-router.get('/:note_id', asyncHandler(notesController.getNoteById));
-
-/**
  * @route   GET /notes-api/v1/notes/:note_id/comments
  * @desc    Get comments for a note
  * @access  Public
  */
 router.get('/:note_id/comments', asyncHandler(notesController.getNoteComments));
+
+/**
+ * Stored DWH classification (read-only). Short TTL — classification changes with batch jobs, not per-request.
+ */
+router.get(
+  '/:note_id/classification',
+  cacheHandler(cacheMiddleware({ ttl: 120 })),
+  asyncHandler(notesController.getNoteClassification)
+);
+
+/**
+ * @route   GET /notes-api/v1/notes/:note_id
+ * @desc    Get a note by ID
+ * @access  Public
+ */
+router.get('/:note_id', asyncHandler(notesController.getNoteById));
 
 export default router;

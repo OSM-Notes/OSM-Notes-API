@@ -33,6 +33,9 @@ const envSchema = Joi.object({
   REDIS_PASSWORD: Joi.string().allow('').default(''),
   REDIS_DB: Joi.number().integer().min(0).max(15).default(0),
 
+  // Optional: DWH ML note classification (read-only from dwh.note_type_classifications; OSM-Notes-Analytics)
+  ML_NOTE_CLASSIFICATION_ENABLED: Joi.string().valid('true', 'false').default('false'),
+
   // Logging
   LOG_LEVEL: Joi.string()
     .valid('error', 'warn', 'info', 'debug', 'verbose', 'silly')
@@ -67,6 +70,9 @@ export interface ValidatedEnv {
   DB_MAX_CONNECTIONS: number;
   DB_IDLE_TIMEOUT: number;
   DB_CONNECTION_TIMEOUT: number;
+
+  /** When true, exposes GET /notes/:id/classification (reads stored DWH classifications only). */
+  ML_NOTE_CLASSIFICATION_ENABLED: 'true' | 'false';
 
   // Redis
   REDIS_HOST: string;

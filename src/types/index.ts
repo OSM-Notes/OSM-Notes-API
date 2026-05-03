@@ -23,6 +23,32 @@ export interface Note {
 }
 
 /**
+ * Stored ML note classification from DWH `dwh.note_type_classifications`
+ * (populated by OSM-Notes-Analytics batch classify / ml_03 — not live pgml inference in the API).
+ */
+export interface NoteMlClassification {
+  note_id: number;
+  main_category: string;
+  category_confidence: number;
+  category_method: string;
+  specific_type: string;
+  type_confidence: number;
+  /** Per-class probabilities when present in DWH (JSONB). */
+  type_probabilities: Record<string, unknown> | null;
+  type_method: string;
+  recommended_action: string;
+  action_confidence: number;
+  action_method: string;
+  priority_score: number;
+  classification_version: string | null;
+  classification_timestamp: Date;
+  updated_at: Date;
+  classification_factors: Record<string, unknown> | null;
+  similar_notes: number[] | null;
+  estimated_resolution_time: number | null;
+}
+
+/**
  * Note comment from database
  */
 export interface NoteComment {

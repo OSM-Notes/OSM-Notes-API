@@ -5,6 +5,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import * as noteService from '../services/noteService';
+import * as noteClassificationService from '../services/noteClassificationService';
 import * as advancedSearchService from '../services/advancedSearchService';
 import { logger } from '../utils/logger';
 import { ApiError } from '../middleware/errorHandler';
@@ -12,6 +13,7 @@ import { SearchFilters, AdvancedSearchFilters, Pagination } from '../types';
 import { validateSearchFilters } from '../middleware/validation';
 import { setPaginationHeaders, setCursorPaginationHeaders } from '../utils/pagination';
 import { OSM_ATTRIBUTION } from '../constants/attribution';
+import { isMlNoteClassificationEnabled } from '../config/features';
 
 /**
  * @swagger
@@ -140,6 +142,90 @@ export async function getNoteComments(
     res.json({
       data: comments,
       count: comments.length,
+      attribution: OSM_ATTRIBUTION,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * @swagger
+ * /notes-api/v1/notes/{note_id}/classification:
+ *   get:
+ *     summary: Get stored DWH ML note classification (if enabled)
+ *     tags: [Notes]
+ *     description: |
+ *       Read-only: returns the latest row from `dwh.note_type_classifications` (OSM-Notes-Analytics
+ *       batch classify). Does not run `pgml.predict` in the API. Requires `ML_NOTE_CLASSIFICATION_ENABLED=true`.
+ *       If no stored classification exists, `data` is null.
+ *     security:
+ *       - UserAgent: []
+ *     parameters:
+ *       - in: path
+ *         name: note_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: OSM note ID
+ *     responses:
+ *       200:
+ *         description: Classification payload or null when not yet classified
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   oneOf:
+ *                     - $ref: '#/components/schemas/NoteMlClassification'
+ *                     - type: 'null'
+ *                 attribution:
+ *                   $ref: '#/components/schemas/OsmAttribution'
+ *       400:
+ *         description: Invalid note ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       501:
+ *         description: Feature disabled (ML_NOTE_CLASSIFICATION_ENABLED is not true)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+export async function getNoteClassification(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    if (!isMlNoteClassificationEnabled()) {
+      throw new ApiError(
+        501,
+        'ML note classification is disabled (set ML_NOTE_CLASSIFICATION_ENABLED=true)'
+      );
+    }
+
+    const noteId = parseInt(req.params.note_id, 10);
+
+    if (isNaN(noteId) || noteId <= 0) {
+      throw new ApiError(400, 'Invalid note ID');
+    }
+
+    logger.debug('Getting note classification', { noteId });
+
+    const data = await noteClassificationService.getStoredNoteClassification(noteId);
+
+    res.json({
+      data,
       attribution: OSM_ATTRIBUTION,
     });
   } catch (error) {

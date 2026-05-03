@@ -141,6 +141,83 @@ components:
           nullable: true
           example: This is a test note
 
+    NoteMlClassification:
+      type: object
+      description: >
+        Latest stored row from dwh.note_type_classifications (OSM-Notes-Analytics ML batch
+        classify). Read-only in the API; no live pgml.predict. Deploy Analytics DDL and grants
+        before enabling ML_NOTE_CLASSIFICATION_ENABLED.
+      required:
+        - note_id
+        - main_category
+        - category_confidence
+        - category_method
+        - specific_type
+        - type_confidence
+        - type_method
+        - recommended_action
+        - action_confidence
+        - action_method
+        - priority_score
+        - classification_timestamp
+        - updated_at
+      properties:
+        note_id:
+          type: integer
+          description: OSM note id (join key; matches dwh.facts.id_note)
+        main_category:
+          type: string
+        category_confidence:
+          type: number
+          format: float
+        category_method:
+          type: string
+          example: ml_based
+        specific_type:
+          type: string
+        type_confidence:
+          type: number
+          format: float
+        type_probabilities:
+          type: object
+          nullable: true
+          additionalProperties: true
+          description: Optional per-class probabilities (JSONB in DWH)
+        type_method:
+          type: string
+        recommended_action:
+          type: string
+        action_confidence:
+          type: number
+          format: float
+        action_method:
+          type: string
+        priority_score:
+          type: integer
+        classification_version:
+          type: string
+          nullable: true
+        classification_timestamp:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        classification_factors:
+          type: object
+          nullable: true
+          additionalProperties: true
+          description: Optional factors JSON from DWH
+        similar_notes:
+          type: array
+          nullable: true
+          items:
+            type: integer
+        estimated_resolution_time:
+          type: integer
+          nullable: true
+          description: Optional estimate in DWH units (see Analytics docs)
+
     UserProfile:
       type: object
       properties:
@@ -596,6 +673,58 @@ paths:
                     example: 2
         '400':
           description: Invalid note ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /notes-api/v1/notes/{note_id}/classification:
+    get:
+      summary: Get stored DWH note classification (optional feature)
+      tags: [Notes]
+      description: |
+        Read-only: latest row from `dwh.note_type_classifications` (populated by OSM-Notes-Analytics
+        `ml_batch_classify.sh` / `dwh.predict_note_classification_pgml`). The API does **not** call
+        `pgml.predict`. Requires environment `ML_NOTE_CLASSIFICATION_ENABLED=true`; otherwise returns 501.
+        If no row exists for the note, `data` is null. Deploy Analytics ML DDL and grant SELECT on
+        `dwh.note_type_classifications` to the same role used for datamarts before use.
+      security:
+        - UserAgent: []
+      parameters:
+        - in: path
+          name: note_id
+          required: true
+          schema:
+            type: integer
+          description: OSM note ID
+      responses:
+        '200':
+          description: Classification or null when not yet classified
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    oneOf:
+                      - $ref: '#/components/schemas/NoteMlClassification'
+                      - type: 'null'
+                  attribution:
+                    $ref: '#/components/schemas/OsmAttribution'
+        '400':
+          description: Invalid note ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '501':
+          description: Feature disabled (ML_NOTE_CLASSIFICATION_ENABLED is not true)
           content:
             application/json:
               schema:

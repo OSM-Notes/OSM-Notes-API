@@ -84,6 +84,7 @@ function getErrorName(statusCode: number): string {
     401: 'Unauthorized',
     403: 'Forbidden',
     404: 'Not Found',
+    501: 'Not Implemented',
     429: 'Too Many Requests',
     500: 'Internal Server Error',
     502: 'Bad Gateway',

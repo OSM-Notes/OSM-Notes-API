@@ -50,6 +50,7 @@ describe('Environment Variable Validation', () => {
       process.env.DB_PASSWORD = 'test_pass';
       process.env.NODE_ENV = 'development'; // Explicitly set for test
       process.env.REDIS_HOST = 'localhost'; // Explicitly set to test default value
+      delete process.env.ML_NOTE_CLASSIFICATION_ENABLED;
 
       const env = validateEnv();
       expect(env.PORT).toBe(3000);
@@ -60,6 +61,7 @@ describe('Environment Variable Validation', () => {
       expect(env.REDIS_PORT).toBe(6379);
       // LOG_LEVEL might be set by test environment, so just check it's valid
       expect(['error', 'warn', 'info', 'debug', 'verbose', 'silly']).toContain(env.LOG_LEVEL);
+      expect(env.ML_NOTE_CLASSIFICATION_ENABLED).toBe('false');
     });
   });
 
